@@ -1,0 +1,9 @@
+.dockerignore
+.git
+.gitignore
+.idea
+bin
+Dockerfile
+include
+pyvenv.cfg
+lib
