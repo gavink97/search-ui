@@ -19,7 +19,7 @@ def job():
 #running job on startup
 job()
 
-schedule.every(45).to(75).minutes.do(job)
+schedule.every(75).to(90).minutes.do(job)
 
 while True:
     schedule.run_pending()
