@@ -3,8 +3,8 @@ WORKDIR /web
 COPY package.json .
 RUN npm install
 
-ARG NODE_ENV
-RUN if [ "$NODE_ENV" = "development" ]; \
+ARG NEXT_ENV
+RUN if [ "$NEXT_ENV" = "development" ]; \
         then npm install; \
         else npm install --only=production; \
         fi

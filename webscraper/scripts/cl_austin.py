@@ -20,7 +20,7 @@ firefox_service = Service(firefox_driver_path, log_path=os.path.devnull)
 firefox_option = Options()
 firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
-driver.implicitly_wait(9)
+driver.implicitly_wait(10)
 
 url = 'https://austin.craigslist.org/'
 driver.get(url)
@@ -30,14 +30,14 @@ search_field = driver.find_element(By.XPATH, '/html/body/div[2]/section/div[2]/d
 search_field.clear()
 search_field.send_keys(search_query)
 search_field.send_keys(Keys.ENTER)
-time.sleep(11)  # If you start getting "ValueError:" "Expected axis has 0 elements" increase time.sleep
+time.sleep(13)  # If you start getting "ValueError:" "Expected axis has 0 elements" increase time.sleep
 
 posts_html = []
 to_stop = False
 current_page = 0
 total_items = 0
 
-scroll_pause_time = .7  # if current_gallery == prev_gallery before it reaches the end of the page increase this
+scroll_pause_time = .8  # if current_gallery == prev_gallery before it reaches the end of the page increase this
 scroll_offset = 1200
 actions = ActionChains(driver)
 

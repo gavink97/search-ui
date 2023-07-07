@@ -12,19 +12,21 @@ export function SearchResult({ resultList }: SearchResultProps) {
   const [searchText, setSearchText] = useState("");
 
     console.log(resultList);
-// implement searchfilter function by location / source
-    const searchFilter = (resultList: any) => {
-        return resultList.filter(
-            (result: any) => result.title.toLowerCase().includes(searchText.toLowerCase())
-        )
-    }
+
+const searchFilter = (resultList: any) => {
+    return resultList.filter((result: any) =>
+      result.title.toLowerCase().includes(searchText.toLowerCase()) ||
+      result.source.toLowerCase().includes(searchText.toLowerCase()) ||
+      result.location.toLowerCase().includes(searchText.toLowerCase())
+    );
+  };
 
     const filteredResults = searchFilter(resultList);
 
     return (
         <>
         <div>
-            <div className="grid w-full max-w-sm items-center gap-1.5">
+            <div className="grid w-full max-w-sm mb-6 mt-14 items-center gap-1.5">
                 <Label htmlFor="searchResultId"></Label>
                 <Input type="text" value={searchText}
                 autoComplete="off"

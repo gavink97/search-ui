@@ -12,6 +12,7 @@ interface ResultCardProps {
 }
 
 export function ResultCard({ name, price, location, post, image }: ResultCardProps) {
+  const imageSource = `${image}`;
     return (
         <Link
           href={post}
@@ -19,8 +20,8 @@ export function ResultCard({ name, price, location, post, image }: ResultCardPro
           target="_blank"
           rel="noopener noreferrer"
       >
-        <Image src={`/${image}`} alt='' width="200" height="200"></Image>
-        <h2 className={`text-base font-semibold`}>
+        <img src={`.${image}`} alt='record player' width="300" height="300"></img>
+        <h2 className={`text-base mt-2 font-semibold`}>
           {name}
         </h2>
         <h2 className={`text-base font-semibold`}>

@@ -4,15 +4,29 @@ import { createConnection } from 'mysql2/promise';
 export async function GET() {
   try {
     const connection = await createConnection({
-      host: process.env.MYSQL_HOST,
+      host: process.env.MYSQL_IP,
       port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT): 3306,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
     });
     
-    const [rows] = await connection.query('SELECT id, title, price, source, post_timestamp, location, post_url, image_path FROM cl_austin');
-    
+    const query = `
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      FROM cl_austin
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      FROM cl_houston
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      FROM cl_san_antonio
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      FROM cl_dallas
+    `;
+
+    const [rows] = await connection.query(query);
+
     await connection.end();
 
     return NextResponse.json({ results: rows }, { status: 200 });
