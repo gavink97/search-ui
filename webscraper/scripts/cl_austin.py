@@ -79,7 +79,7 @@ CraigslistPost = namedtuple('CraigslistPost',
                             ['title', 'price', 'post_timestamp', 'location', 'post_url', 'image_url', 'data_pid'])
 craigslist_posts = []
 image_paths = []
-default_image_path = "images/no_image.png"
+default_image_path = "/pyapp/images/no_image.png"
 source_name = 'cl_austin'
 for posts_html in posts_html:
     title = getattr(posts_html.find('a', 'posting-title'), 'text', None)
@@ -95,20 +95,20 @@ for posts_html in posts_html:
             if location.strip() == '':
                 location = 'Austin area'
     post_url = posts_html.find('a', 'posting-title').get('href') if posts_html.find('a', 'posting-title') else ''
-    if not os.path.exists(f"images/{source_name}"):
-        os.makedirs(f"images/{source_name}")
+    if not os.path.exists(f"/pyapp/images/{source_name}"):
+        os.makedirs(f"/pyapp/images/{source_name}")
     image_url = posts_html.find('img').get('src') if posts_html.find('img') else ''
     file_path = ""
     if image_url:
         response = requests.get(image_url)
         if response.status_code == 200:
             image_file_name = image_url.split("/")[-1]
-            file_path = os.path.join(f"images/{source_name}", image_file_name)
+            file_path = os.path.join(f"/pyapp/images/{source_name}", image_file_name)
             with open(file_path, "wb") as file:
                 file.write(response.content)
                 print(f"Image downloaded: {file_path}")
     else:
-        file_path = "images/no_image.png"
+        file_path = f'{default_image_path}'
     image_paths.append(file_path)
     if image_url.strip() == '':
         image_url = 'No image'
@@ -121,5 +121,5 @@ df.insert(0, 'time_added', current_time)
 df.insert(0, 'source', f"{source_name}")
 df['image_path'] = image_paths
 df.dropna(inplace=True)
-df.to_excel(f'sheets/{source_name}.xlsx', index=False)
+df.to_excel(f'/pyapp/sheets/{source_name}.xlsx', index=False)
 driver.close()

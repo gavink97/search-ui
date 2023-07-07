@@ -15,6 +15,10 @@ def job():
 
 #  This section is where we run the script to load the spreadsheets into MySQL
 
+    with open('/pyapp/scripts/to_mysql.py', 'r') as file:
+        to_mysql = file.read()
+        exec(to_mysql)
+        
 
 #running job on startup
 job()
