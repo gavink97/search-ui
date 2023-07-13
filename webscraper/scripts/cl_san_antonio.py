@@ -20,24 +20,28 @@ firefox_service = Service(firefox_driver_path, log_path=os.path.devnull)
 firefox_option = Options()
 firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
-driver.implicitly_wait(10)
+driver.implicitly_wait(9)
 
 url = 'https://sanantonio.craigslist.org/'
+search_query = 'record player'
+
+source_name = os.path.splitext(f'{file_name}')[0]
+city_name = re.sub(r'cl_', '', source_name).replace('_', ' ').title()
+print(f"Scrapping {city_name} Craigslist...")
 driver.get(url)
 
-search_query = 'record player'
 search_field = driver.find_element(By.XPATH, '/html/body/div[2]/section/div[2]/div[1]/div/input')
 search_field.clear()
 search_field.send_keys(search_query)
 search_field.send_keys(Keys.ENTER)
-time.sleep(13)  # If you start getting "ValueError:" "Expected axis has 0 elements" increase time.sleep
+time.sleep(11)  # If you start getting "ValueError:" "Expected axis has 0 elements" increase time.sleep
 
 posts_html = []
 to_stop = False
 current_page = 0
 total_items = 0
 
-scroll_pause_time = .8  # if current_gallery == prev_gallery before it reaches the end of the page increase this
+scroll_pause_time = .7  # if current_gallery == prev_gallery before it reaches the end of the page increase this
 scroll_offset = 1200
 actions = ActionChains(driver)
 
@@ -79,12 +83,13 @@ CraigslistPost = namedtuple('CraigslistPost',
                             ['title', 'price', 'post_timestamp', 'location', 'post_url', 'image_url', 'data_pid'])
 craigslist_posts = []
 image_paths = []
-default_image_path = "/pyapp/images/no_image.png"
-source_name = 'cl_san_antonio'
+default_image_path = f"{launcher_path}/images/no_image.png"
 for posts_html in posts_html:
     title = getattr(posts_html.find('a', 'posting-title'), 'text', None)
     price_element = posts_html.find('span', 'priceinfo')
     price = price_element.text.strip() if price_element is not None else 'Price not given'
+    post_url = posts_html.find('a', 'posting-title').get('href') if posts_html.find('a', 'posting-title') else ''
+
     meta_div = posts_html.find('div', class_='meta')
     if meta_div:
         meta_info = meta_div.get_text(strip=True)
@@ -93,27 +98,41 @@ for posts_html in posts_html:
             post_timestamp = meta_info.split(separator.text)[0]
             location = meta_info.split(separator.text)[1]
             if location.strip() == '':
-                location = 'San Antonio area'
-    post_url = posts_html.find('a', 'posting-title').get('href') if posts_html.find('a', 'posting-title') else ''
-    if not os.path.exists(f"/pyapp/images/{source_name}"):
-        os.makedirs(f"/pyapp/images/{source_name}")
+                location = f'{city_name} area'
+
+    create_dir = f"{launcher_path}/images/{source_name}"
+    if not os.path.exists(create_dir):
+        os.makedirs(create_dir)
     image_url = posts_html.find('img').get('src') if posts_html.find('img') else ''
-    file_path = ""
+    image_path = ""
     if image_url:
-        response = requests.get(image_url)
-        if response.status_code == 200:
-            image_file_name = image_url.split("/")[-1]
-            file_path = os.path.join(f"/pyapp/images/{source_name}", image_file_name)
-            with open(file_path, "wb") as file:
-                file.write(response.content)
-                print(f"Image downloaded: {file_path}")
+        image_file_name = image_url.split("/")[-1]
+        image_path = os.path.join(create_dir, image_file_name)
+        if not os.path.exists(image_path):
+            response = requests.get(image_url)
+            if response.status_code == 200:
+                with open(image_path, "wb") as file:
+                    file.write(response.content)
+                    print(f"Image downloaded: {image_path}")
+        else:
+            print(f"Image already exists: {image_path}")
     else:
-        file_path = f'{default_image_path}'
-    image_paths.append(file_path)
-    if image_url.strip() == '':
+        image_path = f'{default_image_path}'
+        print("No image found: using default image")
+    image_paths.append(image_path)
+
+    if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
         image_url = 'No image'
+
     data_pid = posts_html.get('data-pid')
     craigslist_posts.append(CraigslistPost(title, price, post_timestamp, location, post_url, image_url, data_pid))
+
+existing_images = os.listdir(create_dir)
+for image_file in existing_images:
+    extra_images = os.path.join(create_dir, image_file)
+    if extra_images not in image_paths:
+        os.remove(extra_images)
+        print(f"Deleted extra image: {extra_images}")
 
 df = pd.DataFrame(craigslist_posts)
 current_time = datetime.datetime.now().strftime("%m/%d %H:%M:%S")
@@ -121,5 +140,6 @@ df.insert(0, 'time_added', current_time)
 df.insert(0, 'source', f"{source_name}")
 df['image_path'] = image_paths
 df.dropna(inplace=True)
-df.to_excel(f'/pyapp/sheets/{source_name}.xlsx', index=False)
+df.to_excel(f'{launcher_path}/sheets/{source_name}.xlsx', index=False)
+print(f"Created {source_name}.xlsx")
 driver.close()

@@ -1,48 +1,35 @@
 import schedule
-import time as tm
-from datetime import time, timedelta, datetime
+import time
+import os
+
+launcher_path = os.path.dirname(os.path.abspath(__file__))
 
 def job():
+    try:
+        print("Starting Job...")
 
-    with open('/pyapp/scripts/cl_austin.py', 'r') as file:
-        cl_austin = file.read()
-        exec(cl_austin)
+        file_names = ['cl_austin.py',
+                      'cl_dallas.py',
+                      'cl_houston.py',
+                      'cl_san_antonio.py',
+                      'to_mysql.py']
 
-    with open('/pyapp/scripts/cl_houston.py', 'r') as file:
-        cl_houston = file.read()
-        exec(cl_houston)
-    
-    with open('/pyapp/scripts/cl_san_antonio.py', 'r') as file:
-        cl_san_antonio = file.read()
-        exec(cl_san_antonio)
+        for file_name in file_names:
+            print(f"Processing: {file_name}")
+            file_path = os.path.join(launcher_path, 'scripts', file_name)
+            with open(file_path, 'r') as file:
+                script = file.read()
+                exec(script)
 
-    with open('/pyapp/scripts/cl_dallas.py', 'r') as file:
-        cl_dallas = file.read()
-        exec(cl_dallas)
+        print("Job Complete!")
 
-#  This section is where we run the script to load the spreadsheets into MySQL
-
-    with open('/pyapp/scripts/austin_to_mysql.py', 'r') as file:
-        austin_to_mysql = file.read()
-        exec(austin_to_mysql)
-
-    with open('/pyapp/scripts/houston_to_mysql.py', 'r') as file:
-        houston_to_mysql = file.read()
-        exec(houston_to_mysql)
-
-    with open('/pyapp/scripts/san_antonio_to_mysql.py', 'r') as file:
-        san_antonio_to_mysql = file.read()
-        exec(san_antonio_to_mysql)
-    
-    with open('/pyapp/scripts/dallas_to_mysql.py', 'r') as file:
-        dallas_to_mysql = file.read()
-        exec(dallas_to_mysql)
-        
-# create an error handler
+    except Exception as e:
+        print(f"Error: {e}")
+        job()
 job()
 
-schedule.every(75).to(90).minutes.do(job)
+schedule.every(70).to(90).minutes.do(job)
 
 while True:
     schedule.run_pending()
-    tm.sleep(1)
+    time.sleep(1)

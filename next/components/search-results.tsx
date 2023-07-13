@@ -13,20 +13,22 @@ export function SearchResult({ resultList }: SearchResultProps) {
 
     console.log(resultList);
 
-const searchFilter = (resultList: any) => {
-    return resultList.filter((result: any) =>
-      result.title.toLowerCase().includes(searchText.toLowerCase()) ||
-      result.source.toLowerCase().includes(searchText.toLowerCase()) ||
-      result.location.toLowerCase().includes(searchText.toLowerCase())
-    );
-  };
-
-    const filteredResults = searchFilter(resultList);
+    const searchFilter = (resultList: any[], searchText: string) => {
+      const formattedSearchText = searchText.toLowerCase().replace(/\s/g, '_');
+      
+      return resultList.filter((result: any) =>
+        result.title.toLowerCase().includes(searchText.toLowerCase()) ||
+        result.source.toLowerCase().replace(/\s/g, '_').includes(formattedSearchText) ||
+        result.location.toLowerCase().includes(searchText.toLowerCase())
+      );
+    };
+    
+    const filteredResults = searchFilter(resultList, searchText);
 
     return (
         <>
         <div>
-            <div className="grid w-full max-w-sm mb-6 mt-14 items-center gap-1.5">
+            <div className="grid w-full max-w-sm mb-6 mt-2 items-center gap-1.5">
                 <Label htmlFor="searchResultId"></Label>
                 <Input type="text" value={searchText}
                 autoComplete="off"

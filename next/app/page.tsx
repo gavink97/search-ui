@@ -6,5 +6,6 @@ export default async function Home() {
   const resultList = await getResultsList();
   return (
     <SearchResult resultList={resultList} />
+  
   );
 }
