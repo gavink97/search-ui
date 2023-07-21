@@ -1,41 +1,41 @@
-FROM node:16-alpine AS deps
+FROM node:18-alpine AS base
 
-ENV NODE_ENV=production
+FROM base AS deps
 
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /web
 
-COPY package.json yarn.lock ./
-RUN yarn install
+COPY --link package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
 # Build the app
-FROM node:16-alpine AS builder
-
-ENV NODE_ENV=production
+FROM base AS builder
 
 WORKDIR /web
-
-COPY next.config.js ./
-COPY package.json yarn.lock ./
-COPY --from=deps /web/node_modules ./node_modules
-COPY . ./
-
+COPY --from=deps --link /web/node_modules ./node_modules
+COPY --link . .
 RUN yarn build
 
 # Production image, copy all the files and run next
-FROM node:16-alpine AS runner
+FROM base AS runner
 WORKDIR /web
 
 ENV NODE_ENV=production
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN \
+  addgroup -g 1001 -S nodejs; \
+  adduser -S nextjs -u 1001
 
-COPY --from=builder /web/public ./public
+COPY --from=builder --link /web/public ./public
 
-COPY --from=builder --chown=nextjs:nodejs /web/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /web/.next/static ./.next/static
+COPY --from=builder --link --chown=1001:1001 /web/.next/standalone ./
+COPY --from=builder --link --chown=1001:1001 /web/.next/static ./.next/static
 
 USER nextjs
 

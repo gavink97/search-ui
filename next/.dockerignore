@@ -1,5 +1,9 @@
 .dockerignore
 .git
+.next
+.yarn
 .gitignore
 Dockerfile
+Dockerfile.production
 Readme.md
+node_modules

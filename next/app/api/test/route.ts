@@ -1,8 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache'
 import { createConnection } from 'mysql2/promise';
 
-export async function GET() {
+const REVALIDATE_TAG = 'my-api-data';
+
+export async function GET(request: NextRequest) {
   try {
+
+    const isRevalidateRequest = request.headers.get('x-revalidate') === 'true';
+
+    if (isRevalidateRequest) {
+      revalidateTag(REVALIDATE_TAG);
+    }
+
     const connection = await createConnection({
       host: process.env.MYSQL_IP,
       port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT): 3306,
@@ -32,5 +42,6 @@ export async function GET() {
     return NextResponse.json({ results: rows }, { status: 200 });
   } catch (error) {
     console.error(error);
+    return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
   }
 }
