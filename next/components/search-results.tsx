@@ -42,7 +42,7 @@ export function SearchResult({ resultList }: SearchResultProps) {
         <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
             {filteredResults.map((result : any) => {
                 return (
-                    <ResultCard ID={result.id} name={result.title} price={result.price} source={result.source} 
+                    <ResultCard name={result.title} price={result.price} source={result.source} 
                     timestamp={result.post_timestamp} location={result.location} post={result.post_url} image={result.image_path}/>
                 )
             })}

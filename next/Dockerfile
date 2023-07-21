@@ -1,15 +1,14 @@
-FROM node:latest
+FROM node:16-alpine
+
 WORKDIR /web
-COPY package.json .
-RUN npm install
 
-ARG NEXT_ENV
-RUN if [ "$NEXT_ENV" = "development" ]; \
-        then npm install; \
-        else npm install --only=production; \
-        fi
+COPY package.json yarn.lock ./
+RUN yarn install
 
-COPY . ./
-ENV PORT 8800
-EXPOSE $PORT
+COPY next.config.js ./next.config.js
+
+COPY app ./app
+COPY components ./components
+COPY public ./public
+
 CMD ["npm", "run", "dev"]
