@@ -1,4 +1,5 @@
-FROM kasmweb/core-ubuntu-focal:1.13.0
+# Kasmweb Init
+FROM kasmweb/ubuntu-focal-dind-rootless:1.13.1
 USER root
 
 ENV HOME /home/kasm-default-profile

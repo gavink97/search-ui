@@ -4,11 +4,11 @@ import os
 import time
 
 db = mysql.connector.connect(
-    user='root',
-    password='football',
-    host="mysql",
-    port=3306,
-    database='test'
+    user=f'{db_user}',
+    password=f'{db_pass}',
+    host=f'{db_host}',
+    port=f'{db_port}',
+    database=f'{db_database}'
 )
 
 folder_path = '/pyapp/sheets'
