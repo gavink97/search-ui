@@ -1,7 +1,7 @@
 "use client"
 
 import { ResultCard } from "./result-card";
-import { useState} from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
@@ -60,7 +60,6 @@ export function SearchResult({ resultList }: SearchResultProps) {
 
 function Auth({ children }) {
   const { data: session, status } = useSession({ required: true });
-  console.log('Session data in Search results:', session);
   if (status === "loading") {
     return <div>Loading...</div>;
   }
@@ -68,6 +67,5 @@ function Auth({ children }) {
   if (!session) {
     return <div>You need to log in to access this page.</div>;
   }
-
   return children
 }

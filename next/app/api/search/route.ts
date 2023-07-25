@@ -1,13 +1,26 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createConnection } from 'mysql2/promise'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { revalidateTag } from 'next/cache'
+// import { getServerSession } from "next-auth/next"
+// import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
+const REVALIDATE_TAG = 'my-api-data';
 
-  if (session) {
+export async function GET(request: NextRequest) {
+//  const session = await getServerSession(authOptions)
+//  console.log('Session data in API route:', session);
+
+ // if (!session) {
+ //   return NextResponse.json({ message: 'Unauthorized' });
+ // }
+
   try {
+
+    const isRevalidateRequest = request.headers.get('x-revalidate') === 'true';
+
+    if (isRevalidateRequest) {
+      revalidateTag(REVALIDATE_TAG);
+    }
 
     const connection = await createConnection({
       host: process.env.MYSQL_IP,
@@ -40,7 +53,4 @@ export async function GET() {
     console.error(error);
     return NextResponse.json({ error: 'An error occurred' }, { status: 500 });
   }
-} else {
-  return NextResponse.json({ message: 'You need to sign in!' }, { status: 401 });
-}
 }

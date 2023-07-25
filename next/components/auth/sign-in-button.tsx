@@ -32,7 +32,7 @@ const SignInButton = () => {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              <Link href="/profile">Profile</Link>
+            <Link href={'/profile'}>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               Billing

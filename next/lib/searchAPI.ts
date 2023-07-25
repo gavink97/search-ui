@@ -3,8 +3,9 @@ const SEARCH_API = process.env.URL + '/api/search';
 export async function getResultsList() {
    try {
     const res = await fetch(SEARCH_API, {
+//      cache: 'no-cache',
       next: {
-        revalidate: 5,
+      revalidate: 5,
       },
     });
     const data = await res.json();
@@ -14,4 +15,3 @@ export async function getResultsList() {
     return [];
   }
 }
-  // Data is an array of objects, each object has an id, image_path, title, price, location, post_url, etc
