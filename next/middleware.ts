@@ -20,3 +20,5 @@ export function middleware(request: Request) {
 export const config = {
   matcher: '/api/:path*',
 }
+
+export { default } from "next-auth/middleware"

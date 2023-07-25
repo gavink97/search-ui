@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import Provider from '@/components/auth/provider'
+import Header from '@/components/header'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,16 +17,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${inter.className} h-full scroll-smooth antialiased`}
+    >
       <body className={inter.className}>
-        <header className="flex items-center justify-between p-8"> 
-        <div className="z-10 w-full max-w-5xl items-center text-sm lg:flex">
-      <Link href="/"><h2 className="text-2xl text-bold">Record Player Search Tool</h2></Link>
-      </div>
-        </header>
+        <Provider>
+          <Header/>
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
       {children}
       </main>
+      </Provider>
       </body>
     </html>
   )

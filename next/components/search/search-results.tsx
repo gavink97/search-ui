@@ -1,19 +1,26 @@
 "use client"
 import { ResultCard } from "./result-card";
 import { useState} from "react";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useSession } from "next-auth/react"
 
 interface SearchResultProps {
     resultList: any;
   }
 
 export function SearchResult({ resultList }: SearchResultProps) {
+
   const [searchText, setSearchText] = useState("");
 
     console.log(resultList);
 
     const searchFilter = (resultList: any[], searchText: string) => {
+
+      if (!resultList) {
+        return [];
+      }
+
       const formattedSearchText = searchText.toLowerCase().replace(/\s/g, '_');
       
       return resultList.filter((result: any) =>
@@ -26,8 +33,9 @@ export function SearchResult({ resultList }: SearchResultProps) {
     const filteredResults = searchFilter(resultList, searchText);
 
     return (
-        <>
-        <div>
+    <>
+        <Auth>
+          <div>
             <div className="grid w-full max-w-sm mb-6 mt-2 items-center gap-1.5">
                 <Label htmlFor="searchResultId"></Label>
                 <Input type="text" value={searchText}
@@ -37,17 +45,27 @@ export function SearchResult({ resultList }: SearchResultProps) {
                 onChange={(e) => setSearchText(e.target.value)}
                />
             </div>
-        </div>
+          </div>
 
-        <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
+          <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
             {filteredResults.map((result : any) => {
                 return (
                     <ResultCard name={result.title} price={result.price} source={result.source} 
                     timestamp={result.post_timestamp} location={result.location} post={result.post_url} image={result.image_path}/>
                 )
             })}
-      </div>
-        </>
-    )
+          </div>
+        </Auth>
+    </>
+  )
+}
 
+function Auth({ children }) {
+  const { status } = useSession({ required: true })
+
+  if (status === "loading") {
+    return <div>Loading...</div>
+  }
+
+  return children
 }

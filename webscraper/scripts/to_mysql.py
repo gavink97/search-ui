@@ -14,6 +14,8 @@ db = mysql.connector.connect(
 folder_path = '/pyapp/sheets'
 file_names = os.listdir(folder_path)
 
+print(f"Writing to: {db_database}")
+
 cursor = db.cursor()
 
 for file_name in file_names:

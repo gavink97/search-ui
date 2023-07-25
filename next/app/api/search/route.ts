@@ -1,10 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 import { revalidateTag } from 'next/cache'
-import { createConnection } from 'mysql2/promise';
+import { createConnection } from 'mysql2/promise'
+import { getSession } from "next-auth/react"
+import { authOptions } from '../../api/auth/[...nextauth]/route'
 
 const REVALIDATE_TAG = 'my-api-data';
 
 export async function GET(request: NextRequest) {
+
   try {
 
     const isRevalidateRequest = request.headers.get('x-revalidate') === 'true';
