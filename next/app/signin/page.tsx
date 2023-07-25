@@ -4,8 +4,10 @@ import Button from '@/components/auth/button'
 import TextField from '@/components/auth/text-field'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [data, setData] = useState({
      email: '',
     password: ''
@@ -15,8 +17,10 @@ const loginUser = async (e) => {
   e.preventDefault();
   signIn('credentials', {
     ...data,
-    redirect: true,
+    redirect: false,
   });
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  router.push('/');
 };
 
   return (

@@ -1,19 +1,17 @@
 "use client"
+
 import { ResultCard } from "./result-card";
 import { useState} from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSession } from "next-auth/react"
+import { useSession } from "next-auth/react";
 
 interface SearchResultProps {
     resultList: any;
   }
 
 export function SearchResult({ resultList }: SearchResultProps) {
-
   const [searchText, setSearchText] = useState("");
-
-    console.log(resultList);
 
     const searchFilter = (resultList: any[], searchText: string) => {
 
@@ -61,10 +59,14 @@ export function SearchResult({ resultList }: SearchResultProps) {
 }
 
 function Auth({ children }) {
-  const { status } = useSession({ required: true })
-
+  const { data: session, status } = useSession({ required: true });
+  console.log('Session data in Search results:', session);
   if (status === "loading") {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
+  }
+
+  if (!session) {
+    return <div>You need to log in to access this page.</div>;
   }
 
   return children
