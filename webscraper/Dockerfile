@@ -40,8 +40,3 @@ WORKDIR $HOME
 RUN mkdir -p $HOME && chown -R 1000:0 $HOME
 
 USER 1000
-
-RUN adduser -D dockuser
-USER dockuser
-
-RUN chown dockuser:dockuser -R /app/
