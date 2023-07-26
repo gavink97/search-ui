@@ -19,6 +19,8 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install -y python3.11
 RUN apt install -y python3-pip
 
+RUN mkdir -p /pyapp && chown -R 1000:0 /pyapp
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
