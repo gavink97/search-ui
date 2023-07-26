@@ -102,11 +102,7 @@ for posts_html in posts_html:
 
     create_dir = f"{launcher_path}/images/{source_name}"
     if not os.path.exists(create_dir):
-        try:
-            original_umask = os.umask(0)
-            os.makedirs(create_dir, mode=755)
-        finally:
-            os.umask(original_umask)
+        os.makedirs(create_dir)
     image_url = posts_html.find('img').get('src') if posts_html.find('img') else ''
     image_path = ""
     if image_url:
@@ -130,6 +126,13 @@ for posts_html in posts_html:
 
     data_pid = posts_html.get('data-pid')
     craigslist_posts.append(CraigslistPost(title, price, post_timestamp, location, post_url, image_url, data_pid))
+
+existing_images = os.listdir(create_dir)
+for image_file in existing_images:
+    extra_images = os.path.join(create_dir, image_file)
+    if extra_images not in image_paths:
+        os.remove(extra_images)
+        print(f"Deleted extra image: {extra_images}")
 
 df = pd.DataFrame(craigslist_posts)
 current_time = datetime.datetime.now().strftime("%m/%d %H:%M:%S")
