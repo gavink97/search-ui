@@ -20,7 +20,7 @@ RUN apt install -y python3.11
 RUN apt install -y python3-pip
 
 # Create the pyapp directory and set ownership to user 1000
-RUN mkdir -p /pyapp && chown -R 1000:0 /pyapp
+RUN chown -R 1000:1000 /app
 
 COPY requirements.txt .
 
@@ -39,7 +39,6 @@ COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["/usr/bin/python3", "-u", "/pyapp/launcher.py"]
 
 ######### End Customizations ###########
 
