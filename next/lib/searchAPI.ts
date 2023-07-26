@@ -1,12 +1,16 @@
+import { headers } from "next/headers"
+
 const SEARCH_API = process.env.URL + '/api/search';
 
 export async function getResultsList() {
    try {
     const res = await fetch(SEARCH_API, {
+      method: "GET",
+      headers: headers(),
 //      cache: 'no-cache',
       next: {
       revalidate: 5,
-      },
+     },
     });
     const data = await res.json();
     return data.results;

@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createConnection } from 'mysql2/promise'
 import { revalidateTag } from 'next/cache'
-// import { getServerSession } from "next-auth/next"
-// import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+ import { getServerSession } from "next-auth/next"
+ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 const REVALIDATE_TAG = 'my-api-data';
 
 export async function GET(request: NextRequest) {
-//  const session = await getServerSession(authOptions)
-//  console.log('Session data in API route:', session);
+  const session = await getServerSession(authOptions)
+  console.log('Session data in API route:', session);
 
- // if (!session) {
- //   return NextResponse.json({ message: 'Unauthorized' });
- // }
+  if (!session) {
+    return NextResponse.json({ message: 'Unauthorized' });
+  }
 
   try {
 
