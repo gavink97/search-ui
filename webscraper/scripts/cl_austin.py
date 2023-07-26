@@ -99,12 +99,13 @@ for posts_html in posts_html:
             location = meta_info.split(separator.text)[1]
             if location.strip() == '':
                 location = f'{city_name} area'
-
+                
+    os.umask(0o002) 
     create_dir = f"{launcher_path}/images/{source_name}"
     if not os.path.exists(create_dir):
         try:
             original_umask = os.umask(0)
-            os.makedirs(create_dir, mode=777)
+            os.makedirs(create_dir, mode=755)
         finally:
             os.umask(original_umask)
     image_url = posts_html.find('img').get('src') if posts_html.find('img') else ''
