@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . ./pyapp
 
 # Running the python script on startup
-RUN echo "/usr/bin/python3 -u /pyapp/launcher.py" > $STARTUPDIR/custom_startup.sh \
+RUN echo "sudo /usr/bin/python3 -u /pyapp/launcher.py" > $STARTUPDIR/custom_startup.sh \
 && chmod +x $STARTUPDIR/custom_startup.sh
 
 ######### End Customizations ###########
