@@ -1,5 +1,4 @@
-# Kasmweb Init
-FROM kasmweb/ubuntu-focal-dind-rootless:1.13.1
+FROM kasmweb/core-ubuntu-focal:1.13.0
 USER root
 
 ENV HOME /home/kasm-default-profile
@@ -27,7 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . ./pyapp
 
 # Running the python script on startup
-RUN echo "sudo /usr/bin/python3 -u /pyapp/launcher.py" > $STARTUPDIR/custom_startup.sh \
+RUN echo "/usr/bin/python3 -u /pyapp/launcher.py" > $STARTUPDIR/custom_startup.sh \
 && chmod +x $STARTUPDIR/custom_startup.sh
 
 ######### End Customizations ###########
