@@ -19,9 +19,8 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install -y python3.11
 RUN apt install -y python3-pip
 
-RUN mkdir -p /webscraper && chown -R 1000:0 /webscraper
-
-RUN chown -R 1000:0 /app
+# Create the pyapp directory and set ownership to user 1000
+RUN mkdir -p /pyapp && chown -R 1000:0 /pyapp
 
 COPY requirements.txt .
 
@@ -32,6 +31,15 @@ COPY . ./pyapp
 # Running the python script on startup
 RUN echo "/usr/bin/python3 -u /pyapp/launcher.py" > $STARTUPDIR/custom_startup.sh \
 && chmod +x $STARTUPDIR/custom_startup.sh
+
+# No need to change the ownership of $HOME, as it's already owned by user 1000 in the base image
+
+# Set the entrypoint to a custom script that changes ownership and starts the application
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["/usr/bin/python3", "-u", "/pyapp/launcher.py"]
 
 ######### End Customizations ###########
 
