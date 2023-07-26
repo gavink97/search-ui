@@ -19,7 +19,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install -y python3.11
 RUN apt install -y python3-pip
 
-RUN mkdir -p /pyapp && chown -R 1000:0 /pyapp
+RUN mkdir -p /webscraper && chown -R 1000:0 /webscraper
 
 RUN chown -R 1000:0 /app
 
