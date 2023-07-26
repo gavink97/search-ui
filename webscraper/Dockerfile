@@ -1,5 +1,8 @@
 FROM kasmweb/core-ubuntu-focal:1.13.0
-USER root
+RUN adduser -D dockuser
+USER dockuser
+
+RUN chown dockuser:dockuser -R /app/
 
 ENV HOME /home/kasm-default-profile
 ENV STARTUPDIR /dockerstartup
