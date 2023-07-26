@@ -102,7 +102,11 @@ for posts_html in posts_html:
 
     create_dir = f"{launcher_path}/images/{source_name}"
     if not os.path.exists(create_dir):
-        os.makedirs(create_dir)
+        try:
+            original_umask = os.umask(0)
+            os.makedirs(create_dir, mode=755)
+        finally:
+            os.umask(original_umask)
     image_url = posts_html.find('img').get('src') if posts_html.find('img') else ''
     image_path = ""
     if image_url:

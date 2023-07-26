@@ -1,4 +1,4 @@
-FROM kasmweb/core-ubuntu-focal:1.13.0
+FROM kasmweb/ubuntu-focal-dind-rootless:1.13.1
 USER root
 
 ENV HOME /home/kasm-default-profile
@@ -19,9 +19,6 @@ RUN add-apt-repository ppa:deadsnakes/ppa
 RUN apt install -y python3.11
 RUN apt install -y python3-pip
 
-# Create the pyapp directory and set ownership to user 1000
-RUN chown -R 1000:1000 /app
-
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
@@ -32,14 +29,12 @@ COPY . ./pyapp
 RUN echo "/usr/bin/python3 -u /pyapp/launcher.py" > $STARTUPDIR/custom_startup.sh \
 && chmod +x $STARTUPDIR/custom_startup.sh
 
-# No need to change the ownership of $HOME, as it's already owned by user 1000 in the base image
-
-# Set the entrypoint to a custom script that changes ownership and starts the application
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-ENTRYPOINT ["docker-entrypoint.sh"]
-
 ######### End Customizations ###########
+
+RUN chown 1000:0 $HOME
+RUN $STARTUPDIR/set_user_permission.sh $HOME
+ENV HOME /home/kasm-user
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
 
 USER 1000
