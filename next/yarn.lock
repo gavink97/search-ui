@@ -201,32 +201,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:13.4.12, @next/swc-linux-arm64-gnu@npm:^13.4.12":
+"@next/swc-linux-arm64-gnu@npm:13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-arm64-gnu@npm:13.4.12"
-  checksum: 52cb308ea02bd245d3ba78ce0d49bf1f2222ed980e4beeadbe07167f0c0f08597ee78ec2941a37a70374b2ca1c2713eea5a54651cdc65affe80b1cbdbd670d07
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:13.4.12, @next/swc-linux-arm64-musl@npm:^13.4.12":
+"@next/swc-linux-arm64-musl@npm:13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-arm64-musl@npm:13.4.12"
-  checksum: 4b26ea4418b83f271ed800e1917e1c20623830f58fd9dd3dc251f873957b48a9cd6d0453a011f3d1cff3cdbbebadeca803467cf29139d9c3629227ebaaa1a2d8
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:13.4.12":
+"@next/swc-linux-x64-gnu@npm:13.4.12, @next/swc-linux-x64-gnu@npm:^13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-x64-gnu@npm:13.4.12"
+  checksum: 505484a329895ad944d6ecdfb2454bffdcdec4e8704cc46e5e4a797a9ab864faf54b73e230eb91bdbe593e2dc4e0f22abd7f67b57ef9b7f18fc9bc9cc4a540ad
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:13.4.12":
+"@next/swc-linux-x64-musl@npm:13.4.12, @next/swc-linux-x64-musl@npm:^13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-x64-musl@npm:13.4.12"
+  checksum: ee83be7737ac60e794ab51bbd8ca06721d5a0ff4dd762ef644e06b7ae2664157a79f568c0a458ecc14d84c07b3657dbcb119e5242116e3c11e4476b4d803c5fa
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
@@ -2431,8 +2431,8 @@ __metadata:
   dependencies:
     "@auth/core": ^0.10.0
     "@auth/prisma-adapter": ^1.0.1
-    "@next/swc-linux-arm64-gnu": ^13.4.12
-    "@next/swc-linux-arm64-musl": ^13.4.12
+    "@next/swc-linux-x64-gnu": ^13.4.12
+    "@next/swc-linux-x64-musl": ^13.4.12
     "@prisma/client": ^5.0.0
     "@radix-ui/react-dropdown-menu": ^2.0.5
     "@radix-ui/react-label": ^2.0.2
