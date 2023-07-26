@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
         },
       async authorize(credentials) {
-        if(!credentials.email || !credentials.password) {
+        if(!credentials?.email || !credentials.password) {
           return null;
         }
         const user = await prisma.user.findUnique({
@@ -24,10 +24,15 @@ export const authOptions: NextAuthOptions = {
         if(!user) {
           return null;
         }
-        const passwordsMatch = await bcrypt.compare(credentials.password, user.hashedPassword);
-        if(!passwordsMatch) {
+        if (credentials.password && user.hashedPassword) {
+          const passwordsMatch = await bcrypt.compare(credentials.password, user.hashedPassword);
+          if (!passwordsMatch) {
+            return null;
+          }
+        } else {
           return null;
         }
+      
         return user;
       }
     })

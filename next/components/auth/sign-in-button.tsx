@@ -1,9 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useSession, signIn, signOut } from 'next-auth/react'
-import clsx from 'clsx'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,14 +16,14 @@ import { Button } from "@/components/ui/button"
 
 
 const SignInButton = () => {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
 
   return (
     <>
     {session ? (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" >{session.user.name}</Button>
+          <Button variant="outline" >{session.user?.name || 'User'}</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-55">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>

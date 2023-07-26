@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import './globals.css'
 import { Inter } from 'next/font/google'
 import Provider from '@/components/auth/provider'
@@ -21,7 +20,7 @@ children,}: {
       className={`${inter.className} h-full scroll-smooth antialiased`}
     >
       <body className={inter.className}>
-        <Provider>
+        <Provider session={undefined}>
           <Header/>
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
       {children}

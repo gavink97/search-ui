@@ -1,7 +1,5 @@
 'use client'
 
-import Button from '@/components/auth/button'
-import TextField from '@/components/auth/text-field'
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
@@ -13,15 +11,15 @@ export default function LoginPage() {
     password: ''
   });
 
-const loginUser = async (e) => {
-  e.preventDefault();
-  signIn('credentials', {
-    ...data,
-    redirect: false,
-  });
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  router.push('/');
-};
+  const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    signIn('credentials', {
+      ...data,
+      redirect: false,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    router.push('/');
+  };
 
   return (
     <section className='flex min-h-full overflow-hidden pt-16 sm:py-28'>
@@ -34,41 +32,38 @@ const loginUser = async (e) => {
         <div className='sm:rounded-5xl -mx-4 mt-10 flex-auto bg-white px-4 py-10 shadow-2xl shadow-gray-900/10 sm:mx-0 sm:flex-none sm:p-24'>
           <form onSubmit={loginUser}>
             <div className='space-y-2 mb-3'>
-              <TextField
-                id='email'
-                name='email'
-                type='email'
-                label='Email'
-                placeholder='email'
-                required
-                value={data.email}
-                onChange={(e) => {
-                  setData({ ...data, email: e.target.value });
-                }}
-              />
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder='email'
+              required
+              value={data.email}
+              onChange={(e) => {
+                setData({ ...data, email: e.target.value })
+              } } className={undefined}
+                    />
             </div>
             <div className='space-y-2'>
-              <TextField
+              <input
                 id='password'
                 name='password'
                 type='password'
-                label='Password'
                 placeholder='password'
                 required
                 value={data.password}
                 onChange={(e) => {
-                  setData({ ...data, password: e.target.value });
-                }}
-              />
+                  setData({ ...data, password: e.target.value })
+                } } className={undefined}
+                      />
             </div>
-            <Button
+            <button
               type='submit'
-              variant='outline'
               color='gray'
               className='mt-7 w-full'
             >
               Sign in
-            </Button>
+            </button>
           </form>
         </div>
       </div>

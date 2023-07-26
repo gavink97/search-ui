@@ -1,7 +1,7 @@
 "use client"
 
 import { ResultCard } from "./result-card";
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
@@ -58,7 +58,7 @@ export function SearchResult({ resultList }: SearchResultProps) {
   )
 }
 
-function Auth({ children }) {
+function Auth({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession({ required: true });
   if (status === "loading") {
     return <div>Loading...</div>;

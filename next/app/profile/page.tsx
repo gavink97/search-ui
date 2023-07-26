@@ -9,7 +9,7 @@ export default function Profile() {
     return(
         <div>
             <h1>Profile</h1>
-            <p>Hello {session?.user.name} </p>
+            <pre>{JSON.stringify(session)}</pre>
         </div>
     )
 }
