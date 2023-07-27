@@ -18,7 +18,7 @@ export default function LoginPage() {
       redirect: false,
     });
     await new Promise((resolve) => setTimeout(resolve, 500));
-    router.push('/');
+  //  router.push('/');
   };
 
   return (
