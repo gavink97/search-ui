@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
@@ -10,16 +10,21 @@ export default function LoginPage() {
      email: '',
     password: ''
   });
+  const { data: session } = useSession();
 
   const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signIn('credentials', {
+    await signIn('credentials', {
       ...data,
       redirect: false,
     });
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  //  router.push('/');
   };
+  
+  useEffect(() => {
+    if (session?.user) {
+      router.push('/');
+    }
+  }, [session, router]);
 
   return (
     <section className='flex min-h-full overflow-hidden pt-16 sm:py-28'>
@@ -30,6 +35,7 @@ export default function LoginPage() {
           </h1>
         </div>
         <div className='sm:rounded-5xl -mx-4 mt-10 flex-auto bg-white px-4 py-10 shadow-2xl shadow-gray-900/10 sm:mx-0 sm:flex-none sm:p-24'>
+        {!session?.user ? (
           <form onSubmit={loginUser}>
             <div className='space-y-2 mb-3'>
             <input
@@ -65,8 +71,11 @@ export default function LoginPage() {
               Sign in
             </button>
           </form>
+        ) : (
+          <p>You are logged in.</p>
+        )}
         </div>
       </div>
     </section>
-  )
+  );
 }
