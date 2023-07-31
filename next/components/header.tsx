@@ -9,7 +9,7 @@ const Header = () => {
           <li className='text-2xl text-bold'>
             <Link href='/'>Record Player Search Tool</Link>
           </li>
-          
+
           <li className=''>
             <SignInButton />
           </li>

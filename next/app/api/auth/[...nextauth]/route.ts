@@ -32,7 +32,7 @@ export const authOptions: NextAuthOptions = {
         } else {
           return null;
         }
-      
+
         return user;
       }
     })

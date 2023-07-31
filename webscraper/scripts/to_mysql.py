@@ -25,11 +25,11 @@ for file_name in file_names:
         columns = ", ".join([f"{col} VARCHAR(255)" for col in df.columns])
         drop_query = f"DROP TABLE IF EXISTS {source_name};"
         create_table_query = f"CREATE TABLE IF NOT EXISTS {source_name} ({columns}, id INT AUTO_INCREMENT PRIMARY KEY);"
-        
+
         cursor.execute(drop_query)
         print(f"dropped old {source_name} table")
         time.sleep(1)
-    
+
         cursor.execute(create_table_query)
         print(f"Table {source_name} created")
 

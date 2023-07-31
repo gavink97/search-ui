@@ -29,19 +29,94 @@ export async function GET(request: NextRequest) {
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
     });
-    
+
     const query = `
-      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
       FROM cl_austin
       UNION
-      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
       FROM cl_houston
       UNION
-      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
       FROM cl_san_antonio
       UNION
-      SELECT id, title, price, source, post_timestamp, location, post_url, image_path 
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
       FROM cl_dallas
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_abilene
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_beaumont
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_brownsville
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_college_station
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_corpus_christi
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_deep_east
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_del_rio
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_east_texas
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_galveston
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_killeen
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_lafayette
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_lake_charles
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_laredo
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_lawton
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_mcallen
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_odessa
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_oklahoma_city
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_san_angelo
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_san_marcos
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_shreveport
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_texarkana
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_texoma
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_victoria
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_waco
+      UNION
+      SELECT id, title, price, source, post_timestamp, location, post_url, image_path, data_pid
+      FROM cl_wichita_falls
     `;
 
     const [rows] = await connection.query(query);

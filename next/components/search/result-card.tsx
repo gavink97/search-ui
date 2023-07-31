@@ -2,16 +2,17 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 interface ResultCardProps {
-  name: string;
-  price: number;
+  title: string;
+  price: string;
   source: string;
   timestamp: string;
   location: string;
   post: string;
   image: string;
+  data_pid: string;
 }
 
-export function ResultCard({ name, price, location, post, image, timestamp }: ResultCardProps) {
+export function ResultCard({ title, price, location, post, image, timestamp, data_pid }: ResultCardProps) {
     return (
         <Link
           href={post}
@@ -21,7 +22,7 @@ export function ResultCard({ name, price, location, post, image, timestamp }: Re
       >
         <Image src={`${image}`} alt='record player' width="300" height="300"></Image>
         <h2 className={`text-base mt-2 font-semibold`}>
-          {name}
+          {title}
         </h2>
         <h2 className={`text-base font-semibold`}>
         {location} {timestamp}

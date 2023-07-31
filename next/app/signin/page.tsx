@@ -10,16 +10,20 @@ export default function LoginPage() {
      email: '',
     password: ''
   });
+  const [error, setError] = useState('');
   const { data: session } = useSession();
 
   const loginUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await signIn('credentials', {
+    const loggingIn = await signIn('credentials', {
       ...data,
       redirect: false,
     });
+    if (loggingIn?.error) {
+      setError('Incorrect password');
+    }
   };
-  
+
   useEffect(() => {
     if (session?.user) {
       router.push('/');
@@ -62,6 +66,7 @@ export default function LoginPage() {
                   setData({ ...data, password: e.target.value })
                 } } className={undefined}
                       />
+                      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Show the error message */}
             </div>
             <button
               type='submit'
