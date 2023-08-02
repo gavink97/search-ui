@@ -28,27 +28,40 @@ export function SearchResult({ resultList }: SearchResultProps) {
     );
   };
 
-  const sortedResults = searchFilter(resultList, searchText).sort((a: any, b: any) => {
-    const getComparableValue = (timestamp: string) => {
-      const parts = timestamp.split(" ");
-      if (parts.length === 2 && parts[1] === "ago") {
-        return -parseInt(parts[0]);
-      } else {
-        const [month, day] = parts[0].split("/");
-        return new Date(`2023-${month}-${day}`).getTime();
-      }
-    };
+  const sortedResults = searchFilter(resultList, searchText);
 
-    const timestampA = getComparableValue(a.post_timestamp);
-    const timestampB = getComparableValue(b.post_timestamp);
+  const getComparableValue = (timestamp: string) => {
+    const parts = timestamp.split(" ");
+    if (parts[1] === "mins") {
+      return -parseInt(parts[0]);
+    } else if (parts[1] === "ago") {
+      return -parseInt(parts[0]) * 60;
+    } else {
+      const [month, day] = parts[0].split("/");
+      return new Date(`2023-${month}-${day}`).getTime();
+    }
+  };
 
-    return timestampB - timestampA;
+  const firstTypeResults: any[] = [];
+  const secondTypeResults: any[] = [];
+
+  sortedResults.forEach((result) => {
+    if (result.post_timestamp.includes(" ago")) {
+      firstTypeResults.push(result);
+    } else {
+      secondTypeResults.push(result);
+    }
   });
+
+  firstTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp) - getComparableValue(a.post_timestamp));
+  secondTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp) - getComparableValue(a.post_timestamp));
+
+  const mergedResults = [...firstTypeResults, ...secondTypeResults];
 
   const uniqueResults: any[] = [];
   const uniquePosts: Record<string, boolean> = {};
 
-  sortedResults.forEach((result) => {
+  mergedResults.forEach((result) => {
     const postKey = `${result.title}${result.image_path}`;
     if (!uniquePosts[postKey]) {
       uniquePosts[postKey] = true;
@@ -77,7 +90,7 @@ export function SearchResult({ resultList }: SearchResultProps) {
           {uniqueResults.map((result: any) => {
             return (
               <ResultCard
-                key={result.data_pid} // Make sure to provide a key prop for each element in the array
+                key={result.data_pid}
                 title={result.title}
                 price={result.price}
                 source={result.source}
