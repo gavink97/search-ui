@@ -22,7 +22,7 @@ os.umask(0o002)
 if not os.path.exists(output_folder):
     try:
         original_umask = os.umask(0)
-        os.makedirs(os.path.dirname(output_folder, mode=777))
+        os.makedirs(os.path.dirname(output_folder), mode=0o777)
     finally:
         os.umask(original_umask)
 
