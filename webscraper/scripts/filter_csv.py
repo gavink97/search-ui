@@ -18,8 +18,13 @@ sheets_folder = f"{launcher_path}/sheets"
 words_file = f"{launcher_path}/filter_words.txt"
 output_folder = f"{launcher_path}/sheets/filtered"
 
+os.umask(0o002)
 if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
+    try:
+        original_umask = os.umask(0)
+        os.makedirs(os.path.dirname(output_folder, mode=777))
+    finally:
+        os.umask(original_umask)
 
 words_to_filter = read_words_from_file(words_file)
 

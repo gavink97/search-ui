@@ -105,11 +105,12 @@ for posts_html in posts_html:
             if location.strip() == '':
                 location = f'{city_name} area'
 
+    os.umask(0o002)
     create_dir = f"{launcher_path}/images/cl_images"
     if not (os.path.dirname(create_dir)):
         try:
             original_umask = os.umask(0)
-            os.makedirs(os.path.dirname(create_dir, mode=755))
+            os.makedirs(os.path.dirname(create_dir, mode=777))
         finally:
             os.umask(original_umask)
 
