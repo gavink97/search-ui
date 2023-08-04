@@ -49,6 +49,7 @@ def job():
             #Oklahoma
             'cl_lawton.py',
             'cl_oklahoma_city.py',
+
             'remove_extra_images.py',
             'filter_csv.py',
             'to_mysql.py'
