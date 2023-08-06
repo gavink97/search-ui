@@ -201,32 +201,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:13.4.12":
+"@next/swc-linux-arm64-gnu@npm:13.4.12, @next/swc-linux-arm64-gnu@npm:^13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-arm64-gnu@npm:13.4.12"
+  checksum: 52cb308ea02bd245d3ba78ce0d49bf1f2222ed980e4beeadbe07167f0c0f08597ee78ec2941a37a70374b2ca1c2713eea5a54651cdc65affe80b1cbdbd670d07
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:13.4.12":
+"@next/swc-linux-arm64-musl@npm:13.4.12, @next/swc-linux-arm64-musl@npm:^13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-arm64-musl@npm:13.4.12"
+  checksum: 4b26ea4418b83f271ed800e1917e1c20623830f58fd9dd3dc251f873957b48a9cd6d0453a011f3d1cff3cdbbebadeca803467cf29139d9c3629227ebaaa1a2d8
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:13.4.12, @next/swc-linux-x64-gnu@npm:^13.4.12":
+"@next/swc-linux-x64-gnu@npm:13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-x64-gnu@npm:13.4.12"
-  checksum: 505484a329895ad944d6ecdfb2454bffdcdec4e8704cc46e5e4a797a9ab864faf54b73e230eb91bdbe593e2dc4e0f22abd7f67b57ef9b7f18fc9bc9cc4a540ad
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:13.4.12, @next/swc-linux-x64-musl@npm:^13.4.12":
+"@next/swc-linux-x64-musl@npm:13.4.12":
   version: 13.4.12
   resolution: "@next/swc-linux-x64-musl@npm:13.4.12"
-  checksum: ee83be7737ac60e794ab51bbd8ca06721d5a0ff4dd762ef644e06b7ae2664157a79f568c0a458ecc14d84c07b3657dbcb119e5242116e3c11e4476b4d803c5fa
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
@@ -356,6 +356,29 @@ __metadata:
     "@types/react-dom":
       optional: true
   checksum: 8cca086f0dbb33360e3c0142adf72f99fc96352d7086d6c2356dbb2ea5944cfb720a87d526fc48087741c602cd8162ca02b0af5e6fdf5f56d20fddb44db8b4c3
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-avatar@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@radix-ui/react-avatar@npm:1.0.3"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/react-context": 1.0.1
+    "@radix-ui/react-primitive": 1.0.3
+    "@radix-ui/react-use-callback-ref": 1.0.1
+    "@radix-ui/react-use-layout-effect": 1.0.1
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: defd6070ca89d64f46017943bc444ac73ca4711f710b8fcb7152f5fb84cb05f39e7944d372695720929fa666cf9bc65ce95725c5a29d81f9e51aba59aed42ca2
   languageName: node
   linkType: hard
 
@@ -511,6 +534,34 @@ __metadata:
     "@types/react-dom":
       optional: true
   checksum: e5b1a089071fbe77aca11124a4ad9623fc2bcaf4c019759b0cd044bf0878ecc924131ee09c6a22d38a3f094684ef68ed18fa65c8d891918412e0afc685a464e0
+  languageName: node
+  linkType: hard
+
+"@radix-ui/react-hover-card@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@radix-ui/react-hover-card@npm:1.0.6"
+  dependencies:
+    "@babel/runtime": ^7.13.10
+    "@radix-ui/primitive": 1.0.1
+    "@radix-ui/react-compose-refs": 1.0.1
+    "@radix-ui/react-context": 1.0.1
+    "@radix-ui/react-dismissable-layer": 1.0.4
+    "@radix-ui/react-popper": 1.1.2
+    "@radix-ui/react-portal": 1.0.3
+    "@radix-ui/react-presence": 1.0.1
+    "@radix-ui/react-primitive": 1.0.3
+    "@radix-ui/react-use-controllable-state": 1.0.1
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0
+    react-dom: ^16.8 || ^17.0 || ^18.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: cf7c92beceb1f9ed9b39d7e92a5c85a0d725160e76ef50325dccfab7c25b906b3235742a1e85e0f18478172adc5ec326ef6e3f2cc786a697cb140c01768a8242
   languageName: node
   linkType: hard
 
@@ -2431,10 +2482,12 @@ __metadata:
   dependencies:
     "@auth/core": ^0.10.0
     "@auth/prisma-adapter": ^1.0.1
-    "@next/swc-linux-x64-gnu": ^13.4.12
-    "@next/swc-linux-x64-musl": ^13.4.12
+    "@next/swc-linux-arm64-gnu": ^13.4.12
+    "@next/swc-linux-arm64-musl": ^13.4.12
     "@prisma/client": ^5.0.0
+    "@radix-ui/react-avatar": ^1.0.3
     "@radix-ui/react-dropdown-menu": ^2.0.5
+    "@radix-ui/react-hover-card": ^1.0.6
     "@radix-ui/react-label": ^2.0.2
     "@radix-ui/react-slot": ^1.0.2
     "@types/bcryptjs": ^2.4.2

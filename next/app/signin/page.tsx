@@ -31,7 +31,7 @@ export default function LoginPage() {
   }, [session, router]);
 
   return (
-    <section className='flex min-h-full overflow-hidden pt-16 sm:py-28'>
+    <section className='flex min-h-full overflow-hidden fixed'>
       <div className='mx-auto flex w-full max-w-2xl flex-col px-4 sm:px-6'>
         <div className='relative mt-12 sm:mt-16'>
           <h1 className='text-center text-2xl font-medium tracking-tight text-gray-900'>

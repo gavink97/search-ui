@@ -20,7 +20,7 @@ export function ResultCard({ title, price, location, post, image, timestamp, dat
           target="_blank"
           rel="noopener noreferrer"
       >
-        <Image src={`${image}`} alt='record player' width="300" height="300"></Image>
+        <Image src={`${image}?v=${data_pid}`} alt='record player' width="300" height="300"></Image>
         <h2 className={`text-base mt-2 font-semibold`}>
           {title}
         </h2>

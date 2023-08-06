@@ -72,15 +72,16 @@ export function SearchResult({ resultList }: SearchResultProps) {
   return (
     <>
       <Auth>
-        <div>
-          <div className="grid w-full max-w-sm mb-6 mt-2 items-center gap-1.5">
+        <div className="sticky top-4 bg-white">
+          <div className="grid w-full max-w-lg mb-6 mt-2 items-center gap-1.5 ">
             <Label htmlFor="searchResultId"></Label>
             <Input
+              className='w-80'
               type="text"
               value={searchText}
               autoComplete="off"
               id="searchResultId"
-              placeholder="Search for a record player"
+              placeholder="Search for a brand or location"
               onChange={(e) => setSearchText(e.target.value)}
             />
           </div>
