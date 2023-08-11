@@ -1,72 +1,75 @@
 import schedule
 import time
 import os
-import pandas as pd
-from dotenv import load_dotenv
-
-load_dotenv()
-db_host = os.environ['MYSQL_HOST']
-db_port = os.environ['MYSQL_PORT']
-db_user = os.environ['MYSQL_USER']
-db_pass = os.environ['MYSQL_PASSWORD']
-db_database = os.environ['MYSQL_DB']
+import subprocess
+import logging
+import datetime
+import pytz
 
 launcher_path = os.path.dirname(os.path.abspath(__file__))
+scripts_folder = os.path.join(launcher_path, 'scripts')
+
+logging.basicConfig(filename='job_errors.log', level=logging.ERROR)
+
+max_attempts = 10
+search_query = "record player"
+
+timezone = pytz.timezone('Asia/Jakarta')
+current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M:%S")
+
+
+def run_script(script_path, file_name, launcher_path, search_query, max_retries=max_attempts):
+    for retry in range(max_retries + 1):
+        try:
+            print(f"Running script: {script_path}")
+            subprocess.run(['python3', script_path, file_name, launcher_path, search_query], check=True)
+            print(f"Script completed: {script_path}")
+            break
+
+        except subprocess.CalledProcessError as e:
+            print(f"Error running script {script_path}: {e}")
+            logging.error(f"({current_time}) {script_path} failed and is attempting to recover: {e}")
+            if retry < max_retries:
+                print(f"Retrying... (attempt {retry + 2}/{max_retries + 1})")
+            else:
+                print(f"Script {script_path} failed.")
+                logging.error(f"({current_time}) Max retries reached for script {script_path}: {e}")
+
+                send_email = os.path.join(scripts_folder, 'send_email.py')
+                subprocess.run(['python3', send_email, launcher_path], check=True)
+
+                break
+
 
 def job():
     try:
         print("Starting Job...")
 
-        file_names = [
-            'cl_austin.py',
-            'cl_dallas.py',
-            'cl_houston.py',
-            'cl_san_antonio.py',
-            'cl_san_marcos.py',
-            'cl_killeen.py',
-            'cl_waco.py',
-            'cl_college_station.py',
-            'cl_galveston.py',
-            'cl_victoria.py',
-            'cl_laredo.py',
-            'cl_corpus_christi.py',
-            'cl_beaumont.py',
-            'cl_san_angelo.py',
-            'cl_east_texas.py',
-            'cl_del_rio.py',
-            'cl_abilene.py',
-            'cl_wichita_falls.py',
-            'cl_deep_east.py',
-            'cl_texoma.py',
-            'cl_odessa.py',
-            'cl_mcallen.py',
-            'cl_brownsville.py',
-            'cl_texarkana.py',
-            #Louisiana
-            'cl_lake_charles.py',
-            'cl_shreveport.py',
-            'cl_lafayette.py',
-            #Oklahoma
-            'cl_lawton.py',
-            'cl_oklahoma_city.py',
+        cl_scripts = [file_name for file_name in os.listdir(scripts_folder) if file_name.startswith('cl_')]
 
-            'remove_extra_images.py',
+        ordered_scripts = [
             'filter_csv.py',
-            'to_mysql.py'
-                      ]
+            'remove_extra_images.py',
+            'to_mysql_v2.py',
+            'to_cloudinary.py'
+            ]
 
-        for file_name in file_names:
-            print(f"Processing: {file_name}")
-            file_path = os.path.join(launcher_path, 'scripts', file_name)
-            with open(file_path, 'r') as file:
-                script = file.read()
-                exec(script)
+        all_scripts = cl_scripts + ordered_scripts
+
+        script_paths = [os.path.join(scripts_folder, file_name) for file_name in all_scripts]
+
+        for script_path in script_paths:
+            file_name = os.path.basename(script_path)
+            run_script(script_path, file_name, launcher_path, search_query, max_retries=max_attempts)
 
         print("Job Complete!")
 
     except Exception as e:
+        logging.error(f"({current_time}) Error in job: {e}")
         print(f"Error: {e}")
         job()
+
+
 job()
 
 schedule.every(70).to(90).minutes.do(job)

@@ -23,24 +23,39 @@ export function SearchResult({ resultList }: SearchResultProps) {
     return resultList.filter(
       (result: any) =>
         result.title.toLowerCase().includes(searchText.toLowerCase()) ||
-        result.source.toLowerCase().replace(/\s/g, "_").includes(formattedSearchText) ||
-        result.location.toLowerCase().includes(searchText.toLowerCase())
+        result.location.toLowerCase().includes(searchText.toLowerCase()) ||
+        result.sources.toLowerCase().split(",").some((source: string) => source.includes(formattedSearchText))
     );
   };
 
   const sortedResults = searchFilter(resultList, searchText);
 
-  const getComparableValue = (timestamp: string) => {
-    const parts = timestamp.split(" ");
+  const getComparableValue = (post_timestamp: string) => {
+    const parts = post_timestamp.split(" ");
+
     if (parts[1] === "mins") {
-      return -parseInt(parts[0]);
+      const minutesAgo = parseInt(parts[0]);
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - minutesAgo);
+      return now.toISOString();
     } else if (parts[1] === "ago") {
-      return -parseInt(parts[0]) * 60;
+      const hoursAgo = parseInt(parts[0]);
+      const now = new Date();
+      now.setHours(now.getHours() - hoursAgo);
+      return now.toISOString();
     } else {
-      const [month, day] = parts[0].split("/");
-      return new Date(`2023-${month}-${day}`).getTime();
+      const [monthStr, dayStr] = parts[0].split("/");
+      const month = parseInt(monthStr);
+      const day = parseInt(dayStr);
+
+      if (isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
+        return new Date().toISOString(); // Use current date as fallback
+      }
+
+      return new Date(`2023-${month}-${day}`).toISOString();
     }
   };
+
 
   const firstTypeResults: any[] = [];
   const secondTypeResults: any[] = [];
@@ -53,16 +68,17 @@ export function SearchResult({ resultList }: SearchResultProps) {
     }
   });
 
-  firstTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp) - getComparableValue(a.post_timestamp));
-  secondTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp) - getComparableValue(a.post_timestamp));
+  firstTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp).localeCompare(getComparableValue(a.post_timestamp)));
+  secondTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp).localeCompare(getComparableValue(a.post_timestamp)));
 
   const mergedResults = [...firstTypeResults, ...secondTypeResults];
+
 
   const uniqueResults: any[] = [];
   const uniquePosts: Record<string, boolean> = {};
 
   mergedResults.forEach((result) => {
-    const postKey = `${result.title}${result.image_path}`;
+    const postKey = `${result.id}`;
     if (!uniquePosts[postKey]) {
       uniquePosts[postKey] = true;
       uniqueResults.push(result);
@@ -88,18 +104,20 @@ export function SearchResult({ resultList }: SearchResultProps) {
         </div>
 
         <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-          {uniqueResults.map((result: any) => {
+          {mergedResults.map((result: any) => {
             return (
               <ResultCard
-                key={result.data_pid}
+                key={result.id}
+                id={result.id}
                 title={result.title}
                 price={result.price}
-                source={result.source}
-                timestamp={result.post_timestamp}
+                post_timestamp={result.post_timestamp}
                 location={result.location}
-                post={result.post_url}
-                image={result.image_path}
+                post_url={result.post_url}
                 data_pid={result.data_pid}
+                is_new={result.is_new}
+                cloudinary_link={result.cloudinary_link}
+                sources={result.sources}
               />
             );
           })}

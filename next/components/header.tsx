@@ -10,7 +10,7 @@ const Header = () => {
             <Link href='/'>Record Player Search Tool</Link>
           </li>
 
-          <li className=''>
+          <li className='mt-1'>
             <SignInButton />
           </li>
         </ul>

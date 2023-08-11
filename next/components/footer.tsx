@@ -22,10 +22,10 @@ const Footer = () => {
       <Button variant="link" className='text-base'>Made by Gavin Kondrath</Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-80 ml-5">
-        <div className="flex justify-between space-x-4">
+        <div className="flex justify-between">
           <Avatar>
             <AvatarImage src="/gavin-photo.jpg" />
-            <AvatarFallback>VC</AvatarFallback>
+            <AvatarFallback>GK</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
             <h4 className="text-sm font-semibold">Gavin Kondrath</h4>
@@ -46,14 +46,12 @@ const Footer = () => {
       </HoverCard>
       </li>
       <li className=''>
-        <div>
         <Link
         className='text-red-500 font-medium text-base'
         href='/report'
         >
           Report a problem
         </Link>
-        </div>
         </li>
         </ul>
       </div>

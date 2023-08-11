@@ -1,30 +1,33 @@
 import os
 import pandas as pd
+import sys
+
+launcher_path = sys.argv[2]
+
 
 def read_words_from_file(file_path):
     with open(file_path, 'r') as file:
         words = [word.strip() for line in file for word in line.split()]
     return words
 
+
 def filter_csv_by_words(csv_file, words):
     df = pd.read_csv(csv_file)
-    df = df[~df['title'].str.lower().str.contains('|'.join(words), na=False)]
+    if words:
+        df = df[~df['title'].str.lower().str.contains('|'.join(words), na=False)]
     return df
+
 
 def save_filtered_csv(filtered_df, output_file):
     filtered_df.to_csv(output_file, index=False)
 
+
 sheets_folder = f"{launcher_path}/sheets"
 words_file = f"{launcher_path}/filter_words.txt"
-output_folder = f"{launcher_path}/sheets/filtered"
+output_folder = f"{launcher_path}/filtered"
 
-os.umask(0o002)
 if not os.path.exists(output_folder):
-    try:
-        original_umask = os.umask(0)
-        os.makedirs(os.path.dirname(output_folder), mode=0o777)
-    finally:
-        os.umask(original_umask)
+    os.makedirs(output_folder)
 
 words_to_filter = read_words_from_file(words_file)
 
