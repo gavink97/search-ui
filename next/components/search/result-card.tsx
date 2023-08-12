@@ -1,3 +1,4 @@
+"use client"
 import Link from 'next/link'
 import { CldImage } from 'next-cloudinary';
 
@@ -16,6 +17,11 @@ interface ResultCardProps {
 
 export function ResultCard({ id, title, price, post_timestamp, location, post_url, data_pid, is_new, cloudinary_link, sources }: ResultCardProps) {
 
+  const removeCommonPart = (url: string) => {
+    const commonPart = 'https://res.cloudinary.com/dfun3kr6v/image/upload/';
+    return url.replace(commonPart, '');
+  };
+
     return (
         <Link
           href={post_url}
@@ -24,11 +30,14 @@ export function ResultCard({ id, title, price, post_timestamp, location, post_ur
           rel="noopener noreferrer"
       >
         <CldImage
-         src={`${cloudinary_link}`}
+         src={removeCommonPart(cloudinary_link)}
          alt='record player'
          width="300"
          height="300"
-         crop='fill'>
+         format="webp"
+         sizes="25w"
+         crop='fill'
+         >
          </CldImage>
         <h2 className={`text-base mt-2 font-semibold text-center`}>
           {title}

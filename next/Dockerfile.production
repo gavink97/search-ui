@@ -14,17 +14,14 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
-# Build the app
 FROM base AS builder
 
 WORKDIR /web
 COPY --from=deps --link /web/node_modules ./node_modules
 COPY --link . .
-COPY ./prisma prisma
 COPY ./next.config.js next.config.js
 RUN yarn build
 
-# Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /web
 
@@ -38,7 +35,6 @@ COPY --from=builder --link /web/public ./public
 COPY --from=builder --link /web/next.config.js next.config.js
 COPY --from=builder --link --chown=1001:1001 /web/.next/standalone ./
 COPY --from=builder --link --chown=1001:1001 /web/.next/static ./.next/static
-COPY --chown=node:node --from=builder /web/prisma /web/prisma
 
 USER nextjs
 

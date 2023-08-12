@@ -1,6 +1,6 @@
 import { headers } from "next/headers"
 
-const SEARCH_API = process.env.NEXTAUTH_URL + '/api/search';
+const SEARCH_API = process.env.URL + '/api/search';
 
 export async function getResultsList() {
    try {
