@@ -220,10 +220,12 @@ if req_cloud_images.status_code == 200:
     print("Successfully grabbed images from Cloudinary")
     response_data = req_cloud_images.json()
     current_cloud_images = set(item['public_id'] for item in response_data.get('resources', []))
+    print(current_cloud_images)
 else:
     print("An error occured while getting Cloudinary images. Status code:", req_cloud_images.status_code)
     print("Response content:", req_cloud_images.content)
 
+#compare this section with mysl_backup - data isn't pull in from cursor_for_query
 cloudinary_link_query = """
     SELECT c.cloudinary_link
     FROM cloudinary c
@@ -234,15 +236,14 @@ cursor_for_query = db.cursor()
 
 for data_pid in data_pid_values:
     cursor_for_query.execute(cloudinary_link_query, (data_pid,))
-    cloudinary_links = cursor_for_query.fetchone()
-    print(cloudinary_links)
+    cloudinary_links = cursor_for_query.fetchall()
+    for link_tuple in cloudinary_links:
+        print(link_tuple)
+        if link_tuple[0] is not None and link_tuple[0] in current_cloud_images:
+            cloudinary_links_to_delete.append(link_tuple[0])
+            print("Found link to delete:", link_tuple[0])
 
 cursor_for_query.close()
-        # if cloudinary_link[0] is not None:
-         #    cloudinary_links_to_delete.append(cloudinary_link)
-
-            # if cloudinary_link[0] in current_cloud_images:
-             #   if cloudinary_link[0] is not cloudinary_link[0] != "no_image":
 
 if cloudinary_links_to_delete:
 

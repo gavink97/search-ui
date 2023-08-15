@@ -220,6 +220,7 @@ if req_cloud_images.status_code == 200:
     print("Successfully grabbed images from Cloudinary")
     response_data = req_cloud_images.json()
     current_cloud_images = set(item['public_id'] for item in response_data.get('resources', []))
+    print(current_cloud_images)
 else:
     print("An error occured while getting Cloudinary images. Status code:", req_cloud_images.status_code)
     print("Response content:", req_cloud_images.content)
@@ -234,8 +235,11 @@ cursor_for_query = db.cursor()
 
 for data_pid in data_pid_values:
     cursor_for_query.execute(cloudinary_link_query, (data_pid,))
-    cloudinary_links = cursor_for_query.fetchone()
-    print(cloudinary_links)
+    cloudinary_links = cursor_for_query.fetchall()
+    if cloudinary_links[0] is not None:
+        if cloudinary_links[0] in current_cloud_images:
+            if cloudinary_links[0] is not cloudinary_links[0] != "no_image":
+                print(cloudinary_links)
 
 cursor_for_query.close()
         # if cloudinary_link[0] is not None:

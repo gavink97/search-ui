@@ -1,7 +1,7 @@
 "use client"
 
 import { ResultCard } from "./result-card";
-import { useState, ReactNode } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
@@ -85,6 +85,16 @@ export function SearchResult({ resultList }: SearchResultProps) {
     }
   });
 
+  const [resultCount, setResultCount] = useState(0);
+  const [totalResultCount, setTotalResultCount] = useState(0);
+
+  useEffect(() => {
+    if (resultList) {
+      setTotalResultCount(resultList.length);
+      setResultCount(mergedResults.length);
+    }
+  }, [resultList, mergedResults]);
+
   return (
     <>
       <Auth>
@@ -101,6 +111,19 @@ export function SearchResult({ resultList }: SearchResultProps) {
               onChange={(e) => setSearchText(e.target.value)}
             />
           </div>
+        </div>
+
+        <div className="text-center mt-4 text-xl container">
+          <ul className="flex items-center justify-between">
+            <li></li>
+            <li className="text-slate-700">
+              {resultCount === 1 ? (
+                <p>1 result</p>
+              ) : (
+                <p>Displaying {resultCount} of {totalResultCount} results</p>
+              )}
+            </li>
+          </ul>
         </div>
 
         <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">

@@ -2,9 +2,13 @@ import requests
 import os
 from dotenv import load_dotenv
 import mysql.connector
+import time
+import hashlib
 
 load_dotenv()
 cloud_url = os.environ['CLOUDINARY_URL']
+cloud_api_key = os.environ['CLOUD_API_KEY']
+cloud_api_secret = os.environ['CLOUD_API_SECRET']
 db_host = os.environ['MYSQL_HOST']
 db_port = os.environ['MYSQL_PORT']
 db_user = os.environ['MYSQL_USER']
@@ -39,29 +43,54 @@ else:
         image_path = row[1]
         cloudinary_link = row[3]
 
+        timestamp = int(time.time())
+        public_id = os.path.splitext(os.path.basename(image_path))[0]
+        signature_data = f"public_id={public_id}&timestamp={timestamp}{cloud_api_secret}"
+        signature = hashlib.sha1(signature_data.encode()).hexdigest()
+
+
         print(f"Uploading image {index}/{len(rows)}: {image_path}")
 
         cloudinary_params = {
             "file": ( open(image_path, 'rb'))
         }
 
-        cloudinary_url_with_params = f"{cloud_url}?upload_preset=ml_default"
+        data = {
+            "public_id": public_id,
+            "api_key": cloud_api_key,
+            "signature": signature,
+            "timestamp": timestamp
+        }
 
-        response = requests.post(cloudinary_url_with_params, files=cloudinary_params)
-        cloudinary_response = response.json()
+        cloudinary_url_with_params = f"{cloud_url}/upload"
 
-        cloudinary_link = cloudinary_response['secure_url']
+        try:
+            response = requests.post(cloudinary_url_with_params, files=cloudinary_params, data=data)
+            if response.status_code == 200:
+                print("Cloudinary image uploaded successfully")
+            else:
+                print("Error uploading Cloudinary image. Status code:", response.status_code)
+                print("Response content:", response.content)
 
-        update_query = """
-            UPDATE cloudinary
-            SET cloudinary_link = %s
-            WHERE data_pid_id = %s
-        """
+            cloudinary_response = response.json()
+            cloudinary_link = cloudinary_response['public_id']
 
-        cursor.execute(update_query, (cloudinary_link, data_pid_id))
-        db.commit()
+            update_query = """
+                UPDATE cloudinary
+                SET cloudinary_link = %s
+                WHERE data_pid_id = %s
+            """
+
+            cursor.execute(update_query, (cloudinary_link, data_pid_id))
+            db.commit()
+
+        except Exception as e:
+            print("Error uploading image to Cloudinary:", str(e))
+
 
 print("Completed uploading to Cloudinary.")
+
+#image updating script
 
 cursor.close()
 db.close()

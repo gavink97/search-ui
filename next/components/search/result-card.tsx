@@ -1,6 +1,7 @@
 "use client"
 import Link from 'next/link'
 import { CldImage } from 'next-cloudinary';
+import Image from 'next/image';
 
 interface ResultCardProps {
   id: number;
@@ -11,16 +12,12 @@ interface ResultCardProps {
   post_url: string;
   data_pid: string;
   is_new: boolean;
-  cloudinary_link: string;
+  cloudinary_link: string | null;
   sources: string;
 }
 
 export function ResultCard({ id, title, price, post_timestamp, location, post_url, data_pid, is_new, cloudinary_link, sources }: ResultCardProps) {
-
-  const removeCommonPart = (url: string) => {
-    const commonPart = 'https://res.cloudinary.com/dfun3kr6v/image/upload/';
-    return url.replace(commonPart, '');
-  };
+  const defaultImage = "/pyapp/images/no_image.png";
 
     return (
         <Link
@@ -29,16 +26,25 @@ export function ResultCard({ id, title, price, post_timestamp, location, post_ur
           target="_blank"
           rel="noopener noreferrer"
       >
+      {cloudinary_link ? (
         <CldImage
-         src={removeCommonPart(cloudinary_link)}
-         alt='record player'
-         width="300"
-         height="300"
-         format="webp"
-         sizes="25w"
-         crop='fill'
-         >
-         </CldImage>
+          src={cloudinary_link}
+          alt='record player'
+          width="300"
+          height="300"
+          format="webp"
+          sizes="25w"
+          crop='fill'
+        />
+      ) : (
+        <Image
+          src={defaultImage}
+          alt='missing record player photo'
+          width="300"
+          height="300"
+        >
+        </Image>
+      )}
         <h2 className={`text-base mt-2 font-semibold text-center`}>
           {title}
         </h2>

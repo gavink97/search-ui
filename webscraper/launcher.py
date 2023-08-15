@@ -9,7 +9,7 @@ import pytz
 launcher_path = os.path.dirname(os.path.abspath(__file__))
 scripts_folder = os.path.join(launcher_path, 'scripts')
 
-logging.basicConfig(filename='job_errors.log', level=logging.ERROR)
+logging.basicConfig(filename=f'{launcher_path}/job_errors.log', level=logging.ERROR)
 
 max_attempts = 10
 search_query = "record player"

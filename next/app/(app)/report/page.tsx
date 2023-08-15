@@ -1,5 +1,3 @@
-import Link from 'next/link'
-
 export default function Report() {
     return (
         <>
@@ -8,8 +6,8 @@ export default function Report() {
                     This feature will be coming soon!
                 </div>
              For now email
-                <Link href='mailto:gavin@gav.ink'
-                > gavin@gav.ink </Link>
+                <a href='mailto:gavin@gav.ink'
+                > gavin@gav.ink </a>
             with a screenshot of the issue
             </div>
         </>
