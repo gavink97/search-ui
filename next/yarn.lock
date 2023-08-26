@@ -113,6 +113,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@heroicons/react@npm:^2.0.18":
+  version: 2.0.18
+  resolution: "@heroicons/react@npm:2.0.18"
+  peerDependencies:
+    react: ">= 16"
+  checksum: 597e8668818623d568a302e343ef06b69f62ce297c14b88c2ebbfed0c0f00cd85ec44fae33ec8a249931b4e7dcf145743ae3198095a9f4682108de5155f5f4c3
+  languageName: node
+  linkType: hard
+
 "@isaacs/cliui@npm:^8.0.2":
   version: 8.0.2
   resolution: "@isaacs/cliui@npm:8.0.2"
@@ -1763,6 +1772,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"heroicons@npm:^2.0.18":
+  version: 2.0.18
+  resolution: "heroicons@npm:2.0.18"
+  checksum: 12cba153f9ac1f7d1d657bb22b567a3226cce2e18b1a47219ee63527d56cce91ac63006b69d8e7323c8bd7b834044fe99d12d652d8bf3da579db531a311b704f
+  languageName: node
+  linkType: hard
+
 "http-cache-semantics@npm:^4.1.1":
   version: 4.1.1
   resolution: "http-cache-semantics@npm:4.1.1"
@@ -2400,6 +2416,7 @@ __metadata:
   resolution: "next@workspace:."
   dependencies:
     "@auth/core": ^0.10.0
+    "@heroicons/react": ^2.0.18
     "@next/swc-linux-arm64-gnu": ^13.4.12
     "@next/swc-linux-arm64-musl": ^13.4.12
     "@radix-ui/react-avatar": ^1.0.3
@@ -2416,6 +2433,7 @@ __metadata:
     clsx: ^1.2.1
     cookie: ^0.5.0
     dotenv: ^16.3.1
+    heroicons: ^2.0.18
     lucide-react: ^0.258.0
     mysql2: ^3.4.3
     next: 13.4.12

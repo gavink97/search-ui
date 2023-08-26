@@ -9,6 +9,9 @@ export default function Profile() {
     return(
         <div className=''>
             <h1 className='text-xl'>Profile</h1>
+            <div className=''>
+                <pre className=''>{JSON.stringify(session)}</pre>
+            </div>
         </div>
     )
 }

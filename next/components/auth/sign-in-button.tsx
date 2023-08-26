@@ -33,10 +33,10 @@ const SignInButton = () => {
             <Link href={'/profile'}>Profile</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              Billing
+            <Link href={'/privacy'}>Privacy Policy</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              Settings
+            <Link href={'/tos'}>Terms of Service</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
