@@ -7,9 +7,8 @@ export default function Profile() {
     const { data: session, status } = useSession();
     if (status === "authenticated") {
     return(
-        <div>
-            <h1>Profile</h1>
-            <pre>{JSON.stringify(session)}</pre>
+        <div className=''>
+            <h1 className='text-xl'>Profile</h1>
         </div>
     )
 }
