@@ -4,9 +4,9 @@ import { getResultsList } from '@/lib/searchAPI'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/components/auth/auth.config"
 
-export default async function Home() {
+export default async function RPST() {
   const session = await getServerSession(authOptions)
-  console.log("session in homepage:", session)
+  console.log("session in RPST:", session)
   const resultList = await getResultsList();
   return (
     <>

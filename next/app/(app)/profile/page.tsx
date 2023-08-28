@@ -1,11 +1,10 @@
-'use client'
-
-import { useSession } from 'next-auth/react'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/components/auth/auth.config"
 import { redirect } from 'next/navigation';
 
-export default function Profile() {
-    const { data: session, status } = useSession();
-    if (status === "authenticated") {
+export default async function Profile() {
+    const session = await getServerSession(authOptions)
+    if (session) {
     return(
         <div className=''>
             <h1 className='text-xl'>Profile</h1>

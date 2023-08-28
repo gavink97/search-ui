@@ -27,11 +27,9 @@ driver.implicitly_wait(9)
 
 url = 'https://www.facebook.com/'
 search_query = 'record player'
-search_location = 'Austin, Texas'
 
 login_email = 'gavin.kondrath@gmail.com'
 login_password= 'SsONI955@yF%4hIf78q71rFlrm%PxOAT'
-misspelled_login_email = ''.join(random.choice([c.upper(), c.lower()]) for c in login_email)
 random_delay = random.uniform(0.4, 2.7)
 
 driver.get(url)
@@ -42,7 +40,7 @@ time.sleep(10)
 email_address_field = driver.find_element(By.XPATH, '//*[@id="email"]')
 email_address_field.click()
 time.sleep(5)
-for char in misspelled_login_email:
+for char in login_email:
     email_address_field.send_keys(char)
     delay = random.uniform(0.1, .7)
     time.sleep(delay)
@@ -58,14 +56,13 @@ time.sleep(random_delay)
 log_in_button = driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]')
 log_in_button.click()
 
-time.sleep(5)
+time.sleep(8)
 
 # marketplace / search
 market = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div[1]/div/div/div[1]/div/div/div[1]/div[1]/ul/li[2]/div/a/div[1]/div[2]')
 market.click()
 time.sleep(random_delay)
-# start here
-search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div')
+search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')
 for char in search_query:
     search_field.send_keys(char)
     delay = random.uniform(0.1, 1.7)
@@ -73,32 +70,7 @@ for char in search_query:
 time.sleep(random_delay)
 search_field.send_keys(Keys.ENTER)
 time.sleep(5)
-
-#select filters, austin + radius
-filters_div = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div[3]/div[2]/div[1]')
-filters_div.click()
-time.sleep(random_delay)
-location_input = driver.find_element(By.XPATH, '//*[@id=":r34:"]')
-location_input.click()
-time.sleep(random_delay)
-for char in search_location:
-    location_input.send_keys(char)
-    delay = random.uniform(0.1, 1.2)
-    time.sleep(delay)
-austin = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div/ul/li[1]/div/div[1]/div/div/div/div/div/div/div/div/div/div[1]')
-austin.click()
-time.sleep(random_delay)
-radius = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div[3]/div/div[1]/div[3]/div/div/label/div/div[1]/div/div')
-radius.click()
-time.sleep(random_delay)
-radius_selector = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div/div/div/div/div[1]/div/div[11]/div[2]')
-radius_selector.click()
-time.sleep(random_delay)
-location_apply = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div[4]/div/div[2]/div/div/div/div/div/div/div[1]/div/span/span')
-location_apply.click()
-time.sleep(1.5)
-
-
+# start here
 
 #setup bs4 loop
 posts_html = []

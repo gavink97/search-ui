@@ -1,0 +1,1 @@
+ERROR:root:(08/28 22:38:40) /pyapp/scripts/cl_dallas.py failed and is attempting to recover: Command '['python3', '/pyapp/scripts/cl_dallas.py', 'cl_dallas.py', '/pyapp', 'record player']' returned non-zero exit status 1.

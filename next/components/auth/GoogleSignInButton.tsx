@@ -1,13 +1,11 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { Button } from '../ui/button'
 
 
 const GoogleSignInButton = () => {
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') ?? undefined;
+  const callbackUrl = '/rpst';
 
   return (
     <Button

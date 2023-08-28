@@ -7,7 +7,7 @@ const Header = () => {
       <nav className='container'>
         <ul className='flex items-center justify-between gap-8 font-medium tracking-wider text-stone-500'>
           <li className='text-2xl text-bold'>
-            <Link href='/'>Record Player Search Tool</Link>
+            <Link href='/'>Gavin Kondrath</Link>
           </li>
 
           <li className='mt-1'>

@@ -12,10 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-
-
+import { useRouter } from 'next/navigation';
 
 const SignInButton = () => {
+  const router = useRouter();
   const { data: session } = useSession();
 
   return (
@@ -28,15 +28,19 @@ const SignInButton = () => {
         <DropdownMenuContent className="w-55">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => router.push('/rpst')}>
+              Search Tool
+            </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-            <Link href={'/profile'}>Profile</Link>
+            <DropdownMenuItem onClick={() => router.push('/profile')}>
+              Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
-            <Link href={'/privacy'}>Privacy Policy</Link>
+            <DropdownMenuItem onClick={() => router.push('/privacy')}>
+              Privacy Policy
             </DropdownMenuItem>
-            <DropdownMenuItem>
-            <Link href={'/tos'}>Terms of Service</Link>
+            <DropdownMenuItem onClick={() => router.push('/tos')}>
+              Terms of Service
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

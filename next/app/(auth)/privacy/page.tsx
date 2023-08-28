@@ -1,15 +1,18 @@
-
-import Link from "next/link"
+"use client"
+import { useRouter } from 'next/navigation'
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid'
 
 export default function Privacy() {
+  const router = useRouter();
+
     return(
-      <div className="mt-6">
-        <header >
-          <Link href='/'>
+      <div className="m-12">
+        <header className="absolute top-6 left-8" >
+          <button onClick={() => router.back()}>
           <ArrowUturnLeftIcon className="h-6 w-6" />
-          </Link>
+          </button>
         </header>
+
         <div className="m-6">
             <h1 className="text-3xl font-medium mb-12">Privacy Policy</h1>
             <div className="m-6">
