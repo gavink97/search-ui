@@ -13,6 +13,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import random
 from urllib.parse import urlencode, urlparse, parse_qs
 from dotenv import load_dotenv
@@ -34,6 +36,7 @@ firefox_option = Options()
 firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
 driver.implicitly_wait(9)
+driver.set_window_size(1500, 1000)
 driver.install_addon(f'{launcher_path}/drivers/extensions/adblock_for_firefox-5.4.2.xpi')
 
 url = 'https://www.facebook.com/'
@@ -41,8 +44,6 @@ url = 'https://www.facebook.com/'
 random_delay = random.uniform(0.4, 2.7)
 
 driver.get(url)
-
-#create kasmweb dummy connection
 
 time.sleep(8)
 window_handles = driver.window_handles
@@ -82,6 +83,20 @@ time.sleep(random_delay)
 search_field.send_keys(Keys.ENTER)
 time.sleep(5)
 
+wait = WebDriverWait(driver, 10)
+sort_by = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div[3]/div[2]/div[2]/div[1]')
+sort_by.click()
+time.sleep(1.5)
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Date listed: Newest first')]")))
+newest_first.click()
+time.sleep(2)
+date_listed = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Date listed']")))
+date_listed.click()
+time.sleep(1.5)
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 30 days')]")))
+newest_first.click()
+time.sleep(2)
+
 posts_html = []
 scraped_hrefs = set()
 to_stop = False
@@ -119,11 +134,10 @@ while not to_stop:
     if "Results from outside your search" in driver.page_source:
         break
 
-# just for testing
-with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
-    for div in posts_html:
-        file.write(str(div) + '\n')
-# just for testing
+#with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
+#    for div in posts_html:
+#        file.write(str(div) + '\n')
+
 print('Collected {0} listings'.format(len(posts_html)))
 
 FbPost = namedtuple('FbPost',

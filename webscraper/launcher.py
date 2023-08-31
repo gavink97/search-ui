@@ -44,7 +44,6 @@ def run_script(script_path, file_name, launcher_path, search_query, max_retries=
 
                 send_email = os.path.join(scripts_folder, 'send_email.py')
                 subprocess.run(['python3', send_email, launcher_path], check=True)
-
                 break
 
 
@@ -80,7 +79,7 @@ def job():
 
 job()
 
-schedule.every(70).to(90).minutes.do(job)
+schedule.every(90).to(120).minutes.do(job)
 
 while True:
     schedule.run_pending()

@@ -11,6 +11,7 @@ import sys
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service
@@ -72,6 +73,9 @@ while not to_stop:
     if match:
         current_page = int(match.group(1).replace(',', ''))
         total_items = int(match.group(2).replace(',', ''))
+    if posts_html ==[]:
+        driver.close()
+        raise NoSuchElementException("No listings found on the page. Check if the page loaded properly.")
 
     try:
         driver.execute_script('window.scrollTo(0, 0)')
@@ -82,8 +86,13 @@ while not to_stop:
             to_stop = True
         else:
             to_stop = False
+
     except ElementNotInteractableException:
         to_stop = True
+
+    except NoSuchElementException as e:
+        print(f"Error: {e}")
+        break
 
 print('Collected {0} listings'.format(len(posts_html)))
 
