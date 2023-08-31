@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import requests
 import sys
+from urllib.parse import urlparse
 
 launcher_path = sys.argv[2]
 
@@ -76,7 +77,10 @@ def main():
                                     break
 
         for missing_image_path, image_url in missing_image_urls.items():
-            image_filename = image_url.split('/')[-1]
+            parsed_image_url = urlparse(image_url)
+            image_path_parsed = parsed_image_url.path
+            cleaned_image_path = image_path_parsed.split('?')[0]
+            image_filename = os.path.basename(cleaned_image_path)
             image_path = os.path.join(cl_images_fold, image_filename)
 
             if not os.path.exists(image_path):

@@ -6,10 +6,17 @@ import logging
 import datetime
 import pytz
 
+time.sleep(2)
+
 launcher_path = os.path.dirname(os.path.abspath(__file__))
 scripts_folder = os.path.join(launcher_path, 'scripts')
+log_file_path = f'{launcher_path}/job_errors.log'
 
-logging.basicConfig(filename=f'{launcher_path}/job_errors.log', level=logging.ERROR)
+try:
+    os.chmod(log_file_path, 0o600)
+    logging.basicConfig(filename=log_file_path, level=logging.ERROR)
+except Exception as e:
+    print(f"An error occurred: {e}")
 
 max_attempts = 10
 search_query = "record player"
@@ -45,9 +52,10 @@ def job():
     try:
         print("Starting Job...")
 
-        cl_scripts = [file_name for file_name in os.listdir(scripts_folder) if file_name.startswith('cl_')]
+        cl_scripts = [file_name for file_name in os.listdir(scripts_folder) if file_name.startswith('craigslist_')]
 
         ordered_scripts = [
+            'facebook_marketplace.py',
             'filter_csv.py',
             'remove_extra_images.py',
             'to_mysql_v2.py',

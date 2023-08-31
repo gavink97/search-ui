@@ -15,7 +15,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
-import random
+
+file_name = sys.argv[1]
+launcher_path = sys.argv[2]
+search_query = sys.argv[3]
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0'
 firefox_driver_path = os.path.join(os.getcwd(), 'drivers', 'geckodriver')
@@ -25,60 +28,28 @@ firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
 driver.implicitly_wait(9)
 
-url = 'https://www.facebook.com/'
-search_query = 'record player'
+url = 'https://nacogdoches.craigslist.org/'
 
-login_email = 'gavin.kondrath@gmail.com'
-login_password= 'SsONI955@yF%4hIf78q71rFlrm%PxOAT'
-random_delay = random.uniform(0.4, 2.7)
-
+source_name = os.path.splitext(f'{file_name}')[0]
+city_name = re.sub(r'craigslist_', '', source_name).replace('_', ' ').title()
+print(f"Now getting {search_query}s from {city_name} Craigslist...")
 driver.get(url)
 
-time.sleep(10)
-
-#login
-email_address_field = driver.find_element(By.XPATH, '//*[@id="email"]')
-email_address_field.click()
-time.sleep(5)
-for char in login_email:
-    email_address_field.send_keys(char)
-    delay = random.uniform(0.1, .7)
-    time.sleep(delay)
-
-password_field = driver.find_element(By.XPATH, '//*[@id="pass"]')
-time.sleep (3)
-password_field.click()
-for char in login_password:
-    password_field.send_keys(char)
-    delay = random.uniform(0.1, 1.8)
-    time.sleep(delay)
-time.sleep(random_delay)
-log_in_button = driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]')
-log_in_button.click()
-
+for_sale = driver.find_element(By.XPATH, '/html/body/div[2]/section/div[3]/div[3]/div[2]/h3/a')
+for_sale.click()
 time.sleep(8)
-
-# marketplace / search
-market = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div[1]/div/div/div[1]/div/div/div[1]/div[1]/ul/li[2]/div/a/div[1]/div[2]')
-market.click()
-time.sleep(random_delay)
-search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')
-for char in search_query:
-    search_field.send_keys(char)
-    delay = random.uniform(0.1, 1.7)
-    time.sleep(delay)
-time.sleep(random_delay)
+search_field = driver.find_element(By.XPATH, '/html/body/div[1]/main/form/div[1]/div/div/input')
+search_field.clear()
+search_field.send_keys(search_query)
 search_field.send_keys(Keys.ENTER)
-time.sleep(5)
-# start here
+time.sleep(5)  # If you start getting "ValueError:" "Expected axis has 0 elements" increase time.sleep
 
-#setup bs4 loop
 posts_html = []
 to_stop = False
 current_page = 0
 total_items = 0
 
-scroll_pause_time = .7
+scroll_pause_time = .7  # if current_gallery == prev_gallery before it reaches the end of the page increase this
 scroll_offset = 1200
 actions = ActionChains(driver)
 
@@ -92,7 +63,7 @@ while not to_stop:
         current_gallery = current_url.split('#')[1] if '#' in current_url else None
         if current_gallery == prev_gallery:
             break
-    search_results = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div[4]/ol')
+    search_results = driver.find_element(By.XPATH, '/html/body/div[1]/main/div/div[5]/ol')
     soup = BeautifulSoup(search_results.get_attribute('innerHTML'), 'html.parser')
     posts_html.extend(soup.find_all('li', {'class': 'cl-search-result'}))
     page_num = driver.find_element(By.CLASS_NAME, 'cl-page-number').text
@@ -104,7 +75,7 @@ while not to_stop:
 
     try:
         driver.execute_script('window.scrollTo(0, 0)')
-        button_next = driver.find_element(By.XPATH, '/html/body/div[1]/main/div[2]/div[1]/div[2]/button[3]')
+        button_next = driver.find_element(By.XPATH, '/html/body/div[1]/main/div/div[8]/div[1]/button[3]')
         button_next.click()
         time.sleep(1)
         if current_page == total_items:

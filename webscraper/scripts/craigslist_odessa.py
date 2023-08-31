@@ -28,10 +28,10 @@ firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
 driver.implicitly_wait(9)
 
-url = 'https://corpuschristi.craigslist.org/'
+url = 'https://odessa.craigslist.org/'
 
 source_name = os.path.splitext(f'{file_name}')[0]
-city_name = re.sub(r'cl_', '', source_name).replace('_', ' ').title()
+city_name = re.sub(r'craigslist_', '', source_name).replace('_', ' ').title()
 print(f"Now getting {search_query}s from {city_name} Craigslist...")
 driver.get(url)
 

@@ -11,6 +11,7 @@ import sys
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.common.exceptions import ElementNotInteractableException
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service
@@ -28,10 +29,10 @@ firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
 driver.implicitly_wait(9)
 
-url = 'https://abilene.craigslist.org/'
+url = 'https://austin.craigslist.org/'
 
 source_name = os.path.splitext(f'{file_name}')[0]
-city_name = re.sub(r'cl_', '', source_name).replace('_', ' ').title()
+city_name = re.sub(r'craigslist_', '', source_name).replace('_', ' ').title()
 print(f"Now getting {search_query}s from {city_name} Craigslist...")
 driver.get(url)
 
@@ -72,6 +73,9 @@ while not to_stop:
     if match:
         current_page = int(match.group(1).replace(',', ''))
         total_items = int(match.group(2).replace(',', ''))
+    if posts_html ==[]:
+        driver.close()
+        raise NoSuchElementException("No listings found on the page. Check if the page loaded properly.")
 
     try:
         driver.execute_script('window.scrollTo(0, 0)')
@@ -82,8 +86,13 @@ while not to_stop:
             to_stop = True
         else:
             to_stop = False
+
     except ElementNotInteractableException:
         to_stop = True
+
+    except NoSuchElementException as e:
+        print(f"Error: {e}")
+        break
 
 print('Collected {0} listings'.format(len(posts_html)))
 

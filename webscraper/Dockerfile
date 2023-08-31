@@ -1,9 +1,10 @@
-FROM kasmweb/ubuntu-focal-dind-rootless:1.13.1
+FROM kasmweb/core-ubuntu-focal:1.14.0
 USER root
 
 ENV PYTHONUNBUFFERED=1
 ENV HOME /home/kasm-default-profile
 ENV STARTUPDIR /dockerstartup
+
 ENV INST_SCRIPTS $STARTUPDIR/install
 WORKDIR $HOME
 

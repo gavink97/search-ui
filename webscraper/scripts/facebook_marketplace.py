@@ -1,0 +1,211 @@
+from bs4 import BeautifulSoup
+from collections import namedtuple
+import datetime
+import pytz
+import os
+import pandas as pd
+import requests
+import time
+import sys
+from selenium import webdriver
+from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+import random
+from urllib.parse import urlencode, urlparse, parse_qs
+from dotenv import load_dotenv
+
+launcher_path = sys.argv[2]
+search_query = sys.argv[3]
+
+#launcher_path = '/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper'
+#search_query = 'record player'
+
+load_dotenv()
+fb_email = os.environ['FACEBOOK_EMAIL']
+fb_pass = os.environ['FACEBOOK_PASSWORD']
+
+user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0'
+firefox_driver_path = os.path.join(os.getcwd(), 'drivers', 'geckodriver')
+firefox_service = Service(firefox_driver_path, log_path=os.path.devnull)
+firefox_option = Options()
+firefox_option.set_preference('general.useragent.override', user_agent)
+driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
+driver.implicitly_wait(9)
+driver.install_addon(f'{launcher_path}/drivers/extensions/adblock_for_firefox-5.4.2.xpi')
+
+url = 'https://www.facebook.com/'
+
+random_delay = random.uniform(0.4, 2.7)
+
+driver.get(url)
+
+#create kasmweb dummy connection
+
+time.sleep(8)
+window_handles = driver.window_handles
+driver.switch_to.window(window_handles[0])
+time.sleep(2)
+
+email_address_field = driver.find_element(By.XPATH, '//*[@id="email"]')
+email_address_field.click()
+time.sleep(5)
+for char in fb_email:
+    email_address_field.send_keys(char)
+    delay = random.uniform(0.1, .7)
+    time.sleep(delay)
+
+password_field = driver.find_element(By.XPATH, '//*[@id="pass"]')
+time.sleep (3)
+password_field.click()
+for char in fb_pass:
+    password_field.send_keys(char)
+    delay = random.uniform(0.1, 1.8)
+    time.sleep(delay)
+time.sleep(random_delay)
+log_in_button = driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]')
+log_in_button.click()
+
+time.sleep(8)
+
+market = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div[1]/div/div/div[1]/div/div/div[1]/div[1]/ul/li[2]/div/a/div[1]/div[2]')
+market.click()
+time.sleep(2.5)
+search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')
+for char in search_query:
+    search_field.send_keys(char)
+    delay = random.uniform(0.1, 1.7)
+    time.sleep(delay)
+time.sleep(random_delay)
+search_field.send_keys(Keys.ENTER)
+time.sleep(5)
+
+posts_html = []
+scraped_hrefs = set()
+to_stop = False
+
+scroll_pause_time = 1.3
+scroll_offset = 1200
+actions = ActionChains(driver)
+
+while not to_stop:
+    while True:
+        prev_height = driver.execute_script("return document.body.scrollHeight")
+
+        actions.scroll_by_amount(0, scroll_offset).perform()
+        time.sleep(scroll_pause_time)
+
+        new_height = driver.execute_script("return document.body.scrollHeight")
+        if new_height == prev_height:
+            break
+
+    search_results = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div[3]/div[1]/div[2]')
+    soup = BeautifulSoup(search_results.get_attribute('innerHTML'), 'html.parser')
+    valid_styles = [
+        "max-width: 381px; min-width: 242px;",
+        "max-width:381px;min-width:242px"
+    ]
+    for div in soup.find_all('div', style=valid_styles):
+        if 'display: none !important;' not in div.get('style', ''):
+            a_tag = div.find('a')
+            if a_tag:
+                href = a_tag.get('href')
+                if href not in scraped_hrefs:
+                    posts_html.extend(div)
+                    scraped_hrefs.add(href)
+
+    if "Results from outside your search" in driver.page_source:
+        break
+
+# just for testing
+with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
+    for div in posts_html:
+        file.write(str(div) + '\n')
+# just for testing
+print('Collected {0} listings'.format(len(posts_html)))
+
+FbPost = namedtuple('FbPost',
+                            ['title', 'price', 'location', 'post_url', 'image_url'])
+fb_posts = []
+image_paths = []
+default_image_path = f"{launcher_path}/images/no_image.png"
+
+for posts_html in posts_html:
+    title_loc_element = posts_html.find('img', referrerpolicy="origin-when-cross-origin").get('alt') if posts_html.find('img') else ''
+    alt_splits = title_loc_element.split(" in ")
+    if len(alt_splits) >= 2:
+        title = alt_splits[0].strip()
+        location = alt_splits[-1].strip()
+        if location == '':
+            location = "Ships to you"
+    price_elements = posts_html.find_all('span', string=lambda x: x and '$' in x)
+    if price_elements:
+        new_price = price_elements[0].text.strip()
+        old_price = price_elements[1].text.strip() if len(price_elements) >= 2 else None
+    else:
+        new_price = None
+        old_price = None
+    image_url = posts_html.find('img', referrerpolicy="origin-when-cross-origin").get('src') if posts_html.find('img') else ''
+    parsed_image_url = urlparse(image_url)
+    image_path_parsed = parsed_image_url.path
+    cleaned_image_path = image_path_parsed.split('?')[0]
+    post_url_end = posts_html.find('a', role='link').get('href') if posts_html.find('a') else ''
+    post_url = f"facebook.com{post_url_end}"
+    post_url_path = urlparse(post_url).path
+    parsed_link = parse_qs(urlparse(post_url).query)
+    if 'ref' in parsed_link:
+        del parsed_link['ref']
+    post_url_cleaned = f"{post_url_path}?{urlencode(parsed_link, doseq=True)}"
+    fb_post_url = post_url_cleaned.split('?')[0]
+
+    os.umask(0o002)
+    create_dir = f"{launcher_path}/images/cl_images"
+    if not (os.path.dirname(create_dir)):
+        try:
+            original_umask = os.umask(0)
+            os.makedirs(os.path.dirname(create_dir, mode=777))
+        finally:
+            os.umask(original_umask)
+
+    image_path = ""
+
+    if image_url:
+        image_file_name = os.path.basename(cleaned_image_path)
+        image_path = os.path.join(create_dir, image_file_name)
+
+        if not os.path.exists(image_path):
+            response = requests.get(image_url)
+            if response.status_code == 200:
+                with open(image_path, "wb") as file:
+                    file.write(response.content)
+                    print(f"Image downloaded: {image_path}")
+        else:
+            print(f"Image already exists: {image_path}")
+    else:
+        image_path = f'{default_image_path}'
+        print("No image found: using default image")
+    image_paths.append(image_path)
+
+    if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
+        image_url = 'No image'
+
+    fb_posts.append(FbPost(title, new_price, location, fb_post_url, image_url))
+
+df = pd.DataFrame(fb_posts)
+timezone = pytz.timezone('Asia/Jakarta')
+current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M:%S")
+df.insert(2, 'post_timestamp', current_time)
+df.insert(0, 'time_added', current_time)
+df.insert(0, 'is_new', "1")
+df.insert(0, 'source', "facebook_marketplace")
+df['data_pid'] = df['post_url'].str.extract(r'(\d+)')
+df['image_path'] = image_paths
+df.dropna(inplace=True)
+df.to_csv(f'{launcher_path}/sheets/facebook_marketplace.csv', index=False)
+print(f"Created facebook_marketplace.csv")
+for handle in window_handles:
+    driver.switch_to.window(handle)
+    driver.close()
+driver.quit()

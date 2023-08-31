@@ -43,14 +43,14 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS listings (
         id INT AUTO_INCREMENT PRIMARY KEY,
         time_added TIMESTAMP,
-        title VARCHAR(255),
+        title VARCHAR(500),
         price VARCHAR(255),
         post_timestamp VARCHAR(255),
         location VARCHAR(255),
         post_url VARCHAR(255),
-        image_url VARCHAR(255),
+        image_url VARCHAR(500),
         data_pid VARCHAR(255) UNIQUE,
-        image_path VARCHAR(255),
+        image_path VARCHAR(500),
         is_new TINYINT(1) DEFAULT 1
     )
     """
@@ -59,14 +59,14 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS archived_listings (
         id INT AUTO_INCREMENT PRIMARY KEY,
         time_added TIMESTAMP,
-        title VARCHAR(255),
+        title VARCHAR(500),
         price VARCHAR(255),
         post_timestamp VARCHAR(255),
         location VARCHAR(255),
         post_url VARCHAR(255),
-        image_url VARCHAR(255),
+        image_url VARCHAR(500),
         data_pid VARCHAR(255),
-        image_path VARCHAR(255),
+        image_path VARCHAR(500),
         is_new TINYINT(1) DEFAULT 1
     )
     """
@@ -86,7 +86,7 @@ def create_tables():
     CREATE TABLE IF NOT EXISTS cloudinary (
         id INT AUTO_INCREMENT PRIMARY KEY,
         data_pid_id INT UNIQUE,
-        cloudinary_link VARCHAR(255),
+        cloudinary_link VARCHAR(500),
         FOREIGN KEY (data_pid_id) REFERENCES listings(id) ON DELETE CASCADE
     )
     """
