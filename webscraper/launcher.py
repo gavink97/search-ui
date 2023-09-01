@@ -9,9 +9,10 @@ import pytz
 launcher_path = os.path.dirname(os.path.abspath(__file__))
 scripts_folder = os.path.join(launcher_path, 'scripts')
 log_file_path = f'{launcher_path}/job_errors.log'
+cl_urls = f'{launcher_path}/craigslist_urls.txt'
 
 time.sleep(2)
-print("awaiting connection to gluetun")
+print("Awaiting VPN Connection...")
 connect_vpn = os.path.join(scripts_folder, 'wait_vpn.py')
 subprocess.run(['python3', connect_vpn], check=True)
 fetch_ip = os.path.join(scripts_folder, 'fetch_ip.py')
@@ -29,20 +30,23 @@ search_query = "record player"
 timezone = pytz.timezone('Asia/Jakarta')
 current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M:%S")
 
+job_running = False
 
-def run_script(script_path, file_name, launcher_path, search_query, max_retries=max_attempts):
+def run_script(script_path, file_name, launcher_path, search_query, url, max_retries=max_attempts):
     for retry in range(max_retries + 1):
         try:
-            print(f"Running script: {script_path}")
-            subprocess.run(['python3', script_path, file_name, launcher_path, search_query], check=True)
+            subprocess.run(['python3', script_path, file_name, launcher_path, search_query, url], check=True)
             print(f"Script completed: {script_path}")
             break
 
         except subprocess.CalledProcessError as e:
             print(f"Error running script {script_path}: {e}")
             logging.error(f"({current_time}) {script_path} failed and is attempting to recover: {e}")
+            print("Checking if there's a network connection issue...")
+            subprocess.run(['python3', connect_vpn], check=True)
+            subprocess.run(['python3', fetch_ip], check=True)
             if retry < max_retries:
-                print(f"Retrying... (attempt {retry + 2}/{max_retries + 1})")
+                print(f"Retrying script... (attempt {retry + 2}/{max_retries + 1})")
             else:
                 print(f"Script {script_path} failed.")
                 logging.error(f"({current_time}) Max retries reached for script {script_path}: {e}")
@@ -52,34 +56,61 @@ def run_script(script_path, file_name, launcher_path, search_query, max_retries=
                 break
 
 
+def run_craigslist_scripts(urls):
+    url_counter = 0
+    for url in urls:
+        url_counter += 1
+        try:
+            file_name = 'craigslist.py'
+            script_path = os.path.join(scripts_folder, file_name)
+            print(f"Scraping Craiglist ({url_counter}/{len(urls)}): {url}")
+            run_script(script_path, file_name, launcher_path, search_query, url, max_retries=max_attempts)
+        except Exception as e:
+            logging.error(f"({current_time}) Error running Craigslist script: {e}")
+            print(f"Error running Craigslist script: {e}")
+
+
 def job():
-    try:
-        print("Starting Job...")
+    global job_running
+    if not job_running:
+        job_running = True
 
-        cl_scripts = [file_name for file_name in os.listdir(scripts_folder) if file_name.startswith('craigslist_')]
+        try:
+            print("Starting Job...")
 
-        ordered_scripts = [
-            'facebook_marketplace.py',
-            'filter_csv.py',
-            'remove_extra_images.py',
-            'to_mysql_v2.py',
-            'to_cloudinary.py'
-            ]
+            with open(cl_urls, 'r') as file:
+                urls = file.read().splitlines()
+                run_craigslist_scripts(urls)
 
-        all_scripts = cl_scripts + ordered_scripts
+            ordered_scripts = [
+                'facebook_marketplace.py',
+                'filter_csv.py',
+                'remove_extra_images.py',
+                'to_mysql_v2.py',
+                'to_cloudinary.py'
+                ]
 
-        script_paths = [os.path.join(scripts_folder, file_name) for file_name in all_scripts]
+            url = 'https://www.facebook.com/'
 
-        for script_path in script_paths:
-            file_name = os.path.basename(script_path)
-            run_script(script_path, file_name, launcher_path, search_query, max_retries=max_attempts)
+            script_paths = [os.path.join(scripts_folder, file_name) for file_name in ordered_scripts]
 
-        print("Job Complete!")
+            script_counter = 0
 
-    except Exception as e:
-        logging.error(f"({current_time}) Error in job: {e}")
-        print(f"Error: {e}")
-        job()
+            for script_path in script_paths:
+                script_counter += 1
+                file_name = os.path.basename(script_path)
+                print(f"Running script ({script_counter}/{len(script_paths)}): {script_path}")
+                run_script(script_path, file_name, launcher_path, search_query, url, max_retries=max_attempts)
+
+            print("Job Complete!")
+
+        except Exception as e:
+            logging.error(f"({current_time}) Error in job: {e}")
+            print(f"Error: {e}")
+            job()
+
+        finally:
+            job_running = False
 
 
 job()

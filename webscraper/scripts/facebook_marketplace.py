@@ -15,12 +15,15 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 import random
 from urllib.parse import urlencode, urlparse, parse_qs
 from dotenv import load_dotenv
 
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
+
+page_load_timeout = 30
 
 #launcher_path = '/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper'
 #search_query = 'record player'
@@ -29,7 +32,7 @@ load_dotenv()
 fb_email = os.environ['FACEBOOK_EMAIL']
 fb_pass = os.environ['FACEBOOK_PASSWORD']
 
-user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/114.0'
+user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
 firefox_driver_path = os.path.join(os.getcwd(), 'drivers', 'geckodriver')
 firefox_service = Service(firefox_driver_path, log_path=os.path.devnull)
 firefox_option = Options()
@@ -43,12 +46,20 @@ url = 'https://www.facebook.com/'
 
 random_delay = random.uniform(0.4, 2.7)
 
-driver.get(url)
+print(f"Now getting {search_query}s from Facebook Marketplace...")
+
+try:
+    driver.set_page_load_timeout(page_load_timeout)
+    driver.get(url)
+except TimeoutException as e:
+    driver.close()
+    raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
 
 time.sleep(8)
 window_handles = driver.window_handles
 driver.switch_to.window(window_handles[0])
 time.sleep(2)
+print("Logging into Facebook...")
 
 email_address_field = driver.find_element(By.XPATH, '//*[@id="email"]')
 email_address_field.click()
@@ -68,12 +79,15 @@ for char in fb_pass:
 time.sleep(random_delay)
 log_in_button = driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]')
 log_in_button.click()
+print("Logged into Facebook!")
 
 time.sleep(8)
 
+print("Navigating to Facebook Marketplace...")
 market = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div[1]/div/div/div[1]/div/div/div[1]/div[1]/ul/li[2]/div/a/div[1]/div[2]')
 market.click()
 time.sleep(2.5)
+print(f"Searching for {search_query}s...")
 search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')
 for char in search_query:
     search_field.send_keys(char)
@@ -83,6 +97,7 @@ time.sleep(random_delay)
 search_field.send_keys(Keys.ENTER)
 time.sleep(5)
 
+print("Adjusting sort parameters...")
 wait = WebDriverWait(driver, 10)
 sort_by = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div[3]/div[2]/div[2]/div[1]')
 sort_by.click()
@@ -93,9 +108,12 @@ time.sleep(2)
 date_listed = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Date listed']")))
 date_listed.click()
 time.sleep(1.5)
-newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 30 days')]")))
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 7 days')]")))
 newest_first.click()
 time.sleep(2)
+
+print(f"Beginning to scrape for {search_query}s...")
+print("Please wait as this can take some time.")
 
 posts_html = []
 scraped_hrefs = set()
