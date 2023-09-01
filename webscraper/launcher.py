@@ -6,11 +6,16 @@ import logging
 import datetime
 import pytz
 
-time.sleep(2)
-
 launcher_path = os.path.dirname(os.path.abspath(__file__))
 scripts_folder = os.path.join(launcher_path, 'scripts')
 log_file_path = f'{launcher_path}/job_errors.log'
+
+time.sleep(2)
+print("awaiting connection to gluetun")
+connect_vpn = os.path.join(scripts_folder, 'wait_vpn.py')
+subprocess.run(['python3', connect_vpn], check=True)
+fetch_ip = os.path.join(scripts_folder, 'fetch_ip.py')
+subprocess.run(['python3', fetch_ip], check=True)
 
 try:
     os.chmod(log_file_path, 0o600)
