@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
 
-page_load_timeout = 30
+page_load_timeout = 60
 
 #launcher_path = '/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper'
 #search_query = 'record player'
@@ -41,8 +41,14 @@ driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
 driver.implicitly_wait(9)
 driver.set_window_size(1500, 1000)
 driver.install_addon(f'{launcher_path}/drivers/extensions/adblock_for_firefox-5.4.2.xpi')
-
+window_handles = driver.window_handles
 url = 'https://www.facebook.com/'
+
+def close_windows():
+    for handle in window_handles:
+        driver.switch_to.window(handle)
+        driver.close()
+    driver.quit()
 
 random_delay = random.uniform(0.4, 2.7)
 
@@ -52,11 +58,10 @@ try:
     driver.set_page_load_timeout(page_load_timeout)
     driver.get(url)
 except TimeoutException as e:
-    driver.close()
+    close_windows
     raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
 
 time.sleep(8)
-window_handles = driver.window_handles
 driver.switch_to.window(window_handles[0])
 time.sleep(2)
 print("Logging into Facebook...")
@@ -237,7 +242,4 @@ df['image_path'] = image_paths
 df.dropna(inplace=True)
 df.to_csv(f'{launcher_path}/sheets/facebook_marketplace.csv', index=False)
 print(f"Created facebook_marketplace.csv")
-for handle in window_handles:
-    driver.switch_to.window(handle)
-    driver.close()
-driver.quit()
+close_windows

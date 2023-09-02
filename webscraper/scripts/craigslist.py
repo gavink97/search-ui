@@ -24,7 +24,7 @@ launcher_path = sys.argv[2]
 search_query = sys.argv[3]
 url = sys.argv[4]
 
-page_load_timeout = 30
+page_load_timeout = 60
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
 firefox_driver_path = os.path.join(os.getcwd(), 'drivers', 'geckodriver')
@@ -176,3 +176,4 @@ df.dropna(inplace=True)
 df.to_csv(f'{launcher_path}/sheets/{source_name}.csv', index=False)
 print(f"Created {source_name}.csv")
 driver.close()
+driver.quit()
