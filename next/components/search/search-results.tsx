@@ -5,6 +5,7 @@ import { useEffect, useState, ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 interface SearchResultProps {
   resultList: any;
@@ -107,9 +108,12 @@ export function SearchResult({ resultList }: SearchResultProps) {
               value={searchText}
               autoComplete="off"
               id="searchResultId"
-              placeholder="Search for a brand or location"
+              placeholder="Search for a brand, source or location"
               onChange={(e) => setSearchText(e.target.value)}
             />
+            <div className="absolute top-0 left-8 px-64 py-6 pointer-events-none">
+              <MagnifyingGlassIcon className="w-5 h-5 text-gray-500" />
+            </div>
           </div>
         </div>
 

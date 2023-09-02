@@ -10,19 +10,12 @@ export default async function Home() {
       <Header/>
         <div className='m-6 text-slate-700 font-medium'>
           <h1 className='text-3xl mb-8'>Welcome to Gavin Kondrath</h1>
-          <p className='mb-3'>We are currently hosting the Record Player Search Tool. You can enter the project by signing in and clicking the button. If you don't have an account you can request access by clicking the button and filling out the form below.</p>
+          <p className='mb-3'>This is my personal website where I host projects I'm currently working on and demoing. Currently I'm hosting the Record Player Search Tool which gathers data from various marketplaces across the Continental United States and displays them in one place.  You can enter the project simply by signing in with your google account.</p>
+          <p className='mb-3'>If you find a problem with the app or would just like to reach out to me to leave a comment, please email me at <a href='mailto:gavin@gav.ink'>gavin@gav.ink</a></p>
           <p>Thank you,</p>
           <p className='font-semibold'>Gavin K</p>
           <div className='flex justify-center p-16'>
             <Link className={buttonVariants({ variant: "outline" })} href={'/rpst'}>Enter the Record Player Search Tool</Link>
-          </div>
-        </div>
-
-        <div className='m-6 text-slate-700 font-medium'>
-          <h1 className='text-3xl mb-8 pt-16'>Request access</h1>
-          <p className=''>Request access to the app</p>
-          <div className='flex justify-center p-16'>
-            <Link className={buttonVariants({ variant: "outline" })} href={'https://forms.gle/tjqrbQh2qBtrmAWp9'}>Request Access</Link>
           </div>
         </div>
         <div className='absolute bottom-2 container'>

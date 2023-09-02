@@ -7,12 +7,18 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation';
+import {
+  UserIcon,
+  MagnifyingGlassIcon,
+  ArrowLeftOnRectangleIcon,
+  ExclamationCircleIcon
+} from '@heroicons/react/24/outline'
+
 
 const SignInButton = () => {
   const router = useRouter();
@@ -26,26 +32,28 @@ const SignInButton = () => {
           <Button variant="outline" >{session.user?.name || 'User'}</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-55">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => router.push('/rpst')}>
-              Search Tool
+            <MagnifyingGlassIcon className="h-4 w-4 mr-2" />  Search Tool
             </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={() => router.push('/profile')}>
-              Profile
+              <UserIcon className="h-4 w-4 ml-px mr-2" />  Profile
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push('/privacy')}>
-              Privacy Policy
+            <p className='ml-px'>  Privacy Policy</p>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push('/tos')}>
-              Terms of Service
+            <p className='ml-px'>Terms of Service</p>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => router.push('/report')}>
+              <ExclamationCircleIcon className="h-4 w-4 mr-1 text-red-600" /> <p className='ml-0.5 text-red-500'>Report a Problem</p>
+            </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem  onClick={() => signOut()}>
-            Log out
+            <ArrowLeftOnRectangleIcon className="h-4 w-4 ml-px mr-2" /> <p className='font-medium'>Log out</p>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
