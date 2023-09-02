@@ -37,18 +37,13 @@ firefox_driver_path = os.path.join(os.getcwd(), 'drivers', 'geckodriver')
 firefox_service = Service(firefox_driver_path, log_path=os.path.devnull)
 firefox_option = Options()
 firefox_option.set_preference('general.useragent.override', user_agent)
+firefox_option.set_preference("permissions.default.desktop-notification", 2)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
 driver.implicitly_wait(9)
 driver.set_window_size(1400, 1000)
-driver.install_addon(f'{launcher_path}/drivers/extensions/adblocker_ultimate-3.7.28.xpi')
+driver.install_addon(f'{launcher_path}/drivers/extensions/fbpurity.THRTYX-WX.xpi')
 window_handles = driver.window_handles
 url = 'https://www.facebook.com/'
-
-def close_windows():
-    for handle in window_handles:
-        driver.switch_to.window(handle)
-        driver.close()
-    driver.quit()
 
 random_delay = random.uniform(0.4, 2.7)
 
@@ -57,9 +52,8 @@ print(f"Now getting {search_query}s from Facebook Marketplace...")
 try:
     driver.set_page_load_timeout(page_load_timeout)
     driver.get(url)
-    driver.switch_to.window(window_handles[0])
 except TimeoutException as e:
-    close_windows
+    driver.close()
     raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
 
 time.sleep(3)
@@ -90,6 +84,9 @@ print("Navigating to Facebook Marketplace...")
 market = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div/div[1]/div/div/div[1]/div/div/div[1]/div[1]/ul/li[2]/div/a/div[1]/div[2]')
 market.click()
 time.sleep(2.5)
+fbp_blocker = driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')
+fbp_blocker.click()
+time.sleep(random_delay)
 print(f"Searching for {search_query}s...")
 search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')
 for char in search_query:
@@ -144,13 +141,16 @@ while not to_stop:
         "max-width:381px;min-width:242px"
     ]
     for div in soup.find_all('div', style=valid_styles):
-        if 'display: none !important;' not in div.get('style', ''):
-            a_tag = div.find('a')
-            if a_tag:
-                href = a_tag.get('href')
-                if href not in scraped_hrefs:
-                    posts_html.extend(div)
-                    scraped_hrefs.add(href)
+        span = div.find('span', style='display: none;')
+        if span:
+            continue
+
+        a_tag = div.find('a')
+        if a_tag:
+            href = a_tag.get('href')
+            if href not in scraped_hrefs:
+                posts_html.extend(div)
+                scraped_hrefs.add(href)
 
     if "Results from outside your search" in driver.page_source:
         break
@@ -165,6 +165,8 @@ FbPost = namedtuple('FbPost',
                             ['title', 'price', 'location', 'post_url', 'image_url'])
 fb_posts = []
 image_paths = []
+image_counter = 0
+total_images = len(posts_html)
 default_image_path = f"{launcher_path}/images/no_image.png"
 
 for posts_html in posts_html:
@@ -205,6 +207,7 @@ for posts_html in posts_html:
             os.umask(original_umask)
 
     image_path = ""
+    image_counter += 1
 
     if image_url:
         image_file_name = os.path.basename(cleaned_image_path)
@@ -215,12 +218,12 @@ for posts_html in posts_html:
             if response.status_code == 200:
                 with open(image_path, "wb") as file:
                     file.write(response.content)
-                    print(f"Image downloaded: {image_path}")
+                    print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
         else:
-            print(f"Image already exists: {image_path}")
+            print(f"Image already exists ({image_counter}/{total_images}): {image_path}")
     else:
         image_path = f'{default_image_path}'
-        print("No image found: using default image")
+        print(f"No image found ({image_counter}/{total_images}): using default image")
     image_paths.append(image_path)
 
     if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
@@ -240,4 +243,5 @@ df['image_path'] = image_paths
 df.dropna(inplace=True)
 df.to_csv(f'{launcher_path}/sheets/facebook_marketplace.csv', index=False)
 print(f"Created facebook_marketplace.csv")
-close_windows
+driver.close()
+driver.quit()

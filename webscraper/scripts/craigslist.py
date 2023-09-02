@@ -112,6 +112,8 @@ CraigslistPost = namedtuple('CraigslistPost',
                             ['title', 'price', 'post_timestamp', 'location', 'post_url', 'image_url', 'data_pid'])
 craigslist_posts = []
 image_paths = []
+image_counter = 0
+total_images = len(posts_html)
 default_image_path = f"{launcher_path}/images/no_image.png"
 
 for posts_html in posts_html:
@@ -141,6 +143,7 @@ for posts_html in posts_html:
 
     image_url = posts_html.find('img').get('src') if posts_html.find('img') else ''
     image_path = ""
+    image_counter += 1
 
     if image_url:
         image_file_name = image_url.split("/")[-1]
@@ -151,12 +154,12 @@ for posts_html in posts_html:
             if response.status_code == 200:
                 with open(image_path, "wb") as file:
                     file.write(response.content)
-                    print(f"Image downloaded: {image_path}")
+                    print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
         else:
-            print(f"Image already exists: {image_path}")
+            print(f"Image already exists ({image_counter}/{total_images}): {image_path}")
     else:
         image_path = f'{default_image_path}'
-        print("No image found: using default image")
+        print(f"No image found ({image_counter}/{total_images}): using default image")
     image_paths.append(image_path)
 
     if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
