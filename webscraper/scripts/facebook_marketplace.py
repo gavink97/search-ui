@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
 
-page_load_timeout = 60
+page_load_timeout = 90
 
 #launcher_path = '/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper'
 #search_query = 'record player'
@@ -39,8 +39,8 @@ firefox_option = Options()
 firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
 driver.implicitly_wait(9)
-driver.set_window_size(1500, 1000)
-driver.install_addon(f'{launcher_path}/drivers/extensions/adblock_for_firefox-5.4.2.xpi')
+driver.set_window_size(1400, 1000)
+driver.install_addon(f'{launcher_path}/drivers/extensions/adblocker_ultimate-3.7.28.xpi')
 window_handles = driver.window_handles
 url = 'https://www.facebook.com/'
 
@@ -57,13 +57,12 @@ print(f"Now getting {search_query}s from Facebook Marketplace...")
 try:
     driver.set_page_load_timeout(page_load_timeout)
     driver.get(url)
+    driver.switch_to.window(window_handles[0])
 except TimeoutException as e:
     close_windows
     raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
 
-time.sleep(8)
-driver.switch_to.window(window_handles[0])
-time.sleep(2)
+time.sleep(3)
 print("Logging into Facebook...")
 
 email_address_field = driver.find_element(By.XPATH, '//*[@id="email"]')
@@ -82,8 +81,7 @@ for char in fb_pass:
     delay = random.uniform(0.1, 1.8)
     time.sleep(delay)
 time.sleep(random_delay)
-log_in_button = driver.find_element(By.XPATH, '/html/body/div[1]/div[1]/div[1]/div/div/div/div[2]/div/div[1]/form/div[2]')
-log_in_button.click()
+password_field.send_keys(Keys.ENTER)
 print("Logged into Facebook!")
 
 time.sleep(8)
