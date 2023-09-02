@@ -80,7 +80,7 @@ def job():
 
             with open(cl_urls, 'r') as file:
                 urls = file.read().splitlines()
-#                run_craigslist_scripts(urls)
+                run_craigslist_scripts(urls)
 
             ordered_scripts = [
                 'facebook_marketplace.py',
