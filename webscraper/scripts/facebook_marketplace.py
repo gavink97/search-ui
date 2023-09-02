@@ -16,6 +16,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementClickInterceptedException
 import random
 from urllib.parse import urlencode, urlparse, parse_qs
 from dotenv import load_dotenv
@@ -81,14 +82,22 @@ print("Logged into Facebook!")
 
 time.sleep(10)
 print("Waiting for facebook to load...")
-fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
-fbp_blocker.click()
-time.sleep(5)
-market = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[contains(@href, "https://www.facebook.com/marketplace/?ref=bookmark")]')))
-print("Navigating to Facebook Marketplace...")
-market.click()
-time.sleep(5)
-time.sleep(random_delay)
+try:
+    market = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[contains(@href, "https://www.facebook.com/marketplace/?ref=bookmark")]')))
+    print("Navigating to Facebook Marketplace...")
+    market.click()
+    time.sleep(10)
+    fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
+    fbp_blocker.click()
+    time.sleep(random_delay)
+except ElementClickInterceptedException:
+    print("Clicking FBP first...")
+    fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
+    fbp_blocker.click()
+    time.sleep(5)
+    market.click()
+    time.sleep(10)
+
 print(f"Searching for {search_query}s...")
 search_field = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')))
 for char in search_query:
