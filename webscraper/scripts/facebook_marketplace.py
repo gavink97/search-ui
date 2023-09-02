@@ -129,7 +129,7 @@ posts_html = []
 scraped_hrefs = set()
 to_stop = False
 
-scroll_pause_time = 1.3
+scroll_pause_time = 1.5
 scroll_offset = 1200
 actions = ActionChains(driver)
 
@@ -140,8 +140,7 @@ while not to_stop:
         actions.scroll_by_amount(0, scroll_offset).perform()
         time.sleep(scroll_pause_time)
 
-        new_height = driver.execute_script("return document.body.scrollHeight")
-        if new_height == prev_height:
+        if "Results from outside your search" in driver.page_source:
             break
 
     search_results = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div[3]/div[1]/div[2]')
@@ -154,16 +153,12 @@ while not to_stop:
         span = div.find('span', style='display: none;')
         if span:
             continue
-
         a_tag = div.find('a')
         if a_tag:
             href = a_tag.get('href')
             if href not in scraped_hrefs:
                 posts_html.extend(div)
                 scraped_hrefs.add(href)
-
-    if "Results from outside your search" in driver.page_source:
-        break
 
 #with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
 #    for div in posts_html:
