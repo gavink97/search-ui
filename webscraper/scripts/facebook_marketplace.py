@@ -118,7 +118,7 @@ time.sleep(2)
 date_listed = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Date listed']")))
 date_listed.click()
 time.sleep(1.5)
-newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 7 days')]")))
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 24 hours')]")))
 newest_first.click()
 time.sleep(2)
 
@@ -133,6 +133,7 @@ scroll_pause_time = 1.5
 scroll_offset = 1200
 actions = ActionChains(driver)
 
+#This part of the script is running out of memory, so we should address this
 while not to_stop:
     while True:
         prev_height = driver.execute_script("return document.body.scrollHeight")

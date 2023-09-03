@@ -12,6 +12,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@auth/core@npm:0.8.2":
+  version: 0.8.2
+  resolution: "@auth/core@npm:0.8.2"
+  dependencies:
+    "@panva/hkdf": ^1.0.4
+    cookie: 0.5.0
+    jose: ^4.11.1
+    oauth4webapi: ^2.0.6
+    preact: 10.11.3
+    preact-render-to-string: 5.2.3
+  peerDependencies:
+    nodemailer: ^6.8.0
+  peerDependenciesMeta:
+    nodemailer:
+      optional: true
+  checksum: a8f593e269de2c6ddbe469942da4c48c84dc29acf275e9cfccbb3c764006f38c44b7fb239c8ae433a929ed594b0ea1fca213b9511e2edc2b7973e04a567d53a5
+  languageName: node
+  linkType: hard
+
 "@auth/core@npm:^0.10.0":
   version: 0.10.4
   resolution: "@auth/core@npm:0.10.4"
@@ -28,6 +47,17 @@ __metadata:
     nodemailer:
       optional: true
   checksum: 28e1b1eafe4f87e5b8713cb9fccbc9d680b71e429f783a82c9104f8edf2c1e637dc370fa57347ece796f63c8b0fd2a17a18bc5a00b91fb04e0ec8637a0cb9514
+  languageName: node
+  linkType: hard
+
+"@auth/upstash-redis-adapter@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@auth/upstash-redis-adapter@npm:1.0.0"
+  dependencies:
+    "@auth/core": 0.8.2
+  peerDependencies:
+    "@upstash/redis": ^1.0.1
+  checksum: 07723cacf599380a6565c76c363508d87b3ccf53ee7e2dcd9f30c4eb8ec5735ce0beca34377f447fb61f9a2f1ccdedf86978b730980f476fa82a8d5867d3dcd8
   languageName: node
   linkType: hard
 
@@ -119,15 +149,6 @@ __metadata:
   peerDependencies:
     react: ">= 16"
   checksum: 597e8668818623d568a302e343ef06b69f62ce297c14b88c2ebbfed0c0f00cd85ec44fae33ec8a249931b4e7dcf145743ae3198095a9f4682108de5155f5f4c3
-  languageName: node
-  linkType: hard
-
-"@hookform/resolvers@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "@hookform/resolvers@npm:3.3.0"
-  peerDependencies:
-    react-hook-form: ^7.0.0
-  checksum: 72ae9a958b7eb08f4e7739164e760a2036df9c3797d449c6141650243935296885c7db5aafadd8394e2dcf4f80539d638ace1c12b26a14b98d6e575c79ab234a
   languageName: node
   linkType: hard
 
@@ -947,6 +968,15 @@ __metadata:
   version: 0.16.3
   resolution: "@types/scheduler@npm:0.16.3"
   checksum: 2b0aec39c24268e3ce938c5db2f2e77f5c3dd280e05c262d9c2fe7d890929e4632a6b8e94334017b66b45e4f92a5aa42ba3356640c2a1175fa37bef2f5200767
+  languageName: node
+  linkType: hard
+
+"@upstash/redis@npm:^1.22.0":
+  version: 1.22.0
+  resolution: "@upstash/redis@npm:1.22.0"
+  dependencies:
+    isomorphic-fetch: ^3.0.0
+  checksum: 894b7d4e318c55fdcbf0f322efd9ace94a37f1b8f9d7cb2cdf8b8b4859814379665c7e00feef3565578455d98492710d14ed4a2b043ec412b5d640a4d5a2dd55
   languageName: node
   linkType: hard
 
@@ -1971,6 +2001,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"isomorphic-fetch@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "isomorphic-fetch@npm:3.0.0"
+  dependencies:
+    node-fetch: ^2.6.1
+    whatwg-fetch: ^3.4.1
+  checksum: e5ab79a56ce5af6ddd21265f59312ad9a4bc5a72cebc98b54797b42cb30441d5c5f8d17c5cd84a99e18101c8af6f90c081ecb8d12fd79e332be1778d58486d75
+  languageName: node
+  linkType: hard
+
 "jackspeak@npm:^2.0.3":
   version: 2.2.3
   resolution: "jackspeak@npm:2.2.3"
@@ -2425,8 +2465,8 @@ __metadata:
   resolution: "next@workspace:."
   dependencies:
     "@auth/core": ^0.10.0
+    "@auth/upstash-redis-adapter": ^1.0.0
     "@heroicons/react": ^2.0.18
-    "@hookform/resolvers": ^3.3.0
     "@next/swc-linux-arm64-gnu": ^13.4.12
     "@next/swc-linux-arm64-musl": ^13.4.12
     "@radix-ui/react-avatar": ^1.0.3
@@ -2438,6 +2478,7 @@ __metadata:
     "@types/node": 20.3.3
     "@types/react": 18.2.14
     "@types/react-dom": 18.2.6
+    "@upstash/redis": ^1.22.0
     autoprefixer: 10.4.14
     class-variance-authority: ^0.6.1
     clsx: ^1.2.1
@@ -2452,7 +2493,6 @@ __metadata:
     postcss: 8.4.24
     react: latest
     react-dom: latest
-    react-hook-form: ^7.45.4
     react-router-dom: ^6.14.2
     sharp: ^0.32.4
     tailwind-merge: ^1.13.2
@@ -2477,6 +2517,20 @@ __metadata:
   dependencies:
     node-gyp: latest
   checksum: 3a539510e677cfa3a833aca5397300e36141aca064cdc487554f2017110709a03a95da937e98c2a14ec3c626af7b2d1b6dabe629a481f9883143d0d5bff07bf2
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:^2.6.1":
+  version: 2.7.0
+  resolution: "node-fetch@npm:2.7.0"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
   languageName: node
   linkType: hard
 
@@ -2901,15 +2955,6 @@ __metadata:
   peerDependencies:
     react: ^18.2.0
   checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
-  languageName: node
-  linkType: hard
-
-"react-hook-form@npm:^7.45.4":
-  version: 7.45.4
-  resolution: "react-hook-form@npm:7.45.4"
-  peerDependencies:
-    react: ^16.8.0 || ^17 || ^18
-  checksum: 1d84c78dadf561bc9e360272c5c856c724426162e13a74929c0517c3eb8004a7f057561fff3bfd4c1121b36d6cf1437399df1dbfd01d0817b9f922503f407d8f
   languageName: node
   linkType: hard
 
@@ -3519,6 +3564,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tr46@npm:~0.0.3":
+  version: 0.0.3
+  resolution: "tr46@npm:0.0.3"
+  checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
+  languageName: node
+  linkType: hard
+
 "ts-interface-checker@npm:^0.1.9":
   version: 0.1.13
   resolution: "ts-interface-checker@npm:0.1.13"
@@ -3648,6 +3700,30 @@ __metadata:
     glob-to-regexp: ^0.4.1
     graceful-fs: ^4.1.2
   checksum: 23d4bc58634dbe13b86093e01c6a68d8096028b664ab7139d58f0c37d962d549a940e98f2f201cecdabd6f9c340338dc73ef8bf094a2249ef582f35183d1a131
+  languageName: node
+  linkType: hard
+
+"webidl-conversions@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "webidl-conversions@npm:3.0.1"
+  checksum: c92a0a6ab95314bde9c32e1d0a6dfac83b578f8fa5f21e675bc2706ed6981bc26b7eb7e6a1fab158e5ce4adf9caa4a0aee49a52505d4d13c7be545f15021b17c
+  languageName: node
+  linkType: hard
+
+"whatwg-fetch@npm:^3.4.1":
+  version: 3.6.18
+  resolution: "whatwg-fetch@npm:3.6.18"
+  checksum: 72fd318a00fd9031f7f5b28bfe30e458ca5e6ebc9b3de6e03edf810f455bca0ec954035bd9f1b5f9e6a82bbdc3fbba59b14bee24c039460c8a75f8f990ebe0b1
+  languageName: node
+  linkType: hard
+
+"whatwg-url@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "whatwg-url@npm:5.0.0"
+  dependencies:
+    tr46: ~0.0.3
+    webidl-conversions: ^3.0.0
+  checksum: b8daed4ad3356cc4899048a15b2c143a9aed0dfae1f611ebd55073310c7b910f522ad75d727346ad64203d7e6c79ef25eafd465f4d12775ca44b90fa82ed9e2c
   languageName: node
   linkType: hard
 
