@@ -31,59 +31,10 @@ export function SearchResult({ resultList }: SearchResultProps) {
 
   const sortedResults = searchFilter(resultList, searchText);
 
-  const getComparableValue = (post_timestamp: string) => {
-    const parts = post_timestamp.split(" ");
-
-    if (parts[1] === "mins") {
-      const minutesAgo = parseInt(parts[0]);
-      const now = new Date();
-      now.setMinutes(now.getMinutes() - minutesAgo);
-      return now.toISOString();
-    } else if (parts[1] === "ago") {
-      const hoursAgo = parseInt(parts[0]);
-      const now = new Date();
-      now.setHours(now.getHours() - hoursAgo);
-      return now.toISOString();
-    } else {
-      const [monthStr, dayStr] = parts[0].split("/");
-      const month = parseInt(monthStr);
-      const day = parseInt(dayStr);
-
-      if (isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
-        return new Date().toISOString(); // Use current date as fallback
-      }
-
-      return new Date(`2023-${month}-${day}`).toISOString();
-    }
-  };
-
-
-  const firstTypeResults: any[] = [];
-  const secondTypeResults: any[] = [];
-
-  sortedResults.forEach((result) => {
-    if (result.post_timestamp.includes(" ago")) {
-      firstTypeResults.push(result);
-    } else {
-      secondTypeResults.push(result);
-    }
-  });
-
-  firstTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp).localeCompare(getComparableValue(a.post_timestamp)));
-  secondTypeResults.sort((a: any, b: any) => getComparableValue(b.post_timestamp).localeCompare(getComparableValue(a.post_timestamp)));
-
-  const mergedResults = [...firstTypeResults, ...secondTypeResults];
-
-
-  const uniqueResults: any[] = [];
-  const uniquePosts: Record<string, boolean> = {};
-
-  mergedResults.forEach((result) => {
-    const postKey = `${result.id}`;
-    if (!uniquePosts[postKey]) {
-      uniquePosts[postKey] = true;
-      uniqueResults.push(result);
-    }
+  sortedResults.sort((a, b) => {
+    const timeA = new Date(a.time_added).getTime();
+    const timeB = new Date(b.time_added).getTime();
+    return timeB - timeA;
   });
 
   const [resultCount, setResultCount] = useState(0);
@@ -92,9 +43,9 @@ export function SearchResult({ resultList }: SearchResultProps) {
   useEffect(() => {
     if (resultList) {
       setTotalResultCount(resultList.length);
-      setResultCount(mergedResults.length);
+      setResultCount(sortedResults.length);
     }
-  }, [resultList, mergedResults]);
+  }, [resultList, sortedResults]);
 
   return (
     <>
@@ -131,11 +82,12 @@ export function SearchResult({ resultList }: SearchResultProps) {
         </div>
 
         <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-          {mergedResults.map((result: any) => {
+          {sortedResults.map((result: any) => {
             return (
               <ResultCard
                 key={result.id}
                 id={result.id}
+                time_added={result.time_added}
                 title={result.title}
                 price={result.price}
                 post_timestamp={result.post_timestamp}

@@ -26,9 +26,6 @@ search_query = sys.argv[3]
 
 page_load_timeout = 90
 
-#launcher_path = '/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper'
-#search_query = 'record player'
-
 load_dotenv()
 fb_email = os.environ['FACEBOOK_EMAIL']
 fb_pass = os.environ['FACEBOOK_PASSWORD']
@@ -118,14 +115,89 @@ time.sleep(2)
 date_listed = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Date listed']")))
 date_listed.click()
 time.sleep(1.5)
-newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 24 hours')]")))
+#Last 24 hours, Last 7 days, Last 30 days
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 7 days')]")))
 newest_first.click()
 time.sleep(2)
 
 print(f"Beginning to scrape for {search_query}s...")
 print("Please wait as this can take some time.")
 
-posts_html = []
+FbPost = namedtuple('FbPost',
+                            ['title', 'price', 'location', 'post_url', 'image_url'])
+fb_posts = []
+image_paths = []
+image_counter = 0
+batch_count = 0
+
+default_image_path = f"{launcher_path}/images/no_image.png"
+
+def process_batch(batch):
+    global batch_count
+    global image_counter
+    batch_count += 1
+    total_images = len(scraped_hrefs)
+    print(f"Processing Batch #{batch_count}")
+    for posts_html in batch:
+        title_loc_element = posts_html.find('img', referrerpolicy="origin-when-cross-origin").get('alt') if posts_html.find('img') else ''
+        alt_splits = title_loc_element.split(" in ")
+        if len(alt_splits) >= 2:
+            title = alt_splits[0].strip()
+            location = alt_splits[-1].strip()
+            if location == '':
+                location = "Ships to you"
+        price_elements = posts_html.find_all('span', string=lambda x: x and '$' in x)
+        if price_elements:
+            new_price = price_elements[0].text.strip()
+        else:
+            new_price = None
+        image_url = posts_html.find('img', referrerpolicy="origin-when-cross-origin").get('src') if posts_html.find('img') else ''
+        parsed_image_url = urlparse(image_url)
+        image_path_parsed = parsed_image_url.path
+        cleaned_image_path = image_path_parsed.split('?')[0]
+        post_url_end = posts_html.find('a', role='link').get('href') if posts_html.find('a') else ''
+        post_url_path = urlparse(post_url_end).path
+        parsed_link = parse_qs(urlparse(post_url_end).query)
+        if 'ref' in parsed_link:
+            del parsed_link['ref']
+        post_url_cleaned = f"{post_url_path}?{urlencode(parsed_link, doseq=True)}"
+        fb_post_url = post_url_cleaned.split('?')[0]
+        post_url = f"https://www.facebook.com{fb_post_url}"
+
+        os.umask(0o002)
+        create_dir = f"{launcher_path}/images/cl_images"
+        if not (os.path.dirname(create_dir)):
+            try:
+                original_umask = os.umask(0)
+                os.makedirs(os.path.dirname(create_dir, mode=777))
+            finally:
+                os.umask(original_umask)
+
+        image_path = ""
+        image_counter += 1
+
+        if image_url:
+            image_file_name = os.path.basename(cleaned_image_path)
+            image_path = os.path.join(create_dir, image_file_name)
+
+            if not os.path.exists(image_path):
+                response = requests.get(image_url)
+                if response.status_code == 200:
+                    with open(image_path, "wb") as file:
+                        file.write(response.content)
+                        print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
+            else:
+                print(f"Image already exists ({image_counter}/{total_images}): {image_path}")
+        else:
+            image_path = f'{default_image_path}'
+            print(f"No image found ({image_counter}/{total_images}): using default image")
+        image_paths.append(image_path)
+
+        if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
+            image_url = 'No image'
+
+        fb_posts.append(FbPost(title, new_price, location, post_url, image_url))
+
 scraped_hrefs = set()
 to_stop = False
 
@@ -133,7 +205,9 @@ scroll_pause_time = 1.5
 scroll_offset = 1200
 actions = ActionChains(driver)
 
-#This part of the script is running out of memory, so we should address this
+batch_size = 50
+batch = []
+
 while not to_stop:
     while True:
         prev_height = driver.execute_script("return document.body.scrollHeight")
@@ -159,87 +233,24 @@ while not to_stop:
         if a_tag:
             href = a_tag.get('href')
             if href not in scraped_hrefs:
-                posts_html.extend(div)
+                batch.extend(div)
                 scraped_hrefs.add(href)
+
+    if len(batch) >= batch_size:
+        process_batch(batch)
+        batch = []
 
     if "Results from outside your search" in driver.page_source:
             break
+
+if batch:
+    process_batch(batch)
 
 #with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
 #    for div in posts_html:
 #        file.write(str(div) + '\n')
 
-print('Collected {0} listings'.format(len(posts_html)))
-
-FbPost = namedtuple('FbPost',
-                            ['title', 'price', 'location', 'post_url', 'image_url'])
-fb_posts = []
-image_paths = []
-image_counter = 0
-total_images = len(posts_html)
-default_image_path = f"{launcher_path}/images/no_image.png"
-
-for posts_html in posts_html:
-    title_loc_element = posts_html.find('img', referrerpolicy="origin-when-cross-origin").get('alt') if posts_html.find('img') else ''
-    alt_splits = title_loc_element.split(" in ")
-    if len(alt_splits) >= 2:
-        title = alt_splits[0].strip()
-        location = alt_splits[-1].strip()
-        if location == '':
-            location = "Ships to you"
-    price_elements = posts_html.find_all('span', string=lambda x: x and '$' in x)
-    if price_elements:
-        new_price = price_elements[0].text.strip()
-        old_price = price_elements[1].text.strip() if len(price_elements) >= 2 else None
-    else:
-        new_price = None
-        old_price = None
-    image_url = posts_html.find('img', referrerpolicy="origin-when-cross-origin").get('src') if posts_html.find('img') else ''
-    parsed_image_url = urlparse(image_url)
-    image_path_parsed = parsed_image_url.path
-    cleaned_image_path = image_path_parsed.split('?')[0]
-    post_url_end = posts_html.find('a', role='link').get('href') if posts_html.find('a') else ''
-    post_url = f"facebook.com{post_url_end}"
-    post_url_path = urlparse(post_url).path
-    parsed_link = parse_qs(urlparse(post_url).query)
-    if 'ref' in parsed_link:
-        del parsed_link['ref']
-    post_url_cleaned = f"{post_url_path}?{urlencode(parsed_link, doseq=True)}"
-    fb_post_url = post_url_cleaned.split('?')[0]
-
-    os.umask(0o002)
-    create_dir = f"{launcher_path}/images/cl_images"
-    if not (os.path.dirname(create_dir)):
-        try:
-            original_umask = os.umask(0)
-            os.makedirs(os.path.dirname(create_dir, mode=777))
-        finally:
-            os.umask(original_umask)
-
-    image_path = ""
-    image_counter += 1
-
-    if image_url:
-        image_file_name = os.path.basename(cleaned_image_path)
-        image_path = os.path.join(create_dir, image_file_name)
-
-        if not os.path.exists(image_path):
-            response = requests.get(image_url)
-            if response.status_code == 200:
-                with open(image_path, "wb") as file:
-                    file.write(response.content)
-                    print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
-        else:
-            print(f"Image already exists ({image_counter}/{total_images}): {image_path}")
-    else:
-        image_path = f'{default_image_path}'
-        print(f"No image found ({image_counter}/{total_images}): using default image")
-    image_paths.append(image_path)
-
-    if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
-        image_url = 'No image'
-
-    fb_posts.append(FbPost(title, new_price, location, fb_post_url, image_url))
+print('Collected {0} listings'.format(len(scraped_hrefs)))
 
 df = pd.DataFrame(fb_posts)
 timezone = pytz.timezone('Asia/Jakarta')
@@ -248,7 +259,7 @@ df.insert(2, 'post_timestamp', current_time)
 df.insert(0, 'time_added', current_time)
 df.insert(0, 'is_new', "1")
 df.insert(0, 'source', "facebook_marketplace")
-df['data_pid'] = df['post_url'].str.extract(r'(\d+)')
+df['data_pid'] = df['post_url'].str.extract(r'/(\d+)/')
 df['image_path'] = image_paths
 df.dropna(inplace=True)
 df.to_csv(f'{launcher_path}/sheets/facebook_marketplace.csv', index=False)

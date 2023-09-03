@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 interface ResultCardProps {
   id: number;
+  time_added: string;
   title: string;
   price: string;
   post_timestamp: string;
@@ -16,8 +17,37 @@ interface ResultCardProps {
   sources: string;
 }
 
-export function ResultCard({ id, title, price, post_timestamp, location, post_url, data_pid, is_new, cloudinary_link, sources }: ResultCardProps) {
+function formatTimestamp(timestamp: string): string {
+  const now = new Date();
+  const jakartaTimeOffset = 7 * 60 * 60 * 1000; // Jakarta is UTC+7
+  const jakartaNow = new Date(now.getTime() + jakartaTimeOffset);
+
+  const parsedTimestamp = new Date(timestamp);
+
+  const timeDifference = jakartaNow.getTime() - parsedTimestamp.getTime();
+  const minutesDifference = Math.floor(timeDifference / (60 * 1000));
+  const hoursDifference = Math.floor(minutesDifference / 60);
+
+  if (minutesDifference < 60) {
+    if (minutesDifference <= 1) {
+      return "1 min ago";
+    }
+    return `${minutesDifference} mins ago`;
+  } else if (hoursDifference < 24) {
+    if (hoursDifference <= 1) {
+      return "1 hour ago";
+    }
+    return `${hoursDifference} hours ago`;
+  } else {
+    const month = parsedTimestamp.getMonth() + 1;
+    const day = parsedTimestamp.getDate();
+    return `${month}/${day}`;
+  }
+}
+
+export function ResultCard({ id, time_added, title, price, post_timestamp, location, post_url, data_pid, is_new, cloudinary_link, sources }: ResultCardProps) {
   const defaultImage = "/pyapp/images/no_image.png";
+  const formattedTime = formatTimestamp(time_added);
 
     return (
         <Link
@@ -49,7 +79,7 @@ export function ResultCard({ id, title, price, post_timestamp, location, post_ur
           {title}
         </h2>
         <h2 className={`text-base font-semibold text-center`}>
-        {location} {post_timestamp}
+        {location} {formattedTime}
         </h2>
         <h2 className={`text-base font-semibold text-center`}>
         {price}

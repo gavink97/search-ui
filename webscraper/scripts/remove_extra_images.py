@@ -59,6 +59,7 @@ def main():
                 reloaded_image_paths.extend(get_image_paths_from_csv(csv_file))
 
     missing_images = list(set(reloaded_image_paths) - set(all_images))
+    image_counter = 0
 
     if missing_images:
         missing_image_urls = {}
@@ -75,24 +76,25 @@ def main():
                                 if not matching_row.empty:
                                     missing_image_urls[missing_image_path] = matching_row['image_url'].iloc[0]
                                     break
-
+        total_images = len(missing_image_urls)
         for missing_image_path, image_url in missing_image_urls.items():
             parsed_image_url = urlparse(image_url)
             image_path_parsed = parsed_image_url.path
             cleaned_image_path = image_path_parsed.split('?')[0]
             image_filename = os.path.basename(cleaned_image_path)
             image_path = os.path.join(cl_images_fold, image_filename)
+            image_counter += 1
 
             if not os.path.exists(image_path):
                 response = requests.get(image_url)
                 if response.status_code == 200:
                     with open(image_path, 'wb') as img_file:
                         img_file.write(response.content)
-                    print(f"Downloaded missing image: {image_path}")
+                    print(f"Downloaded missing image ({image_counter}/{total_images}): {image_path}")
                 else:
-                    print(f"Failed to download image from URL: {image_url}")
+                    print(f"Failed to download image from URL ({image_counter}/{total_images}): {image_url}")
             else:
-                print(f"Image already exists: {image_path}")
+                print(f"Image already exists ({image_counter}/{total_images}): {image_path}")
 
     else:
         print("Verification complete: No missing images found.")

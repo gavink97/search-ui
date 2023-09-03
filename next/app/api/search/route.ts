@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
     const query = `
     SELECT
     l.id,
+    l.time_added,
     l.title,
     l.price,
     l.post_timestamp,
@@ -51,7 +52,7 @@ export async function GET(request: NextRequest) {
     LEFT JOIN
     sources s ON ds.source_id = s.id
     GROUP BY
-    l.id, l.title, l.price, l.post_timestamp, l.location, l.post_url, l.data_pid, l.is_new
+    l.id,  l.time_added, l.title, l.price, l.post_timestamp, l.location, l.post_url, l.data_pid, l.is_new
     `;
 
     const [rows] = await connection.query(query);
