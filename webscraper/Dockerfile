@@ -30,9 +30,9 @@ COPY . ./pyapp
 
 RUN apt-get update && apt-get install -y netcat
 
-#RUN echo "#!/bin/bash" > $STARTUPDIR/custom_startup.sh \
-#    && echo "/usr/bin/python3 -u /pyapp/launcher.py" >> $STARTUPDIR/custom_startup.sh \
-#    && chmod +x $STARTUPDIR/custom_startup.sh
+RUN echo "#!/bin/bash" > $STARTUPDIR/custom_startup.sh \
+    && echo "/usr/bin/python3 -u /pyapp/launcher.py" >> $STARTUPDIR/custom_startup.sh \
+    && chmod +x $STARTUPDIR/custom_startup.sh
 
 ######### End Customizations ###########
 

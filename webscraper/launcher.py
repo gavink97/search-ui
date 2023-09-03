@@ -80,12 +80,12 @@ def job():
 
             with open(cl_urls, 'r') as file:
                 urls = file.read().splitlines()
-#                run_craigslist_scripts(urls)
+                run_craigslist_scripts(urls)
 
             ordered_scripts = [
-#                'facebook_marketplace.py',
-#                'filter_csv.py',
-#                'remove_extra_images.py',
+                'facebook_marketplace.py',
+                'filter_csv.py',
+                'remove_extra_images.py',
                 'to_mysql_v2.py',
                 'to_cloudinary.py'
                 ]
