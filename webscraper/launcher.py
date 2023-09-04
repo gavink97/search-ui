@@ -80,14 +80,14 @@ def job():
 
             with open(cl_urls, 'r') as file:
                 urls = file.read().splitlines()
-#                run_craigslist_scripts(urls)
+                run_craigslist_scripts(urls)
 
             ordered_scripts = [
                 'facebook_marketplace.py', # 33:52
-#                'filter_csv.py',
-#                'remove_extra_images.py',
-#                'to_mysql_v2.py',
-#                'to_cloudinary.py'
+                'filter_csv.py',
+                'remove_extra_images.py',
+                'to_mysql_v2.py',
+                'to_cloudinary.py'
                 ]
 
             url = 'https://www.facebook.com/'

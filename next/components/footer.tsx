@@ -10,12 +10,13 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/outline'
 
 const Footer = () => {
   return (
-    <footer className='flex flex-col justify-center py-1 sticky bottom-0 bg-white'>
+    <footer className='flex flex-col justify-center py-1 sticky bottom-0 lg:bg-white max-md:invisible'>
       <div className='container'>
-      <ul className='flex items-center justify-between tracking-wider text-stone-500'>
+        <ul className='flex items-center justify-between tracking-wider text-stone-500'>
           <li className=''>
             <HoverCard>
               <HoverCardTrigger asChild>
