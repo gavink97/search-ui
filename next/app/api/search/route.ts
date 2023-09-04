@@ -9,7 +9,7 @@ const REVALIDATE_TAG = 'my-api-data';
 export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions)
   console.log('Session data in API route:', session);
-
+// remove !session when working on mobile
   if (!session) {
     return NextResponse.json({ message: 'Unauthorized' });
   }

@@ -24,6 +24,8 @@ launcher_path = sys.argv[2]
 search_query = sys.argv[3]
 url = sys.argv[4]
 
+timezone = pytz.timezone('Asia/Jakarta')
+
 page_load_timeout = 60
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
@@ -57,7 +59,8 @@ search_field.send_keys(search_query)
 search_field.send_keys(Keys.ENTER)
 time.sleep(5)  # If you start getting "ValueError:" "Expected axis has 0 elements" increase time.sleep
 
-posts_html = []
+posts_data = []
+scraped_img_tag_src = set()
 to_stop = False
 current_page = 0
 total_items = 0
@@ -78,14 +81,21 @@ while not to_stop:
             break
     search_results = driver.find_element(By.XPATH, '/html/body/div[1]/main/div/div[5]/ol')
     soup = BeautifulSoup(search_results.get_attribute('innerHTML'), 'html.parser')
-    posts_html.extend(soup.find_all('li', {'class': 'cl-search-result'}))
+    for div in soup.find_all('li', {'class': 'cl-search-result'}):
+        img_tag = div.find('img')
+        if img_tag:
+            img_tag_src = img_tag.get('src')
+            if img_tag_src not in scraped_img_tag_src:
+                posts_data.extend(div)
+                scraped_img_tag_src.add(img_tag_src)
+
     page_num = driver.find_element(By.CLASS_NAME, 'cl-page-number').text
     pattern = r'([\d,]+)\s*of\s*([\d,]+)'
     match = re.search(pattern, page_num)
     if match:
         current_page = int(match.group(1).replace(',', ''))
         total_items = int(match.group(2).replace(',', ''))
-    if posts_html ==[]:
+    if posts_data ==[]:
         driver.close()
         raise NoSuchElementException("No listings found on the page. Check if the page loaded properly.")
 
@@ -106,17 +116,21 @@ while not to_stop:
         print(f"Error: {e}")
         break
 
-print('Collected {0} listings'.format(len(posts_html)))
+#with open(f'{launcher_path}/temp/{source_name}_posts_html.txt', 'w', encoding='utf-8') as file:
+#    for div in posts_data:
+#        file.write(str(div) + '\n')
 
-CraigslistPost = namedtuple('CraigslistPost',
-                            ['title', 'price', 'post_timestamp', 'location', 'post_url', 'image_url', 'data_pid'])
+print('Collected {0} listings'.format(len(posts_data)))
+
+CL_item = namedtuple('CL_item',
+                            ['title', 'price', 'post_timestamp', 'location', 'post_url', 'image_url'])
 craigslist_posts = []
 image_paths = []
 image_counter = 0
-total_images = len(posts_html)
+total_images = len(posts_data)
 default_image_path = f"{launcher_path}/images/no_image.png"
 
-for posts_html in posts_html:
+for posts_html in posts_data:
     title = getattr(posts_html.find('a', 'posting-title'), 'text', None)
     price_element = posts_html.find('span', 'priceinfo')
     price = price_element.text.strip() if price_element is not None else 'Price not given'
@@ -165,15 +179,14 @@ for posts_html in posts_html:
     if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
         image_url = 'No image'
 
-    data_pid = posts_html.get('data-pid')
-    craigslist_posts.append(CraigslistPost(title, price, post_timestamp, location, post_url, image_url, data_pid))
+    craigslist_posts.append(CL_item(title, price, post_timestamp, location, post_url, image_url))
 
 df = pd.DataFrame(craigslist_posts)
-timezone = pytz.timezone('Asia/Jakarta')
-current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M:%S")
+current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M")
 df.insert(0, 'time_added', current_time)
 df.insert(0, 'is_new', "1")
 df.insert(0, 'source', f"{source_name}")
+df['data_pid'] = df['post_url'].str.extract(r'/(\d+)\.html$')
 df['image_path'] = image_paths
 df.dropna(inplace=True)
 df.to_csv(f'{launcher_path}/sheets/{source_name}.csv', index=False)

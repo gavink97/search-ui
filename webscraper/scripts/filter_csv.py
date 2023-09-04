@@ -1,18 +1,21 @@
 import os
 import pandas as pd
 import sys
+import re
 
 launcher_path = sys.argv[2]
 
 def read_words_from_file(file_path):
     with open(file_path, 'r') as file:
-        words = [word.strip() for line in file for word in line.split()]
+        words = [word.strip().lower() for word in file]
     return words
 
-def filter_csv_by_words_and_image(csv_file, words):
+def filter_csv_by_words_and_image(csv_file, phrases):
     df = pd.read_csv(csv_file)
-    if words:
-        df = df[~df['title'].str.lower().str.contains('|'.join(words), na=False)]
+    if phrases:
+        for phrase in phrases:
+            df = df[~df['title'].str.lower().str.contains(re.escape(phrase.lower()), na=False)]
+
     df = df.drop_duplicates(subset=['title', 'image_path'], keep='first')
     return df
 
@@ -26,7 +29,7 @@ output_folder = f"{launcher_path}/filtered"
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-words_to_filter = read_words_from_file(words_file)
+phrases_to_filter = read_words_from_file(words_file)
 
 for root, _, files in os.walk(sheets_folder):
     for file in files:
@@ -34,7 +37,7 @@ for root, _, files in os.walk(sheets_folder):
             csv_file = os.path.join(root, file)
             print(f"Currently processing {file}")
 
-            filtered_df = filter_csv_by_words_and_image(csv_file, words_to_filter)
+            filtered_df = filter_csv_by_words_and_image(csv_file, phrases_to_filter)
 
             output_file = os.path.join(output_folder, file)
             save_filtered_csv(filtered_df, output_file)

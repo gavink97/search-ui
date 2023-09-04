@@ -47,6 +47,7 @@ export function SearchResult({ resultList }: SearchResultProps) {
     }
   }, [resultList, sortedResults]);
 
+  //remove <Auth> when starting to work on mobile
   return (
     <>
       <Auth>

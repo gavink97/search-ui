@@ -24,6 +24,8 @@ from dotenv import load_dotenv
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
 
+timezone = pytz.timezone('Asia/Jakarta')
+
 page_load_timeout = 90
 
 load_dotenv()
@@ -84,8 +86,8 @@ try:
     print("Navigating to Facebook Marketplace...")
     market.click()
     time.sleep(10)
-    fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
-    fbp_blocker.click()
+    #fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
+    #fbp_blocker.click()
     time.sleep(random_delay)
 except ElementClickInterceptedException:
     print("Clicking FBP first...")
@@ -253,8 +255,7 @@ if batch:
 print('Collected {0} listings'.format(len(scraped_hrefs)))
 
 df = pd.DataFrame(fb_posts)
-timezone = pytz.timezone('Asia/Jakarta')
-current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M:%S")
+current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M")
 df.insert(2, 'post_timestamp', current_time)
 df.insert(0, 'time_added', current_time)
 df.insert(0, 'is_new', "1")

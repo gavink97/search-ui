@@ -143,13 +143,14 @@ for data_pid in unique_data_pids:
                 price=%s,
                 post_timestamp=%s,
                 location=%s,
+                post_url=%s,
                 image_url=%s,
                 image_path=%s,
                 is_new = %s
             WHERE data_pid=%s
             """
             cursor.execute(update_query, (
-                row['title'], row['price'], row['post_timestamp'], row['location'], row['image_url'], row['image_path'],
+                row['title'], row['price'], row['post_timestamp'], row['location'], row['post_url'], row['image_url'], row['image_path'],
                 0,
                 data_pid))
         else:
