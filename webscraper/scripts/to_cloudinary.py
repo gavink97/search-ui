@@ -48,11 +48,10 @@ else:
         signature_data = f"public_id={public_id}&timestamp={timestamp}{cloud_api_secret}"
         signature = hashlib.sha1(signature_data.encode()).hexdigest()
 
-
         print(f"Uploading image {index}/{len(rows)}: {image_path}")
 
         cloudinary_params = {
-            "file": ( open(image_path, 'rb'))
+            "file": (open(image_path, 'rb'))
         }
 
         data = {

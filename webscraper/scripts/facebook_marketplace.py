@@ -11,18 +11,23 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementClickInterceptedException
+from webdriver_manager.chrome import ChromeDriverManager
 import random
 from urllib.parse import urlencode, urlparse, parse_qs
 from dotenv import load_dotenv
+# import json
 
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
+
+# launcher_path = "/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper"
+# search_query = "record player"
 
 timezone = pytz.timezone('Asia/Jakarta')
 
@@ -33,15 +38,15 @@ fb_email = os.environ['FACEBOOK_EMAIL']
 fb_pass = os.environ['FACEBOOK_PASSWORD']
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-firefox_driver_path = os.path.join(os.getcwd(), 'drivers', 'geckodriver')
-firefox_service = Service(firefox_driver_path, log_path=os.path.devnull)
-firefox_option = Options()
-firefox_option.set_preference('general.useragent.override', user_agent)
-firefox_option.set_preference("permissions.default.desktop-notification", 2)
-driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
+driver_service = Service(ChromeDriverManager().install())
+driver_option = Options()
+driver_option.add_argument(f"load-extension={launcher_path}/drivers/extensions/fbp")
+driver_option.add_argument(f'--user-agent={user_agent}')
+driver_option.add_argument("--disable-notifications")
+driver = webdriver.Chrome(options=driver_option, service=driver_service)
+
 driver.implicitly_wait(9)
 driver.set_window_size(1400, 1000)
-driver.install_addon(f'{launcher_path}/drivers/extensions/fbpurity.THRTYX-WX.xpi')
 window_handles = driver.window_handles
 wait = WebDriverWait(driver, 30)
 url = 'https://www.facebook.com/'
@@ -53,6 +58,7 @@ print(f"Now getting {search_query}s from Facebook Marketplace...")
 try:
     driver.set_page_load_timeout(page_load_timeout)
     driver.get(url)
+#    driver.execute_cdp_cmd('Network.enable', {})
 except TimeoutException as e:
     driver.close()
     raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
@@ -69,7 +75,7 @@ for char in fb_email:
     time.sleep(delay)
 
 password_field = driver.find_element(By.XPATH, '//*[@id="pass"]')
-time.sleep (3)
+time.sleep(3)
 password_field.click()
 for char in fb_pass:
     password_field.send_keys(char)
@@ -86,8 +92,8 @@ try:
     print("Navigating to Facebook Marketplace...")
     market.click()
     time.sleep(10)
-    #fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
-    #fbp_blocker.click()
+    # fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
+    # fbp_blocker.click()
     time.sleep(random_delay)
 except ElementClickInterceptedException:
     print("Clicking FBP first...")
@@ -111,14 +117,14 @@ print("Adjusting sort parameters...")
 sort_by = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div[3]/div[2]/div[2]/div[1]')
 sort_by.click()
 time.sleep(1.5)
-newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Date listed: Newest first')]")))
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Date listed: Newest first')]")))
 newest_first.click()
 time.sleep(2)
 date_listed = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='Date listed']")))
 date_listed.click()
 time.sleep(1.5)
-#Last 24 hours, Last 7 days, Last 30 days
-newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, f"//*[contains(text(), 'Last 7 days')]")))
+# Options: Last 24 hours, Last 7 days, Last 30 days
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Last 24 hours')]")))
 newest_first.click()
 time.sleep(2)
 
@@ -126,13 +132,14 @@ print(f"Beginning to scrape for {search_query}s...")
 print("Please wait as this can take some time.")
 
 FbPost = namedtuple('FbPost',
-                            ['title', 'price', 'location', 'post_url', 'image_url'])
+                    ['title', 'price', 'location', 'post_url', 'image_url'])
 fb_posts = []
 image_paths = []
 image_counter = 0
 batch_count = 0
 
 default_image_path = f"{launcher_path}/images/no_image.png"
+
 
 def process_batch(batch):
     global batch_count
@@ -195,26 +202,27 @@ def process_batch(batch):
             print(f"No image found ({image_counter}/{total_images}): using default image")
         image_paths.append(image_path)
 
-        if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
+        if image_url.strip() == '':  # sometimes this errors out if the scroll_pause_time is too low
             image_url = 'No image'
 
         fb_posts.append(FbPost(title, new_price, location, post_url, image_url))
 
+
 scraped_hrefs = set()
 to_stop = False
-
 scroll_pause_time = 1.5
 scroll_offset = 1200
 actions = ActionChains(driver)
-
 batch_size = 50
 batch = []
+
+# Create break if requests are not coming anymore after scrolling
 
 while not to_stop:
     while True:
         prev_height = driver.execute_script("return document.body.scrollHeight")
-
         actions.scroll_by_amount(0, scroll_offset).perform()
+
         time.sleep(scroll_pause_time)
 
         new_height = driver.execute_script("return document.body.scrollHeight")
@@ -243,12 +251,13 @@ while not to_stop:
         batch = []
 
     if "Results from outside your search" in driver.page_source:
-            break
+        print("Stopping: found results in page source")
+        break
 
 if batch:
     process_batch(batch)
 
-#with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
+# with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
 #    for div in posts_html:
 #        file.write(str(div) + '\n')
 
@@ -264,6 +273,6 @@ df['data_pid'] = df['post_url'].str.extract(r'/(\d+)/')
 df['image_path'] = image_paths
 df.dropna(inplace=True)
 df.to_csv(f'{launcher_path}/sheets/facebook_marketplace.csv', index=False)
-print(f"Created facebook_marketplace.csv")
+print("Created facebook_marketplace.csv")
 driver.close()
 driver.quit()

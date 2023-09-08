@@ -1,4 +1,4 @@
-FROM kasmweb/core-ubuntu-focal:1.14.0
+FROM kasmweb/core-ubuntu-focal:1.14.0 
 USER root
 
 ENV PYTHONUNBUFFERED=1
@@ -10,11 +10,13 @@ WORKDIR $HOME
 
 ######### Customize Container Here ###########
 
-# Installing Firefox
 RUN apt-get update && apt-get install -y firefox
 
-# Installing python, pip, and libraries
+RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 RUN apt-get update
+RUN apt-get install -y google-chrome-stable 
+
 # Won't RUN if connected to VPN in Singapore
 RUN apt install -y wget build-essential libncursesw5-dev libssl-dev \
 libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev zlib1g-dev

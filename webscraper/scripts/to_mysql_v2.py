@@ -29,6 +29,7 @@ db = mysql.connector.connect(
     database=f'{db_database}'
 )
 
+
 def create_tables():
     cursor = db.cursor()
 

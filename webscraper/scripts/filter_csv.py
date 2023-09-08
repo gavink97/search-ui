@@ -5,10 +5,12 @@ import re
 
 launcher_path = sys.argv[2]
 
+
 def read_words_from_file(file_path):
     with open(file_path, 'r') as file:
         words = [word.strip().lower() for word in file]
     return words
+
 
 def filter_csv_by_words_and_image(csv_file, phrases):
     df = pd.read_csv(csv_file)
@@ -19,8 +21,10 @@ def filter_csv_by_words_and_image(csv_file, phrases):
     df = df.drop_duplicates(subset=['title', 'image_path'], keep='first')
     return df
 
+
 def save_filtered_csv(filtered_df, output_file):
     filtered_df.to_csv(output_file, index=False)
+
 
 sheets_folder = f"{launcher_path}/sheets"
 words_file = f"{launcher_path}/filter_words.txt"

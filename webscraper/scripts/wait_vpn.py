@@ -1,6 +1,7 @@
 import socket
 import time
 
+
 def check_socket_connection():
     while True:
         try:
@@ -12,6 +13,7 @@ def check_socket_connection():
             pass
         print("Waiting for socket connection...")
         time.sleep(5)
+
 
 if __name__ == "__main__":
     check_socket_connection()
