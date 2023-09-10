@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import sys
-import re
 
 launcher_path = sys.argv[2]
 
@@ -12,11 +11,16 @@ def read_words_from_file(file_path):
     return words
 
 
-def filter_csv_by_words_and_image(csv_file, phrases):
+def filter_csv_by_words_and_image(csv_file, phrases_to_filter, protected_phrases):
     df = pd.read_csv(csv_file)
-    if phrases:
-        for phrase in phrases:
-            df = df[~df['title'].str.lower().str.contains(re.escape(phrase.lower()), na=False)]
+
+    if phrases_to_filter:
+        for index, row in df.iterrows():
+            title = row['title'].lower()
+            for phrase in phrases_to_filter:
+                if phrase in title and not any(protected in title for protected in protected_phrases):
+                    df = df.drop(index)
+                    break
 
     df = df.drop_duplicates(subset=['title', 'image_path'], keep='first')
     return df
@@ -27,13 +31,15 @@ def save_filtered_csv(filtered_df, output_file):
 
 
 sheets_folder = f"{launcher_path}/sheets"
-words_file = f"{launcher_path}/filter_words.txt"
+filter_words = f"{launcher_path}/filter_words.txt"
+protected_words = f"{launcher_path}/protected_words.txt"
 output_folder = f"{launcher_path}/filtered"
 
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-phrases_to_filter = read_words_from_file(words_file)
+phrases_to_filter = read_words_from_file(filter_words)
+protected_phrases = read_words_from_file(protected_words)
 
 for root, _, files in os.walk(sheets_folder):
     for file in files:
@@ -41,7 +47,7 @@ for root, _, files in os.walk(sheets_folder):
             csv_file = os.path.join(root, file)
             print(f"Currently processing {file}")
 
-            filtered_df = filter_csv_by_words_and_image(csv_file, phrases_to_filter)
+            filtered_df = filter_csv_by_words_and_image(csv_file, phrases_to_filter, protected_phrases)
 
             output_file = os.path.join(output_folder, file)
             save_filtered_csv(filtered_df, output_file)

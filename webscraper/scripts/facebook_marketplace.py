@@ -11,16 +11,16 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import ElementClickInterceptedException
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 import random
 from urllib.parse import urlencode, urlparse, parse_qs
 from dotenv import load_dotenv
+import logging
 # import json
 
 launcher_path = sys.argv[2]
@@ -37,12 +37,21 @@ load_dotenv()
 fb_email = os.environ['FACEBOOK_EMAIL']
 fb_pass = os.environ['FACEBOOK_PASSWORD']
 
+logger = logging.getLogger("facebook_marketplace_logger")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(f"{launcher_path}/logs/facebook_marketplace.log")
+logger.addHandler(handler)
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
+
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-driver_service = Service(ChromeDriverManager().install())
+driver_path = f'{launcher_path}/drivers/chromedriver'
+driver_service = Service(log_output=f'{launcher_path}/logs/facebook_marketplace.log')
 driver_option = Options()
 driver_option.add_argument(f"load-extension={launcher_path}/drivers/extensions/fbp")
 driver_option.add_argument(f'--user-agent={user_agent}')
 driver_option.add_argument("--disable-notifications")
+driver_option.add_argument('--disable-dev-shm-usage')
+driver_option.add_argument('--no-sandbox')
 driver = webdriver.Chrome(options=driver_option, service=driver_service)
 
 driver.implicitly_wait(9)

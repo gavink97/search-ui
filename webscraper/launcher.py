@@ -8,26 +8,32 @@ import pytz
 
 launcher_path = os.path.dirname(os.path.abspath(__file__))
 scripts_folder = os.path.join(launcher_path, 'scripts')
-log_file_path = f'{launcher_path}/job_errors.log'
+log_file_path = f'{launcher_path}/logs/job_error.log'
 cl_urls = f'{launcher_path}/craigslist_urls.txt'
 
 time.sleep(2)
+
+try:
+    with open(log_file_path, 'w'):
+        pass
+    os.chmod(log_file_path, 0o660)
+    logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
+    print("Logging Setup Complete")
+except Exception as e:
+    print(f"An error occurred: {e}")
+
 print("Awaiting VPN Connection...")
 connect_vpn = os.path.join(scripts_folder, 'wait_vpn.py')
 subprocess.run(['python3', connect_vpn], check=True)
 fetch_ip = os.path.join(scripts_folder, 'fetch_ip.py')
 subprocess.run(['python3', fetch_ip], check=True)
 
-try:
-    os.chmod(log_file_path, 0o600)
-    logging.basicConfig(filename=log_file_path, level=logging.ERROR)
-except Exception as e:
-    print(f"An error occurred: {e}")
-
+#########################################
 max_attempts = 10
 search_query = "record player"
-
 timezone = pytz.timezone('Asia/Jakarta')
+#########################################
+
 current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M:%S")
 
 job_running = False
@@ -54,6 +60,8 @@ def run_script(script_path, file_name, launcher_path, search_query, url, max_ret
 
                 send_email = os.path.join(scripts_folder, 'send_email.py')
                 subprocess.run(['python3', send_email, launcher_path], check=True)
+                with open(log_file_path, 'w'):
+                    pass
                 break
 
 
@@ -81,14 +89,14 @@ def job():
 
             with open(cl_urls, 'r') as file:
                 urls = file.read().splitlines()
-#                run_craigslist_scripts(urls)
+                run_craigslist_scripts(urls)
 
             ordered_scripts = [
                 'facebook_marketplace.py',  # 33:52
                 'filter_csv.py',
-#                'remove_extra_images.py',
+                'remove_extra_images.py',
                 'to_mysql_v2.py',
-#                'to_cloudinary.py'
+                'to_cloudinary.py'
                 ]
 
             url = 'https://www.facebook.com/'

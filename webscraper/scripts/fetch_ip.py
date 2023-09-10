@@ -12,9 +12,7 @@ def fetch_location(public_ip):
     return location_data.get('city'), location_data.get('region'), location_data.get('country')
 
 
-if __name__ == "__main__":
-    public_ip = fetch_public_ip()
-    city, region, country = fetch_location(public_ip)
-
-    print(f"Public IP: {public_ip}")
-    print(f"Location: {city}, {region}, {country}")
+public_ip = fetch_public_ip()
+city, region, country = fetch_location(public_ip)
+print(f"Public IP: {public_ip}")
+print(f"Location: {city}, {region}, {country}")

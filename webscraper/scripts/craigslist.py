@@ -8,6 +8,7 @@ import re
 import requests
 import time
 import sys
+import logging
 from urllib.parse import urlparse
 from selenium import webdriver
 from selenium.webdriver import ActionChains
@@ -18,29 +19,35 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import TimeoutException
-
 file_name = sys.argv[1]
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
 url = sys.argv[4]
-
-timezone = pytz.timezone('Asia/Jakarta')
-
-page_load_timeout = 60
-
-user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-firefox_driver_path = os.path.join(os.getcwd(), 'drivers', 'geckodriver')
-firefox_service = Service(firefox_driver_path, log_path=os.path.devnull)
-firefox_option = Options()
-firefox_option.set_preference('general.useragent.override', user_agent)
-driver = webdriver.Firefox(service=firefox_service, options=firefox_option)
-driver.implicitly_wait(9)
 
 parsed_url = urlparse(url)
 parts_url = parsed_url.netloc.split('.')
 if len(parts_url) > 0:
     city_name = parts_url[0].capitalize()
 source_name = f'craigslist_{parts_url[0]}'
+
+timezone = pytz.timezone('Asia/Jakarta')
+
+page_load_timeout = 60
+
+logger = logging.getLogger(f"cl_{city_name}_logger")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(f"{launcher_path}/logs/{source_name}.log")
+logger.addHandler(handler)
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
+
+user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
+driver_path = f'{launcher_path}/drivers/geckodriver'
+driver_service = Service(driver_path, log_output=f'{launcher_path}/logs/{source_name}.log')
+firefox_option = Options()
+firefox_option.set_preference('general.useragent.override', user_agent)
+driver = webdriver.Firefox(service=driver_service, options=firefox_option)
+driver.implicitly_wait(9)
+
 print(f"Fetching {search_query}s from {city_name} Craigslist...")
 
 try:
@@ -176,7 +183,7 @@ for posts_html in posts_data:
         print(f"No image found ({image_counter}/{total_images}): using default image")
     image_paths.append(image_path)
 
-    if image_url.strip() == '': # sometimes this errors out if the scroll_pause_time is too low
+    if image_url.strip() == '':  # sometimes this errors out if the scroll_pause_time is too low
         image_url = 'No image'
 
     craigslist_posts.append(CL_item(title, price, post_timestamp, location, post_url, image_url))

@@ -11,9 +11,9 @@ def check_socket_connection():
         except Exception as e:
             print(f"Socket connection failed: {e}")
             pass
+        # fix error where in if gluetun resets properly connect
         print("Waiting for socket connection...")
         time.sleep(5)
 
 
-if __name__ == "__main__":
-    check_socket_connection()
+check_socket_connection()

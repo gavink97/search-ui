@@ -100,5 +100,4 @@ def main():
         print("Verification complete: No missing images found.")
 
 
-if __name__ == "__main__":
-    main()
+main()
