@@ -19,12 +19,15 @@ interface ResultCardProps {
 
 function formatTimestamp(timestamp: string): string {
   const now = new Date();
-  const jakartaTimeOffset = 7 * 60 * 60 * 1000; // Jakarta is UTC+7
-  const jakartaNow = new Date(now.getTime() + jakartaTimeOffset);
 
-  const parsedTimestamp = new Date(timestamp);
+  const [datePart, timePart] = timestamp.split(' ');
 
-  const timeDifference = jakartaNow.getTime() - parsedTimestamp.getTime();
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute] = timePart.split(':').map(Number);
+
+  const parsedTimestamp = new Date(year, month - 1, day, hour, minute);
+
+  const timeDifference = now.getTime() - parsedTimestamp.getTime();
   const minutesDifference = Math.floor(timeDifference / (60 * 1000));
   const hoursDifference = Math.floor(minutesDifference / 60);
 
@@ -39,9 +42,9 @@ function formatTimestamp(timestamp: string): string {
     }
     return `${hoursDifference} hours ago`;
   } else {
-    const month = parsedTimestamp.getMonth() + 1;
-    const day = parsedTimestamp.getDate();
-    return `${month}/${day}`;
+    const formattedMonth = (month < 10 ? '0' : '') + month;
+    const formattedDay = (day < 10 ? '0' : '') + day;
+    return `${formattedMonth}/${formattedDay}`;
   }
 }
 
@@ -58,6 +61,7 @@ export function ResultCard({ id, time_added, title, price, post_timestamp, locat
       >
       {cloudinary_link ? (
         <CldImage
+          className={`inline`}
           src={cloudinary_link}
           alt='record player'
           width="300"
@@ -68,6 +72,7 @@ export function ResultCard({ id, time_added, title, price, post_timestamp, locat
         />
       ) : (
         <Image
+          className={`inline`}
           src={defaultImage}
           alt='missing record player photo'
           width="300"

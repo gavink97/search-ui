@@ -31,18 +31,19 @@ if len(parts_url) > 0:
 source_name = f'craigslist_{parts_url[0]}'
 
 timezone = pytz.timezone('Asia/Jakarta')
+current_time = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M")
 
 page_load_timeout = 60
 
 logger = logging.getLogger(f"cl_{city_name}_logger")
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(f"{launcher_path}/logs/{source_name}.log")
+handler = logging.FileHandler(f"{launcher_path}/temp/{source_name}.log")
 logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
 driver_path = f'{launcher_path}/drivers/geckodriver'
-driver_service = Service(driver_path, log_output=f'{launcher_path}/logs/{source_name}.log')
+driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/{source_name}.log')
 firefox_option = Options()
 firefox_option.set_preference('general.useragent.override', user_agent)
 driver = webdriver.Firefox(service=driver_service, options=firefox_option)
@@ -153,14 +154,9 @@ for posts_html in posts_data:
             if location.strip() == '':
                 location = f'{city_name} area'
 
-    os.umask(0o002)
     create_dir = f"{launcher_path}/images/cl_images"
-    if not (os.path.dirname(create_dir)):
-        try:
-            original_umask = os.umask(0)
-            os.makedirs(os.path.dirname(create_dir, mode=777))
-        finally:
-            os.umask(original_umask)
+    if not os.path.exists(create_dir):
+        os.makedirs(create_dir)
 
     image_url = posts_html.find('img').get('src') if posts_html.find('img') else ''
     image_path = ""
@@ -189,7 +185,6 @@ for posts_html in posts_data:
     craigslist_posts.append(CL_item(title, price, post_timestamp, location, post_url, image_url))
 
 df = pd.DataFrame(craigslist_posts)
-current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M")
 df.insert(0, 'time_added', current_time)
 df.insert(0, 'is_new', "1")
 df.insert(0, 'source', f"{source_name}")

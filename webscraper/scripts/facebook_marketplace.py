@@ -30,6 +30,7 @@ search_query = sys.argv[3]
 # search_query = "record player"
 
 timezone = pytz.timezone('Asia/Jakarta')
+current_time = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M")
 
 page_load_timeout = 90
 
@@ -39,13 +40,13 @@ fb_pass = os.environ['FACEBOOK_PASSWORD']
 
 logger = logging.getLogger("facebook_marketplace_logger")
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(f"{launcher_path}/logs/facebook_marketplace.log")
+handler = logging.FileHandler(f"{launcher_path}/temp/facebook_marketplace.log")
 logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
 driver_path = f'{launcher_path}/drivers/chromedriver'
-driver_service = Service(log_output=f'{launcher_path}/logs/facebook_marketplace.log')
+driver_service = Service(log_output=f'{launcher_path}/temp/facebook_marketplace.log')
 driver_option = Options()
 driver_option.add_argument(f"load-extension={launcher_path}/drivers/extensions/fbp")
 driver_option.add_argument(f'--user-agent={user_agent}')
@@ -182,14 +183,9 @@ def process_batch(batch):
         fb_post_url = post_url_cleaned.split('?')[0]
         post_url = f"https://www.facebook.com{fb_post_url}"
 
-        os.umask(0o002)
         create_dir = f"{launcher_path}/images/cl_images"
-        if not (os.path.dirname(create_dir)):
-            try:
-                original_umask = os.umask(0)
-                os.makedirs(os.path.dirname(create_dir, mode=777))
-            finally:
-                os.umask(original_umask)
+        if not os.path.exists(create_dir):
+            os.makedirs(create_dir)
 
         image_path = ""
         image_counter += 1
@@ -266,14 +262,13 @@ while not to_stop:
 if batch:
     process_batch(batch)
 
-# with open(f'{launcher_path}/posts_html.txt', 'w', encoding='utf-8') as file:
+# with open(f'{launcher_path}/temp/facebook_marketplace.txt', 'w', encoding='utf-8') as file:
 #    for div in posts_html:
 #        file.write(str(div) + '\n')
 
 print('Collected {0} listings'.format(len(scraped_hrefs)))
 
 df = pd.DataFrame(fb_posts)
-current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M")
 df.insert(2, 'post_timestamp', current_time)
 df.insert(0, 'time_added', current_time)
 df.insert(0, 'is_new', "1")

@@ -1,12 +1,14 @@
 "use client"
+
 import { useRouter } from 'next/navigation'
 import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid'
 import { HomeIcon } from '@heroicons/react/24/outline'
 
-export default function TOS() {
-  const router = useRouter();
 
-    return(
+export default function Report() {
+      const router = useRouter();
+
+    return (
       <div className="mt-10 ml-12 mr-12">
         <header className="flex flex-col justify-start sticky" >
           <div className='container p-0'>
@@ -25,20 +27,15 @@ export default function TOS() {
            </div>
         </header>
 
-        <div className="m-6">
-            <h1 className="text-3xl font-medium mb-12 mt-12 text-center md:text-left md:ml-8">Terms of Service</h1>
-            <div className="m-6">
-            <p className="mb-6 text-xl">We do not track or collect any user data.</p>
-            <div className="text-xl">
-              <p className=''>If you have any questions or concerns, please reach out to me at
-                <a href='mailto:gavin@gav.ink'
-                > gavin@gav.ink </a>
-              and I will get a hold of you as soon as possible.</p>
-              <p className="mt-3">Thank you</p>
-            </div>
+            <div className="text-lg mb-4 mt-10 text-stone-700 text-center md:text-left md:ml-8">
+                <div className="pb-0 overflow-hidden">
+                    <p className="text-2xl"> This feature will be coming soon!</p>
+                    <br/>
+                     <p className="text-xl">For now email
+                     <a href='mailto:gavin@gav.ink'> gavin@gav.ink </a>
+                     with a screenshot or description of the issue</p>
+                </div>
             </div>
         </div>
-      </div>
     )
 }
-

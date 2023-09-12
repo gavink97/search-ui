@@ -139,7 +139,6 @@ wind-up
 magazine
 call of duty
 duck call
-lazy susan
 skate
 hutch
 fisher price
@@ -216,3 +215,32 @@ johnny mathis
 pageant
 blockbuster
 hotel
+lazy
+media player
+recordable
+record
+laptop
+usb
+video
+stamps
+scratch
+carvel hall
+memoir
+electronics
+best of
+vynvl
+autoharp
+scrabble
+car
+leasing agent
+snes
+boombox
+flip clock
+hair
+us mint
+dart board
+dj
+plaque
+cold server
+shot glass
+range rover

@@ -43,7 +43,7 @@ def create_tables():
     create_listings_table = """
     CREATE TABLE IF NOT EXISTS listings (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        time_added TIMESTAMP,
+        time_added VARCHAR(255),
         title VARCHAR(500),
         price VARCHAR(255),
         post_timestamp VARCHAR(255),
@@ -59,7 +59,7 @@ def create_tables():
     create_archived_listings_table = """
     CREATE TABLE IF NOT EXISTS archived_listings (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        time_added TIMESTAMP,
+        time_added VARCHAR(255),
         title VARCHAR(500),
         price VARCHAR(255),
         post_timestamp VARCHAR(255),
@@ -169,7 +169,7 @@ for data_pid in unique_data_pids:
                 is_new
             )
             VALUES (
-                NOW(),
+                %s,
                 %s,
                 %s,
                 %s,
@@ -183,6 +183,7 @@ for data_pid in unique_data_pids:
             """
 
             cursor.execute(insert_query, (
+                row['time_added'],
                 row['title'],
                 row['price'],
                 row['post_timestamp'],

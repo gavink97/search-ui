@@ -37,7 +37,7 @@ const SignInButton = () => {
             </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => router.push('/profile')}>
+            <DropdownMenuItem onClick={() => router.push('')}>
               <UserIcon className="h-4 w-4 ml-px mr-2" />  Profile
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push('/privacy')}>

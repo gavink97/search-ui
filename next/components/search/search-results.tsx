@@ -51,8 +51,9 @@ export function SearchResult({ resultList }: SearchResultProps) {
   return (
     <>
       <Auth>
-        <div className="sticky top-4 bg-white">
-          <div className="grid w-full max-w-lg mb-6 mt-2 items-center gap-1.5 ">
+        <div className="sticky top-24 bg-white md:bg-transparent md:top-4 flex flex-col justify-items-center overflow-hidden">
+         <div className="flex flex-col items-center ">
+          <div className="grid w-full max-w-lg mb-0 mt-2 items-center gap-1.5 justify-center justify-items-center">
             <Label htmlFor="searchResultId"></Label>
             <Input
               className='w-80'
@@ -63,29 +64,29 @@ export function SearchResult({ resultList }: SearchResultProps) {
               placeholder="Search for a brand, source or location"
               onChange={(e) => setSearchText(e.target.value)}
             />
-            <div className="absolute top-0 left-8 px-64 py-6 pointer-events-none">
+            <div className="relative bottom-9 left-36 pr-4 pointer-events-none">
               <MagnifyingGlassIcon className="w-5 h-5 text-gray-500" />
+            </div>
+          </div>
+            <div className="text-center font-medium text-l md:text-xl container bg-white">
+              <ul className="flex items-center justify-center lg:justify-between">
+                <li></li>
+                <li className="text-slate-700 relative bottom-3 lg:bottom-2">
+                {resultCount === 1 ? (
+                    <p>1 result</p>
+                ) : (
+                    <p>Displaying {resultCount} of {totalResultCount} results</p>
+                )}
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <div className="text-center mt-4 text-xl container">
-          <ul className="flex items-center justify-between">
-            <li></li>
-            <li className="text-slate-700">
-              {resultCount === 1 ? (
-                <p>1 result</p>
-              ) : (
-                <p>Displaying {resultCount} of {totalResultCount} results</p>
-              )}
-            </li>
-          </ul>
-        </div>
-
-        <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
+        <div className="mb-32 grid text-center justify-items-center grid-cols-1 lg:mb-0 lg:grid-cols-4 lg:text-left">
           {sortedResults.map((result: any) => {
             return (
-              <ResultCard
+              <ResultCard 
                 key={result.id}
                 id={result.id}
                 time_added={result.time_added}

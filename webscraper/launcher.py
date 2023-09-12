@@ -5,22 +5,22 @@ import subprocess
 import logging
 import datetime
 import pytz
+import shutil
+from urllib.parse import urlparse
 
 launcher_path = os.path.dirname(os.path.abspath(__file__))
 scripts_folder = os.path.join(launcher_path, 'scripts')
-log_file_path = f'{launcher_path}/logs/job_error.log'
+log_folder = f'{launcher_path}/logs'
+temp_folder = f'{launcher_path}/temp'
+job_error_log = f'{log_folder}/job_error.log'
 cl_urls = f'{launcher_path}/craigslist_urls.txt'
 
 time.sleep(2)
 
-try:
-    with open(log_file_path, 'w'):
-        pass
-    os.chmod(log_file_path, 0o660)
-    logging.basicConfig(filename=log_file_path, level=logging.DEBUG)
-    print("Logging Setup Complete")
-except Exception as e:
-    print(f"An error occurred: {e}")
+with open(job_error_log, 'w'):
+    pass
+logging.basicConfig(filename=job_error_log, level=logging.DEBUG)
+print("Logging Setup Complete")
 
 print("Awaiting VPN Connection...")
 connect_vpn = os.path.join(scripts_folder, 'wait_vpn.py')
@@ -34,9 +34,21 @@ search_query = "record player"
 timezone = pytz.timezone('Asia/Jakarta')
 #########################################
 
-current_time = datetime.datetime.now(timezone).strftime("%m/%d %H:%M:%S")
+current_time = datetime.datetime.now(timezone).strftime("(%Y-%m-%d %H:%M)")
+time_file = datetime.datetime.now(timezone).strftime("%Y_%m_%d %H_%M")
 
 job_running = False
+
+
+def clear_temp():
+    print("clearing the temp folder")
+    temp_items = os.listdir(temp_folder)
+    for item in temp_items:
+        temp_item_path = os.path.join(temp_folder, item)
+        if os.path.isfile(temp_item_path):
+            os.remove(temp_item_path)
+        elif os.path.isdir(temp_item_path):
+            shutil.rmtree(temp_item_path)
 
 
 def run_script(script_path, file_name, launcher_path, search_query, url, max_retries=max_attempts):
@@ -49,9 +61,29 @@ def run_script(script_path, file_name, launcher_path, search_query, url, max_ret
         except subprocess.CalledProcessError as e:
             print(f"Error running script {script_path}: {e}")
             logging.error(f"({current_time}) {script_path} failed and is attempting to recover: {e}")
+
+            script_name = file_name[:-3]
+            parsed_url = urlparse(url)
+            parts_url = parsed_url.netloc.split('.')
+            if len(parts_url) > 0:
+                city_name = parts_url[0].lower()
+            script_name_log = f'{temp_folder}/{script_name}.log'
+            script_city_log = f'{temp_folder}/{script_name}_{city_name}.log'
+
+            if os.path.isfile(script_name_log):
+                new_log_name = f'{temp_folder}/{time_file}_{script_name}.log'
+                os.rename(script_name_log, new_log_name)
+
+            elif os.path.isfile(script_city_log):
+                new_log_name = f'{temp_folder}/{time_file}_{script_name}_{city_name}.log'
+                os.rename(script_city_log, new_log_name)
+
+            shutil.move(new_log_name, f'{log_folder}/')
+
             print("Checking if there's a network connection issue...")
             subprocess.run(['python3', connect_vpn], check=True)
             subprocess.run(['python3', fetch_ip], check=True)
+
             if retry < max_retries:
                 print(f"Retrying script... (attempt {retry + 2}/{max_retries + 1})")
             else:
@@ -60,8 +92,9 @@ def run_script(script_path, file_name, launcher_path, search_query, url, max_ret
 
                 send_email = os.path.join(scripts_folder, 'send_email.py')
                 subprocess.run(['python3', send_email, launcher_path], check=True)
-                with open(log_file_path, 'w'):
+                with open(job_error_log, 'w'):
                     pass
+                clear_temp()
                 break
 
 
@@ -119,6 +152,7 @@ def job():
             job()
 
         finally:
+            clear_temp()
             job_running = False
 
 

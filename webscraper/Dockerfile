@@ -9,7 +9,6 @@ ENV INST_SCRIPTS $STARTUPDIR/install
 WORKDIR $HOME
 
 ######### Customize Container Here ###########
-RUN mkdir -p /pyapp && mkdir -p /pyapp/logs
 
 RUN apt-get update && apt-get install -y firefox
 
@@ -29,8 +28,6 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . ./pyapp
-
 RUN apt-get update && apt-get install -y netcat
 
 RUN echo "#!/bin/bash" > $STARTUPDIR/custom_startup.sh \
@@ -40,11 +37,9 @@ RUN echo "#!/bin/bash" > $STARTUPDIR/custom_startup.sh \
 ######### End Customizations ###########
 
 RUN chown 1000:0 $HOME
-RUN chown 1000:0 /pyapp/logs
 RUN $STARTUPDIR/set_user_permission.sh $HOME
 ENV HOME /home/kasm-user
 WORKDIR $HOME
 RUN mkdir -p $HOME && chown -R 1000:0 $HOME
-RUN mkdir -p /pyapp/logs && chown -R 1000:0 /pyapp/logs
 
 USER 1000
