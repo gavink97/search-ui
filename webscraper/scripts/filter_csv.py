@@ -1,8 +1,15 @@
 import os
 import pandas as pd
 import sys
+import logging
 
 launcher_path = sys.argv[2]
+
+logger = logging.getLogger("filter_csv_logger")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(f"{launcher_path}/temp/filter_csv.log")
+logger.addHandler(handler)
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 
 def read_words_from_file(file_path):

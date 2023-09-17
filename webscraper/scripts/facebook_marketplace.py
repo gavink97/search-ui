@@ -45,9 +45,9 @@ logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-driver_path = f'{launcher_path}/drivers/chromedriver'
 driver_service = Service(log_output=f'{launcher_path}/temp/facebook_marketplace.log')
 driver_option = Options()
+driver_option.add_argument("--headless=new")
 driver_option.add_argument(f"load-extension={launcher_path}/drivers/extensions/fbp")
 driver_option.add_argument(f'--user-agent={user_agent}')
 driver_option.add_argument("--disable-notifications")

@@ -1,4 +1,4 @@
-import schedule
+# import schedule
 import time
 import os
 import subprocess
@@ -23,10 +23,10 @@ logging.basicConfig(filename=job_error_log, level=logging.DEBUG)
 print("Logging Setup Complete")
 
 print("Awaiting VPN Connection...")
-connect_vpn = os.path.join(scripts_folder, 'wait_vpn.py')
-subprocess.run(['python3', connect_vpn], check=True)
+wait_vpn = os.path.join(scripts_folder, 'wait_vpn.py')
+subprocess.run(['python3', wait_vpn, launcher_path], check=True)
 fetch_ip = os.path.join(scripts_folder, 'fetch_ip.py')
-subprocess.run(['python3', fetch_ip], check=True)
+subprocess.run(['python3', fetch_ip, launcher_path], check=True)
 
 #########################################
 max_attempts = 10
@@ -35,7 +35,7 @@ timezone = pytz.timezone('Asia/Jakarta')
 #########################################
 
 current_time = datetime.datetime.now(timezone).strftime("(%Y-%m-%d %H:%M)")
-time_file = datetime.datetime.now(timezone).strftime("%Y_%m_%d %H_%M")
+time_file = datetime.datetime.now(timezone).strftime("%Y%m%d%H%M")
 
 job_running = False
 
@@ -73,16 +73,19 @@ def run_script(script_path, file_name, launcher_path, search_query, url, max_ret
             if os.path.isfile(script_name_log):
                 new_log_name = f'{temp_folder}/{time_file}_{script_name}.log'
                 os.rename(script_name_log, new_log_name)
+                shutil.move(new_log_name, f'{log_folder}/')
 
             elif os.path.isfile(script_city_log):
                 new_log_name = f'{temp_folder}/{time_file}_{script_name}_{city_name}.log'
                 os.rename(script_city_log, new_log_name)
+                shutil.move(new_log_name, f'{log_folder}/')
 
-            shutil.move(new_log_name, f'{log_folder}/')
+            else:
+                print("No log files found for recovery.")
 
             print("Checking if there's a network connection issue...")
-            subprocess.run(['python3', connect_vpn], check=True)
-            subprocess.run(['python3', fetch_ip], check=True)
+            subprocess.run(['python3', wait_vpn, launcher_path], check=True)
+            subprocess.run(['python3', fetch_ip, launcher_path], check=True)
 
             if retry < max_retries:
                 print(f"Retrying script... (attempt {retry + 2}/{max_retries + 1})")
@@ -128,7 +131,7 @@ def job():
                 'facebook_marketplace.py',  # 33:52
                 'filter_csv.py',
                 'remove_extra_images.py',
-                'to_mysql_v2.py',
+                'to_mysql.py',
                 'to_cloudinary.py'
                 ]
 
@@ -158,8 +161,4 @@ def job():
 
 job()
 
-schedule.every(90).to(120).minutes.do(job)
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+# schedule.every(90).to(120).minutes.do(job)

@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 import mysql.connector
 import time
 import hashlib
+import logging
+import sys
+
+launcher_path = sys.argv[2]
 
 load_dotenv()
 cloud_url = os.environ['CLOUDINARY_URL']
@@ -14,6 +18,12 @@ db_port = os.environ['MYSQL_PORT']
 db_user = os.environ['MYSQL_USER']
 db_pass = os.environ['MYSQL_PASSWORD']
 db_database = os.environ['MYSQL_DB']
+
+logger = logging.getLogger("to_cloudinary_logger")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(f"{launcher_path}/temp/to_cloudinary.log")
+logger.addHandler(handler)
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 db = mysql.connector.connect(
     user=f'{db_user}',

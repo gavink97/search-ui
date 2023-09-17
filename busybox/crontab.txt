@@ -1,0 +1,1 @@
+*/1 * * * * /app/scripts/launch_webscraper.sh

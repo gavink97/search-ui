@@ -1,4 +1,14 @@
 import requests
+import logging
+import sys
+
+launcher_path = sys.argv[1]
+
+logger = logging.getLogger("fetch_ip_logger")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(f"{launcher_path}/temp/fetch_ip.log")
+logger.addHandler(handler)
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 
 def fetch_public_ip():

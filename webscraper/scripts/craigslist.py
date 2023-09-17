@@ -16,9 +16,10 @@ from selenium.common.exceptions import ElementNotInteractableException
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import TimeoutException
+
 file_name = sys.argv[1]
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
@@ -42,12 +43,18 @@ logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-driver_path = f'{launcher_path}/drivers/geckodriver'
-driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/{source_name}.log')
-firefox_option = Options()
-firefox_option.set_preference('general.useragent.override', user_agent)
-driver = webdriver.Firefox(service=driver_service, options=firefox_option)
+driver_service = Service(log_output=f'{launcher_path}/temp/{source_name}.log')
+driver_option = Options()
+driver_option.add_argument("--headless=new")
+driver_option.add_argument(f'--user-agent={user_agent}')
+driver_option.add_argument("--disable-notifications")
+driver_option.add_argument('--disable-dev-shm-usage')
+driver_option.add_argument('--no-sandbox')
+driver = webdriver.Chrome(options=driver_option, service=driver_service)
+
 driver.implicitly_wait(9)
+driver.set_window_size(1280, 1000)
+window_handles = driver.window_handles
 
 print(f"Fetching {search_query}s from {city_name} Craigslist...")
 
@@ -73,8 +80,8 @@ to_stop = False
 current_page = 0
 total_items = 0
 
-scroll_pause_time = .7  # if current_gallery == prev_gallery before it reaches the end of the page increase this
-scroll_offset = 1200
+scroll_pause_time = .8  # if current_gallery == prev_gallery before it reaches the end of the page increase this
+scroll_offset = 1000
 actions = ActionChains(driver)
 
 while not to_stop:
@@ -103,7 +110,7 @@ while not to_stop:
     if match:
         current_page = int(match.group(1).replace(',', ''))
         total_items = int(match.group(2).replace(',', ''))
-    if posts_data ==[]:
+    if posts_data == []:
         driver.close()
         raise NoSuchElementException("No listings found on the page. Check if the page loaded properly.")
 

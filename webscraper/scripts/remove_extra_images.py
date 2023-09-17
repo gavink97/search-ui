@@ -2,12 +2,19 @@ import os
 import pandas as pd
 import requests
 import sys
+import logging
 from urllib.parse import urlparse
 
 launcher_path = sys.argv[2]
 
 csv_sheets_fold = f"{launcher_path}/filtered"
 cl_images_fold = f"{launcher_path}/images/cl_images"
+
+logger = logging.getLogger("remove_images_logger")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(f"{launcher_path}/temp/remove_extra_images.log")
+logger.addHandler(handler)
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 
 def get_image_paths_from_csv(csv_file):

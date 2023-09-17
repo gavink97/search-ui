@@ -1,10 +1,18 @@
 import smtplib
 import os
 import sys
+import logging
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
 
 launcher_path = sys.argv[1]
+
+logger = logging.getLogger("send_email_logger")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(f"{launcher_path}/temp/send_email.log")
+logger.addHandler(handler)
+handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s", "%Y-%m-%d %H:%M:%S"))
+
 
 load_dotenv()
 smpt_host = os.environ['SMPT_HOST']
