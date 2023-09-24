@@ -61,20 +61,25 @@ wait = WebDriverWait(driver, 30)
 
 page_load_timeout = 40
 url = 'https://www.facebook.com/'
-proton_vpn = 'chrome-extension://jplgfhpmjnbigmhklmmbgecoobifkmpa/popup.html'
+chrome_settings = 'chrome://settings'
 vpn_location = "United States"
 random_delay = random.uniform(0.4, 2.7)
 
 print("Setting up VPN")
 driver.set_window_size(370, 720)
-driver.get(proton_vpn)
+driver.get(chrome_settings)
 time.sleep(2)
 chld = driver.window_handles[1]
 driver.switch_to.window(chld)
+extension_id = driver.current_url
+parsed_url = urlparse(extension_id)
+extension_id = parsed_url.netloc
 driver.close()
-time.sleep(2)
 parent = driver.window_handles[0]
 driver.switch_to.window(parent)
+extension_url = f'chrome-extension://{extension_id}/popup.html'
+driver.get(extension_url)
+time.sleep(2)
 proton_sign_in = driver.find_element(By.CLASS_NAME, "sign-in-button")
 proton_sign_in.click()
 time.sleep(1)
@@ -98,7 +103,7 @@ proton_password.send_keys(Keys.ENTER)
 wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Open the Proton VPN')]")))
 try:
     driver.set_page_load_timeout(page_load_timeout)
-    driver.get(proton_vpn)
+    driver.get(extension_url)
 except TimeoutException as e:
     driver.close()
     raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
