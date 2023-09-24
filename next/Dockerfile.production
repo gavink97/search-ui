@@ -17,8 +17,8 @@ RUN \
 FROM base AS builder
 
 WORKDIR /web
-COPY --from=deps --link /web/node_modules ./node_modules
-COPY --link . .
+COPY --from=deps /web/node_modules ./node_modules
+COPY . .
 COPY ./next.config.js next.config.js
 RUN yarn build
 
@@ -27,14 +27,17 @@ WORKDIR /web
 
 ENV NODE_ENV=production
 
-RUN \
-  addgroup -g 1001 -S nodejs; \
-  adduser -S nextjs -u 1001
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder --link /web/public ./public
-COPY --from=builder --link /web/next.config.js next.config.js
-COPY --from=builder --link --chown=1001:1001 /web/.next/standalone ./
-COPY --from=builder --link --chown=1001:1001 /web/.next/static ./.next/static
+COPY --from=builder /web/public ./public
+
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+COPY --from=builder /web/next.config.js next.config.js
+COPY --from=builder --chown=nextjs:nodejs /web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /web/.next/static ./.next/static
 
 USER nextjs
 

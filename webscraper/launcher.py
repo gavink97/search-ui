@@ -1,4 +1,4 @@
-# import schedule
+import schedule
 import time
 import os
 import subprocess
@@ -17,16 +17,16 @@ cl_urls = f'{launcher_path}/craigslist_urls.txt'
 
 time.sleep(2)
 
+if not os.path.exists(log_folder):
+    os.makedirs(log_folder)
+
+if not os.path.exists(temp_folder):
+    os.makedirs(temp_folder)
+
 with open(job_error_log, 'w'):
     pass
 logging.basicConfig(filename=job_error_log, level=logging.DEBUG)
 print("Logging Setup Complete")
-
-print("Awaiting VPN Connection...")
-wait_vpn = os.path.join(scripts_folder, 'wait_vpn.py')
-subprocess.run(['python3', wait_vpn, launcher_path], check=True)
-fetch_ip = os.path.join(scripts_folder, 'fetch_ip.py')
-subprocess.run(['python3', fetch_ip, launcher_path], check=True)
 
 #########################################
 max_attempts = 10
@@ -35,7 +35,7 @@ timezone = pytz.timezone('Asia/Jakarta')
 #########################################
 
 current_time = datetime.datetime.now(timezone).strftime("(%Y-%m-%d %H:%M)")
-time_file = datetime.datetime.now(timezone).strftime("%Y%m%d%H%M")
+time_file = datetime.datetime.now(timezone).strftime("%Y%m%d%H%M%S")
 
 job_running = False
 
@@ -71,24 +71,27 @@ def run_script(script_path, file_name, launcher_path, search_query, url, max_ret
             script_city_log = f'{temp_folder}/{script_name}_{city_name}.log'
 
             if os.path.isfile(script_name_log):
-                new_log_name = f'{temp_folder}/{time_file}_{script_name}.log'
+                if retry >= 1:
+                    new_log_name = f'{temp_folder}/{time_file}_{script_name}_{retry}.log'
+                else:
+                    new_log_name = f'{temp_folder}/{time_file}_{script_name}.log'
                 os.rename(script_name_log, new_log_name)
                 shutil.move(new_log_name, f'{log_folder}/')
 
             elif os.path.isfile(script_city_log):
-                new_log_name = f'{temp_folder}/{time_file}_{script_name}_{city_name}.log'
+                if retry >= 1:
+                    new_log_name = f'{temp_folder}/{time_file}_{script_name}_{city_name}_{retry}.log'
+                else:
+                    new_log_name = f'{temp_folder}/{time_file}_{script_name}_{city_name}.log'
                 os.rename(script_city_log, new_log_name)
                 shutil.move(new_log_name, f'{log_folder}/')
 
             else:
                 print("No log files found for recovery.")
 
-            print("Checking if there's a network connection issue...")
-            subprocess.run(['python3', wait_vpn, launcher_path], check=True)
-            subprocess.run(['python3', fetch_ip, launcher_path], check=True)
-
             if retry < max_retries:
                 print(f"Retrying script... (attempt {retry + 2}/{max_retries + 1})")
+
             else:
                 print(f"Script {script_path} failed.")
                 logging.error(f"({current_time}) Max retries reached for script {script_path}: {e}")
@@ -125,7 +128,7 @@ def job():
 
             with open(cl_urls, 'r') as file:
                 urls = file.read().splitlines()
-                run_craigslist_scripts(urls)
+#                run_craigslist_scripts(urls)
 
             ordered_scripts = [
                 'facebook_marketplace.py',  # 33:52
@@ -161,4 +164,4 @@ def job():
 
 job()
 
-# schedule.every(90).to(120).minutes.do(job)
+schedule.every(120).to(150).minutes.do(job)

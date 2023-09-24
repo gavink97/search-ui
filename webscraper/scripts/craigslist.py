@@ -19,6 +19,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 file_name = sys.argv[1]
 launcher_path = sys.argv[2]
@@ -55,6 +57,7 @@ driver = webdriver.Chrome(options=driver_option, service=driver_service)
 driver.implicitly_wait(9)
 driver.set_window_size(1280, 1000)
 window_handles = driver.window_handles
+wait = WebDriverWait(driver, 30)
 
 print(f"Fetching {search_query}s from {city_name} Craigslist...")
 
@@ -65,14 +68,14 @@ except TimeoutException as e:
     driver.close()
     raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
 
-for_sale = driver.find_element(By.XPATH, '/html/body/div[2]/section/div[3]/div[3]/div[2]/h3/a')
+for_sale = wait.until(EC.visibility_of_element_located((By.XPATH, '//a[@href="/search/sss"]')))
 for_sale.click()
-time.sleep(8)
-search_field = driver.find_element(By.XPATH, '/html/body/div[1]/main/form/div[1]/div/div/input')
+search_field = wait.until(EC.visibility_of_element_located((By.XPATH, '//input[@placeholder="search for sale"]')))
 search_field.clear()
 search_field.send_keys(search_query)
 search_field.send_keys(Keys.ENTER)
-time.sleep(5)  # If you start getting "ValueError:" "Expected axis has 0 elements" increase time.sleep
+wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[1]/main/div/div[5]/ol')))
+time.sleep(1)
 
 posts_data = []
 scraped_img_tag_src = set()
