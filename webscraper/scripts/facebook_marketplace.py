@@ -288,9 +288,10 @@ def process_batch(batch):
             print(f"Dumping fb posts: {launcher_path}/temp/fb_posts_ob_{fbob_number}.pkl")
             with open(f'{launcher_path}/temp/fb_posts_ob_{fbob_number}.pkl', 'wb') as file:
                 pickle.dump(fb_posts, file)
-            fb_posts = []
+            fb_posts.clear()
             fbob_number += 1
             fbob_count = 0
+            time.sleep(2)
 
 
 scraped_hrefs = set()
@@ -333,8 +334,9 @@ while not to_stop:
     if len(batch) >= batch_size:
         print(f"scroll count = {scroll_count}")
         process_batch(batch)
-        batch = []
+        batch.clear()
         scroll_count = 0
+        time.sleep(2)
 
     if "Results from outside your search" in driver.page_source:
         print("Stopping: found results in page source")
@@ -347,12 +349,15 @@ while not to_stop:
 if batch:
     print(f"scroll count = {scroll_count}")
     process_batch(batch)
+    batch.clear()
+    time.sleep(2)
 
 if fb_posts:
     print(f"fb posts = {fbob_count}")
     with open(f'{launcher_path}/temp/fb_posts_ob_{fbob_number}.pkl', 'wb') as file:
         pickle.dump(fb_posts, file)
-    fb_posts = []
+    fb_posts.clear()
+    time.sleep(2)
 
 # with open(f'{launcher_path}/temp/facebook_marketplace.txt', 'w', encoding='utf-8') as file:
 #    for div in posts_html:
