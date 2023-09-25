@@ -71,6 +71,7 @@ except TimeoutException as e:
 for_sale = wait.until(EC.visibility_of_element_located((By.XPATH, '//a[@href="/search/sss"]')))
 for_sale.click()
 search_field = wait.until(EC.visibility_of_element_located((By.XPATH, '//input[@placeholder="search for sale"]')))
+time.sleep(2)  # test if this helps not collect all in sss
 search_field.clear()
 search_field.send_keys(search_query)
 search_field.send_keys(Keys.ENTER)
@@ -86,6 +87,11 @@ total_items = 0
 scroll_pause_time = .8  # if current_gallery == prev_gallery before it reaches the end of the page increase this
 scroll_offset = 1000
 actions = ActionChains(driver)
+
+
+def valid_url(url):
+    return url.startswith("http://") or url.startswith("https://")
+
 
 while not to_stop:
     while True:
@@ -177,11 +183,16 @@ for posts_html in posts_data:
         image_path = os.path.join(create_dir, image_file_name)
 
         if not os.path.exists(image_path):
-            response = requests.get(image_url)
-            if response.status_code == 200:
-                with open(image_path, "wb") as file:
-                    file.write(response.content)
-                    print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
+            if valid_url(image_url):
+                response = requests.get(image_url)
+                if response.status_code == 200:
+                    with open(image_path, "wb") as file:
+                        file.write(response.content)
+                        print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
+                else:
+                    print(f"Failed to download image ({image_counter}/{total_images}): {image_url}")
+            else:
+                print(f"Invalid url ({image_counter}/{total_images}): {image_url}")
         else:
             print(f"Image already exists ({image_counter}/{total_images}): {image_path}")
     else:

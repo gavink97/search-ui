@@ -21,6 +21,7 @@ import random
 from urllib.parse import urlencode, urlparse, parse_qs
 from dotenv import load_dotenv
 import logging
+import pickle
 
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
@@ -74,13 +75,13 @@ driver.switch_to.window(chld)
 extension_id = driver.current_url
 parsed_url = urlparse(extension_id)
 extension_id = parsed_url.netloc
+print(extension_id)
 driver.close()
 parent = driver.window_handles[0]
 driver.switch_to.window(parent)
 extension_url = f'chrome-extension://{extension_id}/popup.html'
 driver.get(extension_url)
-time.sleep(2)
-proton_sign_in = driver.find_element(By.CLASS_NAME, "sign-in-button")
+proton_sign_in = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "sign-in-button")))
 proton_sign_in.click()
 time.sleep(1)
 parent = driver.window_handles[0]
@@ -203,13 +204,22 @@ fb_posts = []
 image_paths = []
 image_counter = 0
 batch_count = 0
+fbob_count = 0
+fbob_number = 1
 
 default_image_path = f"{launcher_path}/images/no_image.png"
+
+
+def valid_url(url):
+    return url.startswith("http://") or url.startswith("https://")
 
 
 def process_batch(batch):
     global batch_count
     global image_counter
+    global fbob_count
+    global fbob_number
+    global fb_posts
     batch_count += 1
     total_images = len(scraped_hrefs)
     print(f"Processing Batch #{batch_count}")
@@ -251,11 +261,16 @@ def process_batch(batch):
             image_path = os.path.join(create_dir, image_file_name)
 
             if not os.path.exists(image_path):
-                response = requests.get(image_url)
-                if response.status_code == 200:
-                    with open(image_path, "wb") as file:
-                        file.write(response.content)
-                        print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
+                if valid_url(image_url):
+                    response = requests.get(image_url)
+                    if response.status_code == 200:
+                        with open(image_path, "wb") as file:
+                            file.write(response.content)
+                            print(f"Image downloaded ({image_counter}/{total_images}): {image_path}")
+                    else:
+                        print(f"Failed to download image ({image_counter}/{total_images}): {image_url}")
+                else:
+                    print(f"Invalid url ({image_counter}/{total_images}): {image_url}")
             else:
                 print(f"Image already exists ({image_counter}/{total_images}): {image_path}")
         else:
@@ -267,6 +282,15 @@ def process_batch(batch):
             image_url = 'No image'
 
         fb_posts.append(FbPost(title, new_price, location, post_url, image_url))
+        fbob_count += 1
+
+        if fbob_count >= 500:
+            print(f"Dumping fb posts: {launcher_path}/temp/fb_posts_ob_{fbob_number}.pkl")
+            with open(f'{launcher_path}/temp/fb_posts_ob_{fbob_number}.pkl', 'wb') as file:
+                pickle.dump(fb_posts, file)
+            fb_posts = []
+            fbob_number += 1
+            fbob_count = 0
 
 
 scraped_hrefs = set()
@@ -324,13 +348,27 @@ if batch:
     print(f"scroll count = {scroll_count}")
     process_batch(batch)
 
+if fb_posts:
+    print(f"fb posts = {fbob_count}")
+    with open(f'{launcher_path}/temp/fb_posts_ob_{fbob_number}.pkl', 'wb') as file:
+        pickle.dump(fb_posts, file)
+    fb_posts = []
+
 # with open(f'{launcher_path}/temp/facebook_marketplace.txt', 'w', encoding='utf-8') as file:
 #    for div in posts_html:
 #        file.write(str(div) + '\n')
 
 print('Collected {0} listings'.format(len(scraped_hrefs)))
 
-df = pd.DataFrame(fb_posts)
+fbob = []
+
+for i in range(1, fbob_number + 1):
+    with open(f'{launcher_path}/temp/fb_posts_ob_{i}.pkl', 'rb') as file:
+        print(f'Reading: {launcher_path}/temp/fb_posts_ob_{i}.pkl')
+        pickleb = pickle.load(file)
+        fbob.append(pd.DataFrame(pickleb))
+
+df = pd.concat(fbob, ignore_index=True)
 df.insert(2, 'post_timestamp', current_time)
 df.insert(0, 'time_added', current_time)
 df.insert(0, 'is_new', "1")
