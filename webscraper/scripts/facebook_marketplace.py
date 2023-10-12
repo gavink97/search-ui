@@ -11,14 +11,13 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import ElementClickInterceptedException
-from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 import random
-from urllib.parse import urlencode, urlparse, parse_qs
+from urllib.parse import urlencode, urlsplit, parse_qs
 from dotenv import load_dotenv
 import logging
 import pickle
@@ -29,7 +28,7 @@ search_query = sys.argv[3]
 # launcher_path = "/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper"
 # search_query = "record player"
 
-timezone = pytz.timezone('Asia/Jakarta')
+timezone = pytz.timezone('US/Central')
 current_time = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M")
 
 load_dotenv()
@@ -47,45 +46,56 @@ handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
 driver_service = Service(log_output=f'{launcher_path}/temp/facebook_marketplace.log')
 driver_option = Options()
-driver_option.add_argument("--headless=new")
-driver_option.add_argument(f"load-extension={launcher_path}/drivers/extensions/fbp")
-driver_option.add_argument(f"load-extension={launcher_path}/drivers/extensions/proton")
-driver_option.add_argument(f'--user-agent={user_agent}')
-driver_option.add_argument("--disable-notifications")
-driver_option.add_argument('--disable-dev-shm-usage')
-driver_option.add_argument('--no-sandbox')
-driver = webdriver.Chrome(options=driver_option, service=driver_service)
+driver_option.add_argument("-headless")
+driver_option.set_preference('general.useragent.override', user_agent)
+driver_option.set_preference("permissions.default.desktop-notification", 2)
+driver = webdriver.Firefox(options=driver_option, service=driver_service)
+driver.install_addon(f'{launcher_path}/drivers/firefox/fbpurity.xpi')
+driver.install_addon(f'{launcher_path}/drivers/firefox/protonvpn.xpi')
 
 driver.implicitly_wait(9)
 window_handles = driver.window_handles
+parent_tab = driver.window_handles[0]
+child_tab = driver.window_handles[1]
 wait = WebDriverWait(driver, 30)
 
 page_load_timeout = 40
 url = 'https://www.facebook.com/'
-chrome_settings = 'chrome://settings'
+browser_settings = 'about:addons'
 vpn_location = "United States"
 random_delay = random.uniform(0.4, 2.7)
 
 print("Setting up VPN")
-driver.set_window_size(370, 720)
-driver.get(chrome_settings)
-time.sleep(2)
-chld = driver.window_handles[1]
-driver.switch_to.window(chld)
+driver.set_window_size(1400, 1200)
+driver.get(browser_settings)
+time.sleep(.5)
+driver.switch_to.window(child_tab)
 extension_id = driver.current_url
-parsed_url = urlparse(extension_id)
+parsed_url = urlsplit(extension_id)
 extension_id = parsed_url.netloc
 print(extension_id)
-driver.close()
-parent = driver.window_handles[0]
-driver.switch_to.window(parent)
-extension_url = f'chrome-extension://{extension_id}/popup.html'
-driver.get(extension_url)
-proton_sign_in = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "sign-in-button")))
+driver.switch_to.window(parent_tab)
+time.sleep(.5)
+extensions = driver.find_element(By.XPATH, '/html/body/div/div[1]/categories-box/button[2]')
+extensions.click()
+proton_options = driver.find_element(By.XPATH, "//*[contains(text(), 'Proton VPN:')]")
+proton_options.click()
+proton_perms = driver.find_element(By.XPATH, '//*[@id="details-deck-button-permissions"]')
+proton_perms.click()
+proton_control = driver.find_element(By.ID, "permission-0")
+driver.execute_script("arguments[0].click();", proton_control)
+proton_access_all = driver.find_element(By.ID, "permission-1")
+driver.execute_script("arguments[0].click();", proton_access_all)
+proton_access_com = driver.find_element(By.XPATH, '//*[@id="permission-2"]')
+proton_access_com.click()
+proton_access_me = driver.find_element(By.XPATH, '//*[@id="permission-3"]')
+proton_access_me.click()
+driver.switch_to.window(child_tab)
+proton_sign_in = driver.find_element(By.XPATH, '/html/body/div/div/div[2]/button')
 proton_sign_in.click()
-time.sleep(1)
-parent = driver.window_handles[0]
-driver.switch_to.window(parent)
+time.sleep(.5)
+proton_login_tab = driver.window_handles[2]
+driver.switch_to.window(proton_login_tab)
 proton_email = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="username"]')))
 proton_email.click()
 proton_email.clear()
@@ -101,6 +111,7 @@ for char in proton_pass:
     delay = random.uniform(0.1, 0.2)
     time.sleep(delay)
 proton_password.send_keys(Keys.ENTER)
+extension_url = f'moz-extension://{extension_id}/popup.html'
 wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'Open the Proton VPN')]")))
 try:
     driver.set_page_load_timeout(page_load_timeout)
@@ -116,15 +127,11 @@ proton_search.send_keys(Keys.ENTER)
 time.sleep(1)
 
 print("Connected to VPN")
-driver.set_window_size(1400, 1200)
-time.sleep(1)
-
 print(f"Now getting {search_query}s from Facebook Marketplace...")
 
 try:
     driver.set_page_load_timeout(page_load_timeout)
     driver.get(url)
-#    driver.execute_cdp_cmd('Network.enable', {})
 except TimeoutException as e:
     driver.close()
     raise TimeoutError(f"Selenium timed out waiting for the page to load: {e}")
@@ -159,16 +166,22 @@ try:
     market = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[contains(@href, "https://www.facebook.com/marketplace/?ref=bookmark")]')))
     print("Navigating to Facebook Marketplace...")
     market.click()
-    # optimize this because really really slow
-    wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')))
-    time.sleep(random_delay)
 except ElementClickInterceptedException:
     print("Clicking FBP first...")
     fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
     fbp_blocker.click()
-    time.sleep(5)
+    print("Navigating to Facebook Marketplace...")
+    market = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[contains(@href, "https://www.facebook.com/marketplace/?ref=bookmark")]')))
     market.click()
-    time.sleep(10)
+
+wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')))
+time.sleep(random_delay)
+
+try:
+    fbp_blocker = wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[1]/div/table/tbody/tr/td[2]/a')))
+    fbp_blocker.click()
+except NoSuchElementException:
+    print("No FBP popup")
 
 print(f"Searching for {search_query}s...")
 search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')
@@ -191,7 +204,7 @@ date_listed = wait.until(EC.element_to_be_clickable((By.XPATH, "//span[text()='D
 date_listed.click()
 time.sleep(1.5)
 # Options: Last 24 hours, Last 7 days, Last 30 days
-newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Last 7 days')]")))
+newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Last 24 hours')]")))
 newest_first.click()
 time.sleep(2)
 
@@ -237,12 +250,12 @@ def process_batch(batch):
         else:
             new_price = None
         image_url = posts_html.find('img', referrerpolicy="origin-when-cross-origin").get('src') if posts_html.find('img') else ''
-        parsed_image_url = urlparse(image_url)
+        parsed_image_url = urlsplit(image_url)
         image_path_parsed = parsed_image_url.path
         cleaned_image_path = image_path_parsed.split('?')[0]
         post_url_end = posts_html.find('a', role='link').get('href') if posts_html.find('a') else ''
-        post_url_path = urlparse(post_url_end).path
-        parsed_link = parse_qs(urlparse(post_url_end).query)
+        post_url_path = urlsplit(post_url_end).path
+        parsed_link = parse_qs(urlsplit(post_url_end).query)
         if 'ref' in parsed_link:
             del parsed_link['ref']
         post_url_cleaned = f"{post_url_path}?{urlencode(parsed_link, doseq=True)}"
@@ -313,7 +326,7 @@ while not to_stop:
         new_height = driver.execute_script("return document.body.scrollHeight")
         if new_height == prev_height:
             break
-
+    # look to see if we can save data by clearing soup or using strainer
     search_results = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div[3]/div[1]/div[2]')
     soup = BeautifulSoup(search_results.get_attribute('innerHTML'), 'html.parser')
     valid_styles = [
@@ -334,6 +347,9 @@ while not to_stop:
     if len(batch) >= batch_size:
         print(f"scroll count = {scroll_count}")
         process_batch(batch)
+#        with open(f'{launcher_path}/soup/fb_batch_{batch_count}.txt', 'w', encoding='utf-8') as file:
+#            for div in batch:
+#                file.write(str(div) + '\n')
         batch.clear()
         scroll_count = 0
         time.sleep(2)
@@ -359,9 +375,7 @@ if fb_posts:
     fb_posts.clear()
     time.sleep(2)
 
-# with open(f'{launcher_path}/temp/facebook_marketplace.txt', 'w', encoding='utf-8') as file:
-#    for div in posts_html:
-#        file.write(str(div) + '\n')
+# read batch and fb_posts to see if there is data to save / clear soup
 
 print('Collected {0} listings'.format(len(scraped_hrefs)))
 
@@ -383,5 +397,7 @@ df['image_path'] = image_paths
 df.dropna(inplace=True)
 df.to_csv(f'{launcher_path}/sheets/facebook_marketplace.csv', index=False)
 print("Created facebook_marketplace.csv")
-driver.close()
+for handle in driver.window_handles:
+    driver.switch_to.window(handle)
+    driver.close()
 driver.quit()

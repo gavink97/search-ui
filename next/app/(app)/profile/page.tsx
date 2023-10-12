@@ -9,7 +9,8 @@ export default async function Profile() {
         <div className=''>
             <h1 className='text-xl'>Profile</h1>
             <div className=''>
-                <pre className=''>{JSON.stringify(session)}</pre>
+            <p>How'd you get in here?</p>
+            {/*<pre className=''>{JSON.stringify(session)}</pre>*/}
             </div>
         </div>
     )

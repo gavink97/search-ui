@@ -2,7 +2,9 @@
 .next
 .yarn
 .gitignore
+.DS_Store*
 Dockerfile
 Dockerfile.production
 Readme.md
 node_modules
+

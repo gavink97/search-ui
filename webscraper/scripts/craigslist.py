@@ -11,14 +11,12 @@ import sys
 import logging
 from urllib.parse import urlparse
 from selenium import webdriver
+from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException, TimeoutException
 from selenium.webdriver import ActionChains
-from selenium.common.exceptions import ElementNotInteractableException
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -33,7 +31,8 @@ if len(parts_url) > 0:
     city_name = parts_url[0].capitalize()
 source_name = f'craigslist_{parts_url[0]}'
 
-timezone = pytz.timezone('Asia/Jakarta')
+# Update scripts so launcher is the basis that the timezone follows
+timezone = pytz.timezone('US/Central')
 current_time = datetime.datetime.now(timezone).strftime("%Y-%m-%d %H:%M")
 
 page_load_timeout = 60
@@ -47,12 +46,10 @@ handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
 driver_service = Service(log_output=f'{launcher_path}/temp/{source_name}.log')
 driver_option = Options()
-driver_option.add_argument("--headless=new")
-driver_option.add_argument(f'--user-agent={user_agent}')
-driver_option.add_argument("--disable-notifications")
-driver_option.add_argument('--disable-dev-shm-usage')
-driver_option.add_argument('--no-sandbox')
-driver = webdriver.Chrome(options=driver_option, service=driver_service)
+driver_option.add_argument("-headless")
+driver_option.set_preference('general.useragent.override', user_agent)
+driver_option.set_preference("permissions.default.desktop-notification", 2)
+driver = webdriver.Firefox(options=driver_option, service=driver_service)
 
 driver.implicitly_wait(9)
 driver.set_window_size(1280, 1000)

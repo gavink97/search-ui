@@ -1,7 +1,13 @@
 "use client"
-import Link from 'next/link'
+import Link from 'next/link';
 import { CldImage } from 'next-cloudinary';
 import Image from 'next/image';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(timezone);
+dayjs.extend(utc);
 
 interface ResultCardProps {
   id: number;
@@ -17,19 +23,13 @@ interface ResultCardProps {
   sources: string;
 }
 
-function formatTimestamp(timestamp: string): string {
-  const now = new Date();
+function formatTimestamp(timestamp: string, targetTimezone: string = 'US/Central' ): string {
+  const now = dayjs();
 
-  const [datePart, timePart] = timestamp.split(' ');
+  const parsedTimestamp = dayjs.tz(timestamp, targetTimezone);
 
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hour, minute] = timePart.split(':').map(Number);
-
-  const parsedTimestamp = new Date(year, month - 1, day, hour, minute);
-
-  const timeDifference = now.getTime() - parsedTimestamp.getTime();
-  const minutesDifference = Math.floor(timeDifference / (60 * 1000));
-  const hoursDifference = Math.floor(minutesDifference / 60);
+  const minutesDifference = now.diff(parsedTimestamp, 'minute');
+  const hoursDifference = now.diff(parsedTimestamp, 'hour');
 
   if (minutesDifference < 60) {
     if (minutesDifference <= 1) {
@@ -42,15 +42,25 @@ function formatTimestamp(timestamp: string): string {
     }
     return `${hoursDifference} hours ago`;
   } else {
-    const formattedMonth = (month < 10 ? '0' : '') + month;
-    const formattedDay = (day < 10 ? '0' : '') + day;
-    return `${formattedMonth}/${formattedDay}`;
+    return parsedTimestamp.format('MM/DD');
   }
 }
 
 export function ResultCard({ id, time_added, title, price, post_timestamp, location, post_url, data_pid, is_new, cloudinary_link, sources }: ResultCardProps) {
-  const defaultImage = "/pyapp/images/no_image.png";
+  const defaultImage = "/no_image.png";
   const formattedTime = formatTimestamp(time_added);
+  const titleCharacterLimit = 50
+  const priceCharacterLimit = 15
+
+  const truncatedTitle =
+    title.length > titleCharacterLimit
+      ? title.slice(0, titleCharacterLimit) + "..."
+      : title;
+
+  const truncatedPrice =
+    price.length > priceCharacterLimit
+      ? price.slice(0, priceCharacterLimit) + "..."
+      : price;
 
     return (
         <Link
@@ -81,13 +91,13 @@ export function ResultCard({ id, time_added, title, price, post_timestamp, locat
         </Image>
       )}
         <h2 className={`text-base mt-2 font-semibold text-center`}>
-          {title}
+          {truncatedTitle}
         </h2>
         <h2 className={`text-base font-semibold text-center`}>
         {location} {formattedTime}
         </h2>
         <h2 className={`text-base font-semibold text-center`}>
-        {price}
+        {truncatedPrice}
         </h2>
       </Link>
     )

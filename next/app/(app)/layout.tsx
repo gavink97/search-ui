@@ -23,7 +23,7 @@ children,}: {
       <body className={inter.className}>
         <Provider session={undefined}>
           <Header />
-          <main className="flex min-h-screen flex-col items-center justify-between p-24 ">
+          <main className="flex min-h-screen flex-col items-center justify-between p-12 md:p-24 ">
           {children}
           </main>
           <Footer />

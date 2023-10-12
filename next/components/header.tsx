@@ -9,14 +9,14 @@ const Header = () => {
 
 
   return (
-    <header className={`flex h-24 flex-col justify-center sticky top-0 ${isHomePage ? 'bg-transparent' : 'bg-white'}`}>
+    <header className={`flex h-24 flex-col justify-center sticky top-0 ${isHomePage ? 'max-sm:bg-gradient-to-br from-indigo-100/50 via-fuchsia-50/50' : 'bg-white'}`}>
       <nav className='container'>
         <ul className='flex items-center justify-between gap-8 font-medium tracking-wider text-stone-500'>
-          <li className='text-2xl text-bold'>
+          <li className='text-2xl text-bold text-stone-800'>
             <Link href='/'>Gavin Kondrath</Link>
           </li>
 
-          <li className='mt-1'>
+          <li className='mt-0'>
             <SignInButton />
           </li>
         </ul>

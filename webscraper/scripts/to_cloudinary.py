@@ -43,11 +43,13 @@ query = """
 """
 cursor.execute(query)
 rows = cursor.fetchall()
+total_images = len(rows)
 
 if not rows:
-    print("No images to upload!")
+    print("No images to upload to Cloudinary!")
 
 else:
+    print(f"{total_images} images to upload to Cloudinary.")
     for index, row in enumerate(rows, start=1):
         data_pid_id = row[0]
         image_path = row[1]
@@ -57,8 +59,6 @@ else:
         public_id = os.path.splitext(os.path.basename(image_path))[0]
         signature_data = f"public_id={public_id}&timestamp={timestamp}{cloud_api_secret}"
         signature = hashlib.sha1(signature_data.encode()).hexdigest()
-
-        print(f"Uploading image {index}/{len(rows)}: {image_path}")
 
         cloudinary_params = {
             "file": (open(image_path, 'rb'))
@@ -74,11 +74,12 @@ else:
         cloudinary_url_with_params = f"{cloud_url}/upload"
 
         try:
+            print(f"Uploading image {index}/{total_images}: {image_path}")
             response = requests.post(cloudinary_url_with_params, files=cloudinary_params, data=data)
             if response.status_code == 200:
                 print("Cloudinary image uploaded successfully")
             else:
-                print("Error uploading Cloudinary image. Status code:", response.status_code)
+                print(f"Error uploading Cloudinary image: ({index}/{total_images}). Status code:", response.status_code)
                 print("Response content:", response.content)
 
             cloudinary_response = response.json()
@@ -88,18 +89,15 @@ else:
                 UPDATE cloudinary
                 SET cloudinary_link = %s
                 WHERE data_pid_id = %s
-            """
+             """
 
             cursor.execute(update_query, (cloudinary_link, data_pid_id))
             db.commit()
 
         except Exception as e:
-            print("Error uploading image to Cloudinary:", str(e))
+            print(f"Caught exception when uploading image to Cloudinary: ({index}/{total_images})", str(e))
 
-
-print("Completed uploading to Cloudinary.")
-
-#image updating script
+print("Completed uploading images to Cloudinary server.")
 
 cursor.close()
 db.close()

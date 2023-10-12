@@ -1,42 +1,55 @@
-FROM python:latest 
+FROM python:3.11-alpine3.18
+
+ENV LANG=C.UTF-8
+
 USER root
 
 ENV PYTHONUNBUFFERED=1
+
 RUN mkdir -p app && touch startup.sh
+
 ENV STARTUPDIR /app
+
 ENV HOME /home/default
+
 ARG DEBIAN_FRONTEND=noninteractive
+
 ENV TZ=Asia/Jakarta
+
 WORKDIR $HOME
 
-RUN apt update -y && apt install sudo -y
-RUN su - && usermod -aG sudo root
+RUN : \
+&& apk update \
+&& apk --no-cache --virtual build-dependencies add g++\
+&& apk --no-cache add firefox bash openblas openblas-dev \
+&& :
 
-RUN apt-get update
+COPY --link requirements.txt .
 
-RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-RUN apt-get update
-RUN apt-get install -y google-chrome-stable 
-
-COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-RUN apt-get update && apt-get autoclean && apt-get clean && apt-get autoremove
+RUN : \
+&& pip install wheel setuptools pip --upgrade \
+&& pip install --no-cache-dir -r requirements.txt \
+&& apk del build-dependencies py-pip \
+&& rm -f /sbin/apk \
+&& rm -rf /etc/apk \
+&& rm -rf /lib/apk \
+&& rm -rf /usr/share/apk \
+&& rm -rf /var/lib/apk \
+&& :
 
 WORKDIR $STARTUPDIR
 
-RUN echo "#!/bin/bash" > $STARTUPDIR/startup.sh \
-    && echo "/usr/local/bin/python3 -u /pyapp/launcher.py" >> $STARTUPDIR/startup.sh \
-    && chmod +x $STARTUPDIR/startup.sh
+RUN : \ 
+&& echo "#!/bin/bash" > $STARTUPDIR/startup.sh \
+&& echo "/usr/local/bin/python3 -u /pyapp/launcher.py" >> $STARTUPDIR/startup.sh \
+&& chmod +x $STARTUPDIR/startup.sh \
+&& chown 1000:0 $HOME \
+&& :
 
-RUN sudo deluser root sudo
-RUN export SUDO_FORCE_REMOVE=yes && apt remove sudo -y
-
-RUN chown 1000:0 $HOME
 ENV HOME /home/user
+
 WORKDIR $HOME
+
 RUN mkdir -p $HOME && chown -R 1000:0 $HOME
 
 USER 1000

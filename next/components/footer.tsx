@@ -14,15 +14,15 @@ import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/outline'
 
 const Footer = () => {
   return (
-    <footer className='flex flex-col justify-center py-1 sticky bottom-0 lg:bg-white max-md:invisible'>
+    <footer className='flex flex-col justify-center py-1 z-10 sticky bottom-0 md:bg-white max-md:invisible'>
       <div className='container'>
         <ul className='flex items-center justify-between tracking-wider text-stone-500'>
           <li className=''>
             <HoverCard>
               <HoverCardTrigger asChild>
-                <Button variant="link" className='text-base'>Made by Gavin Kondrath</Button>
+                <Button variant="link" className='text-base px-0'>Made by Gavin Kondrath</Button>
               </HoverCardTrigger>
-              <HoverCardContent className="w-80 ml-5">
+              <HoverCardContent className="w-60 ml-5">
                 <div className="flex justify-between">
                   <Avatar>
                     <AvatarImage src="https://res.cloudinary.com/dfun3kr6v/image/upload/v1693057583/gavin-photo.jpg" />
@@ -32,7 +32,7 @@ const Footer = () => {
                     <h4 className="text-sm font-semibold">Gavin Kondrath</h4>
                     <p className="text-sm  font-medium">
                       Political Activist 🌏<br></br>
-                      Destroyer of worlds @
+                      Bule Depok @
                       <Link
                         className='text-blue-500'
                         href='https://gav.ink'

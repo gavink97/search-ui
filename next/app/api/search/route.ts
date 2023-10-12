@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     const connection = await createConnection({
-      host: process.env.MYSQL_IP,
+      host: process.env.MYSQL_HOST,
       port: process.env.MYSQL_PORT ? parseInt(process.env.MYSQL_PORT): 3306,
       user: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,

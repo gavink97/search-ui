@@ -1,11 +1,9 @@
 "use client"
 
-import { ResultCard } from "./result-card";
 import { useEffect, useState, ReactNode } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { SearchResultList } from './search-result-list';
+import { SearchResultInput } from './search-result-input';
 import { useSession } from "next-auth/react";
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 interface SearchResultProps {
   resultList: any;
@@ -13,6 +11,8 @@ interface SearchResultProps {
 
 export function SearchResult({ resultList }: SearchResultProps) {
   const [searchText, setSearchText] = useState("");
+  const [resultCount, setResultCount] = useState(0);
+  const [totalResultCount, setTotalResultCount] = useState(0);
 
   const searchFilter = (resultList: any[], searchText: string) => {
     if (!resultList) {
@@ -37,9 +37,6 @@ export function SearchResult({ resultList }: SearchResultProps) {
     return timeB - timeA;
   });
 
-  const [resultCount, setResultCount] = useState(0);
-  const [totalResultCount, setTotalResultCount] = useState(0);
-
   useEffect(() => {
     if (resultList) {
       setTotalResultCount(resultList.length);
@@ -47,62 +44,22 @@ export function SearchResult({ resultList }: SearchResultProps) {
     }
   }, [resultList, sortedResults]);
 
-  //remove <Auth> when starting to work on mobile
+  const handleSearch = (text: string) => {
+    setSearchText(text);
+  };
+
   return (
     <>
       <Auth>
-        <div className="sticky top-24 bg-white md:bg-transparent md:top-4 flex flex-col justify-items-center overflow-hidden">
-         <div className="flex flex-col items-center ">
-          <div className="grid w-full max-w-lg mb-0 mt-2 items-center gap-1.5 justify-center justify-items-center">
-            <Label htmlFor="searchResultId"></Label>
-            <Input
-              className='w-80'
-              type="text"
-              value={searchText}
-              autoComplete="off"
-              id="searchResultId"
-              placeholder="Search for a brand, source or location"
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-            <div className="relative bottom-9 left-36 pr-4 pointer-events-none">
-              <MagnifyingGlassIcon className="w-5 h-5 text-gray-500" />
-            </div>
-          </div>
-            <div className="text-center font-medium text-l md:text-xl container bg-white">
-              <ul className="flex items-center justify-center lg:justify-between">
-                <li></li>
-                <li className="text-slate-700 relative bottom-3 lg:bottom-2">
-                {resultCount === 1 ? (
-                    <p>1 result</p>
-                ) : (
-                    <p>Displaying {resultCount} of {totalResultCount} results</p>
-                )}
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        <SearchResultInput
+          onSearch={handleSearch}
+          resultCount={resultCount}
+          totalResultCount={totalResultCount}
+        />
 
-        <div className="mb-32 grid text-center justify-items-center grid-cols-1 lg:mb-0 lg:grid-cols-4 lg:text-left">
-          {sortedResults.map((result: any) => {
-            return (
-              <ResultCard 
-                key={result.id}
-                id={result.id}
-                time_added={result.time_added}
-                title={result.title}
-                price={result.price}
-                post_timestamp={result.post_timestamp}
-                location={result.location}
-                post_url={result.post_url}
-                data_pid={result.data_pid}
-                is_new={result.is_new}
-                cloudinary_link={result.cloudinary_link}
-                sources={result.sources}
-              />
-            );
-          })}
-        </div>
+        <SearchResultList
+          results={sortedResults}
+        />
       </Auth>
     </>
   );
@@ -119,3 +76,4 @@ function Auth({ children }: { children: ReactNode }) {
   }
   return children;
 }
+
