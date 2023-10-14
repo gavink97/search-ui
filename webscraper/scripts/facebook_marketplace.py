@@ -227,7 +227,7 @@ def valid_url(url):
     return url.startswith("http://") or url.startswith("https://")
 
 
-def process_batch(batch):
+def process_batch(batch):  # 331.1MiB for 686 listings
     global batch_count
     global image_counter
     global fbob_count
@@ -377,6 +377,7 @@ if fb_posts:
 
 # read batch and fb_posts to see if there is data to save / clear soup
 
+# This is inaccurate and should account for all batches in pickle
 print('Collected {0} listings'.format(len(scraped_hrefs)))
 
 fbob = []

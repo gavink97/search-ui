@@ -7,7 +7,7 @@ fi
 
 domains=(gavinkondrath.com www.gavinkondrath.com auth.gavinkondrath.com dozzle.gavinkondrath.com duplicati.gavinkondrath.com whoami.gavinkondrath.com)
 rsa_key_size=4096
-data_path="certbot-data"
+data_path="/etc/letsencrypt"
 email="gavin@gav.ink"
 staging=1 # Set to 1 if you're testing your setup to avoid hitting request limits
 

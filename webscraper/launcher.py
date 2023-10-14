@@ -7,6 +7,7 @@ import datetime
 import pytz
 import shutil
 from urllib.parse import urlparse
+# from memory_profiler import profile
 
 time.sleep(2)  # container delay
 
@@ -131,7 +132,7 @@ def run_craigslist_scripts(urls):
             print(f"Error running Craigslist script: {e}")
 
 
-def job():
+def job():  # 25.1MiB
     global job_running
     global job_counter
     job_counter += 1
@@ -156,7 +157,7 @@ def job():
                 run_craigslist_scripts(urls)
 
             ordered_scripts = [
-#                'facebook_marketplace.py',  # 33:52
+#                'facebook_marketplace.py',  # 2960 MiB
                 'filter_csv.py',
                 'remove_extra_images.py',
                 'to_mysql.py',
