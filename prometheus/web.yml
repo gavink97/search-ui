@@ -1,6 +1,0 @@
-#tls_server_config:
-#  cert_file: server.crt
-#  key_file: server.key
-
-basic_auth_users:
-  gavin: $2a$12$g5qGQQqyYFeMhi2yGWwlvu2hXijNrDattW/irwIq97xERB8HDVptu

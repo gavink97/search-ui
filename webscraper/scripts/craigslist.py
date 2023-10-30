@@ -44,7 +44,8 @@ logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-driver_service = Service(log_output=f'{launcher_path}/temp/{source_name}.log')
+driver_path = f'{launcher_path}/drivers/firefox/geckodriver'
+driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/{source_name}.log')
 driver_option = Options()
 driver_option.add_argument("-headless")
 driver_option.set_preference('general.useragent.override', user_agent)
@@ -202,6 +203,10 @@ for posts_html in posts_data:
 
     craigslist_posts.append(CL_item(title, price, post_timestamp, location, post_url, image_url))
 
+sheets = f'{launcher_path}/sheets'
+if not os.path.exists(sheets):
+    os.makedirs(sheets)
+
 df = pd.DataFrame(craigslist_posts)
 df.insert(0, 'time_added', current_time)
 df.insert(0, 'is_new', "1")
@@ -209,7 +214,7 @@ df.insert(0, 'source', f"{source_name}")
 df['data_pid'] = df['post_url'].str.extract(r'/(\d+)\.html$')
 df['image_path'] = image_paths
 df.dropna(inplace=True)
-df.to_csv(f'{launcher_path}/sheets/{source_name}.csv', index=False)
+df.to_csv(f'{sheets}/{source_name}.csv', index=False)
 print(f"Created {source_name}.csv")
 driver.close()
 driver.quit()

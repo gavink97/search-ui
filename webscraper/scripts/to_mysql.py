@@ -52,7 +52,7 @@ def count_and_insert_sources(cursor, csv_folder):
 
 
 def request_deletion(public_id, index, total_images):
-    cleaned_public_id = public_id[0].strip("'")
+    cleaned_public_id = public_id[0].strip("'")  # errors if none
     timestamp = int(time.time())
     signature_data = f"public_id={cleaned_public_id}&timestamp={timestamp}{cloud_api_secret}"
     signature = hashlib.sha1(signature_data.encode()).hexdigest()
@@ -184,11 +184,14 @@ if not public_ids:
 else:
     print(f"{total_images} images to delete from Cloudinary server.")
     for index, public_id in enumerate(public_ids, start=1):
-        if public_id is None:
+        try:
+            public_id[0].strip("'")
+
+        except AttributeError:
+            print(f'Caught none type: {public_id}')
             continue
 
-        else:
-            request_deletion(public_id, index, total_images)
+        request_deletion(public_id, index, total_images)
 
 cursor.execute("""INSERT INTO archived_listings SELECT * FROM listings
     WHERE data_pid NOT IN (%s)""" % ",".join(["%s"] * len(data_pid_values)), data_pid_values)

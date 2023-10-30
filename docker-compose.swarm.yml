@@ -1,0 +1,150 @@
+version: "3"
+services:
+
+  nginx:
+    deploy:
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.25'
+          memory: 250M
+
+  certbot:
+    deploy:
+      resources:
+        limits:
+          cpus: '.05'
+          memory: 20M
+
+  authelia:
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.1'
+          memory: 50M
+
+  next:
+    deploy:
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.25'
+          memory: 250M
+
+  pyapp:
+    command: date
+    deploy:
+      mode: replicated
+      replicas: 0
+      labels:
+        - "swarm.cronjob.enable=true"
+        - "swarm.cronjob.schedule=0 12 1/2 ? * *"
+        - "swarm.cronjob.skip-running=true"
+        - "swarm.cronjob.replicas=1"
+      restart_policy:
+        condition: none
+      update_config:
+        order: start-first
+      placement:
+        constraints: [node.labels.scraper == pyapp]
+      resources:
+        limits:
+          cpus: '0.5'
+
+  mysql:
+    deploy:
+      placement:
+        constraints: [node.labels.db == mysql]
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.25'
+          memory: 250M
+
+  redis:
+    deploy:
+      placement:
+        constraints: [node.labels.db == redis]
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.25'
+          memory: 250M
+
+  duplicati:
+    deploy:
+      placement:
+        constraints:
+          - "node.role==manager"
+          - "node.labels.backup==duplicati"
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.25'
+          memory: 250M
+
+  dozzle:
+    environment:
+      CONTAINERS: 1
+      DOZZLE_REMOTE_HOST: tcp://10.0.0.205:2376,tcp://10.0.0.125:2376
+    deploy:
+      placement:
+        constraints: 
+          - node.role==manager
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.1'
+          memory: 50M
+
+  cron:
+    image: gavink97/swarm-cronjob:latest
+    container_name: cron
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=${TZ}
+      - LOG_LEVEL=info
+      - LOG_JSON=false
+    networks:
+      - admin
+      - backend
+    healthcheck:
+      test: [ "CMD", "ping", "-c", "1", "mysql:3306" ]
+      interval: 180s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          cpus: '.05'
+          memory: 25M
+
+networks:
+  frontend:
+    driver: overlay
+  backend:
+    driver: overlay
+  pyapp:
+    driver: overlay
+  admin:
+    driver: overlay
+  agent_network:
+    driver: overlay

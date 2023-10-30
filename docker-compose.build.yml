@@ -1,0 +1,42 @@
+version: "3"
+services:
+
+  next-prod:
+    image: gavink97/next:latest
+    build:
+      context: ${PWD}/next
+      dockerfile: Dockerfile.production
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
+
+  next-dev:
+    image: gavink97/next:dev
+    build:
+      context: ${PWD}/next
+      dockerfile: Dockerfile
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
+
+  pyapp:
+    image: gavink97/pyapp:latest
+    build:
+      context: ${PWD}/webscraper
+      dockerfile: Dockerfile
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64
+
+  cron:
+    image: gavink97/swarm-cronjob:latest
+    build:
+      context: ${PWD}/cronjob
+      dockerfile: Dockerfile
+      x-bake:
+        platforms:
+          - linux/amd64
+          - linux/arm64

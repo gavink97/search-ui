@@ -10,9 +10,9 @@ theme: light
 #default_2fa_method: ""
 
 server:
-  #address: 0.0.0.0:9091
-  host: 0.0.0.0
-  port: 9091
+  address: 0.0.0.0:9091
+    #host: 0.0.0.0
+    #port: 9091
 
 log:
   ## Level of verbosity for logs: info, debug, trace.
@@ -50,7 +50,6 @@ access_control:
     - domain:
         - "gavinkondrath.com"
         - "auth.gavinkondrath.com"
-        - "portainer.gavinkondrath.com"
       policy: bypass
     - domain: 
         - "dozzle.gavinkondrath.com"
@@ -62,9 +61,10 @@ session:
   same_site: lax
   expiration: 1h
   inactivity: 5m
-  remember_me_duration: 1M
-  domain: 'gavinkondrath.com'
-    #authelia_url: 'https://auth.gavinkondrath.com'
+  remember_me: 1M
+  cookies:
+    - domain: 'gavinkondrath.com'
+      authelia_url: 'https://auth.gavinkondrath.com'
 
   redis:
     host: redis
@@ -82,8 +82,6 @@ storage:
 notifier:
   disable_startup_check: false
   smtp:
-    #address: smtp-relay.brevo.com:587
-    host: smtp-relay.brevo.com
-    port: 587
+    address: smtp-relay.brevo.com:587
     sender: auth@gavinkondrath.com
 ...

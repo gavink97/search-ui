@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createConnection } from 'mysql2/promise'
 import { revalidateTag } from 'next/cache'
- import { getServerSession } from "next-auth/next"
- import { authOptions } from '@/components/auth/auth.config'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from '@/components/auth/auth-config'
 
 const REVALIDATE_TAG = 'my-api-data';
 

@@ -1,4 +1,4 @@
-FROM python:3.11-alpine3.18
+FROM python:3.12.0-alpine3.18
 
 ENV LANG=C.UTF-8
 
@@ -14,7 +14,7 @@ ENV HOME /home/default
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV TZ=Asia/Jakarta
+ENV TZ=US/Central
 
 WORKDIR $HOME
 

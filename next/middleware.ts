@@ -15,6 +15,7 @@ export function middleware(request: NextRequest) {
   console.log(request.url)
 
   return response
+
 }
 
 export const config = {

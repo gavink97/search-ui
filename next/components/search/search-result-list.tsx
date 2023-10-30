@@ -1,4 +1,5 @@
 "use client"
+
 import React from 'react';
 import { ResultCard } from './result-card';
 
@@ -28,4 +29,3 @@ export function SearchResultList({ results }: SearchResultListProps) {
     </div>
   );
 }
-

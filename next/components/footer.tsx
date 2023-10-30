@@ -25,7 +25,7 @@ const Footer = () => {
               <HoverCardContent className="w-60 ml-5">
                 <div className="flex justify-between">
                   <Avatar>
-                    <AvatarImage src="https://res.cloudinary.com/dfun3kr6v/image/upload/v1693057583/gavin-photo.jpg" />
+                    <AvatarImage src="https://res.cloudinary.com/dfun3kr6v/image/upload/v1698645351/buledepok.jpg" />
                     <AvatarFallback>GK</AvatarFallback>
                   </Avatar>
                   <div className="space-y-1">

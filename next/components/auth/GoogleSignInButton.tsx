@@ -3,7 +3,6 @@
 import { signIn } from 'next-auth/react'
 import { Button } from '../ui/button'
 
-
 const GoogleSignInButton = () => {
   const callbackUrl = '/rpst';
 

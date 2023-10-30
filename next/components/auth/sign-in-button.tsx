@@ -19,7 +19,6 @@ import {
   ExclamationCircleIcon
 } from '@heroicons/react/24/outline'
 
-
 const SignInButton = () => {
   const router = useRouter();
   const { data: session } = useSession();

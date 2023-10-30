@@ -76,4 +76,3 @@ function Auth({ children }: { children: ReactNode }) {
   }
   return children;
 }
-

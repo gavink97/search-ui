@@ -44,7 +44,8 @@ logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-driver_service = Service(log_output=f'{launcher_path}/temp/facebook_marketplace.log')
+driver_path = f'{launcher_path}/drivers/firefox/geckodriver'
+driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/{source_name}.log')
 driver_option = Options()
 driver_option.add_argument("-headless")
 driver_option.set_preference('general.useragent.override', user_agent)
@@ -388,6 +389,10 @@ for i in range(1, fbob_number + 1):
         pickleb = pickle.load(file)
         fbob.append(pd.DataFrame(pickleb))
 
+sheets = f'{launcher_path}/sheets'
+if not os.path.exists(sheets):
+    os.makedirs(sheets)
+
 df = pd.concat(fbob, ignore_index=True)
 df.insert(2, 'post_timestamp', current_time)
 df.insert(0, 'time_added', current_time)
@@ -396,7 +401,7 @@ df.insert(0, 'source', "facebook_marketplace")
 df['data_pid'] = df['post_url'].str.extract(r'/(\d+)/')
 df['image_path'] = image_paths
 df.dropna(inplace=True)
-df.to_csv(f'{launcher_path}/sheets/facebook_marketplace.csv', index=False)
+df.to_csv(f'{sheets}/facebook_marketplace.csv', index=False)
 print("Created facebook_marketplace.csv")
 for handle in driver.window_handles:
     driver.switch_to.window(handle)
