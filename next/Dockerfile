@@ -1,4 +1,6 @@
-FROM node:18-alpine
+FROM node:20.8-alpine3.18
+
+ENV LANG=C.UTF-8
 
 WORKDIR /web
 

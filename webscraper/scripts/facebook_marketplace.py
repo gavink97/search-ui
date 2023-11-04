@@ -45,7 +45,7 @@ handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
 driver_path = f'{launcher_path}/drivers/firefox/geckodriver'
-driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/{source_name}.log')
+driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/facebook_marketplace.log')
 driver_option = Options()
 driver_option.add_argument("-headless")
 driver_option.set_preference('general.useragent.override', user_agent)
@@ -58,9 +58,9 @@ driver.implicitly_wait(9)
 window_handles = driver.window_handles
 parent_tab = driver.window_handles[0]
 child_tab = driver.window_handles[1]
-wait = WebDriverWait(driver, 30)
+wait = WebDriverWait(driver, 60)
 
-page_load_timeout = 40
+page_load_timeout = 60
 url = 'https://www.facebook.com/'
 browser_settings = 'about:addons'
 vpn_location = "United States"
@@ -160,6 +160,14 @@ time.sleep(random_delay)
 password_field.send_keys(Keys.ENTER)
 print("Logged into Facebook!")
 
+# debugging
+# search_results = driver.find_element(By.XPATH, '/html/body')
+# soup = BeautifulSoup(search_results.get_attribute('innerHTML'), 'html.parser')
+
+# with open(f'{launcher_path}/temp/facebook_posts_html.txt', 'w', encoding='utf-8') as file:
+#    file.write(str(soup) + '\n')
+
+# This will timeout if Facebook takes too long
 wait.until(EC.presence_of_element_located((By.XPATH, '//a[contains(@href, "https://www.facebook.com/marketplace/?ref=bookmark")]')))
 print("Waiting for facebook to load...")
 time.sleep(random_delay)

@@ -1,31 +1,12 @@
 "use client"
 
-import { useRouter } from 'next/navigation'
-import { ArrowUturnLeftIcon } from '@heroicons/react/24/solid'
-import { HomeIcon } from '@heroicons/react/24/outline'
+import HeaderReturn from "@/components/header-return"
 
 export default function Privacy() {
-  const router = useRouter();
 
     return(
-      <div className="mt-10 ml-12 mr-12">
-        <header className="flex flex-col justify-start sticky" >
-          <div className='container p-0'>
-             <ul className='flex items-center justify-between '>
-                <li>
-                  <button onClick={() => router.back()}>
-                  <ArrowUturnLeftIcon className="h-6 w-6" />
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/')}>
-                  <HomeIcon className='h-6 w-6' />
-                  </button>
-                </li>
-              </ul>
-           </div>
-        </header>
-
+      <div className="mt-10 w-full">
+        <HeaderReturn/> 
         <div className="m-6">
             <h1 className="text-3xl font-medium mb-12 mt-12 text-center md:text-left md:ml-8">Privacy Policy</h1>
             <div className="m-6">

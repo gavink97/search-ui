@@ -13,10 +13,17 @@ import {
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation';
 import {
-  UserIcon,
-  MagnifyingGlassIcon,
+  ArrowRightOnRectangleIcon,
   ArrowLeftOnRectangleIcon,
-  ExclamationCircleIcon
+  Bars3Icon,
+  BookOpenIcon,
+  CommandLineIcon,
+  ExclamationCircleIcon,
+  GlobeAltIcon,
+  MagnifyingGlassIcon,
+  ShieldCheckIcon,
+  UserIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline'
 
 const SignInButton = () => {
@@ -40,15 +47,25 @@ const SignInButton = () => {
            <UserIcon className="h-4 w-4 ml-px mr-2" />  Profile
            </DropdownMenuItem>*/}
             <DropdownMenuItem onClick={() => router.push('/privacy')}>
-            <p className='ml-px'>  Privacy Policy</p>
+              <ShieldCheckIcon className="h-4 w-4 mr-2" />  Privacy Policy
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push('/tos')}>
-            <p className='ml-px'>Terms of Service</p>
+              <BookOpenIcon className="h-4 w-4 ml-px mr-1.5" />  Terms of Service
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push('/report')}>
               <ExclamationCircleIcon className="h-4 w-4 mr-1 text-red-600" /> <p className='ml-0.5 text-red-500'>Report a Problem</p>
+            </DropdownMenuItem>
+          <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => router.push('https://github.com/gavink97')}>
+              <CommandLineIcon className="h-4 w-4 ml-px mr-2" />  Github
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('https://www.linkedin.com/in/gavin-kondrath/')}>
+              <UserGroupIcon className="h-4 w-4 ml-px mr-2" />  LinkedIn
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('https://gav.ink/')}>
+              <GlobeAltIcon className="h-4 w-4 ml-px mr-2" />  Socials
             </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem  onClick={() => signOut()}>
@@ -57,7 +74,37 @@ const SignInButton = () => {
         </DropdownMenuContent>
       </DropdownMenu>
     ) : (
-      <Button variant="outline" onClick={() => signIn()}>Sign In</Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Bars3Icon className="h-8 w-8 mr-2" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-55 mr-4">
+          <DropdownMenuItem onClick={() => signIn()}>
+            <ArrowRightOnRectangleIcon className="h-4 w-4 ml-px mr-2" /> <p className='font-medium'>Sign In</p>
+          </DropdownMenuItem>
+        <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => router.push('/privacy')}>
+            <ShieldCheckIcon className="h-4 w-4 mr-2" />  Privacy Policy
+          </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('/tos')}>
+            <BookOpenIcon className="h-4 w-4 ml-px mr-1.5" />  Terms of Service
+          </DropdownMenuItem>
+        <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => router.push('/report')}>
+            <ExclamationCircleIcon className="h-4 w-4 mr-1 text-red-600" /> <p className='ml-0.5 text-red-500'>Report a Problem</p>
+          </DropdownMenuItem>
+        <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => router.push('https://github.com/gavink97')}>
+            <CommandLineIcon className="h-4 w-4 ml-px mr-2" />  Github
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('https://www.linkedin.com/in/gavin-kondrath/')}>
+            <UserGroupIcon className="h-4 w-4 ml-px mr-2" />  LinkedIn
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('https://gav.ink/')}>
+            <GlobeAltIcon className="h-4 w-4 ml-px mr-2" />  Socials
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     )}
     </>
   )

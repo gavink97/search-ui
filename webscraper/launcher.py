@@ -16,7 +16,7 @@ time.sleep(2)  # container delay
 max_attempts = 10
 search_query = "record player"
 timezone = pytz.timezone('US/Central')
-initialize_mysql_tables = True
+initialize_mysql_tables = False
 delay_job = False
 # 10 to 15 minutes
 delay_in_minutes = 120
@@ -157,7 +157,7 @@ def job():  # 25.1MiB
                 run_craigslist_scripts(urls)
 
             ordered_scripts = [
-#                'facebook_marketplace.py',  # 2960 MiB
+                'facebook_marketplace.py',  # 2960 MiB
                 'filter_csv.py',
                 'remove_extra_images.py',
                 'to_mysql.py',

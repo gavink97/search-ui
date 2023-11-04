@@ -1,7 +1,4 @@
-FROM node:18-alpine AS base
-# 16-alpine
-
-#Next:13.4.12 works
+FROM node:20.9.0-alpine AS base
 
 ENV LANG=C.UTF-8
 

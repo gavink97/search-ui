@@ -1,0 +1,8 @@
+version: "3"
+services:
+
+  next-dev:
+    image: gavink97/next:dev
+    build:
+      context: ${PWD}/next
+      dockerfile: Dockerfile

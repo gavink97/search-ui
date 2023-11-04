@@ -6,9 +6,9 @@ import Link from 'next/link';
 export default async function Home() {
   return (
     <>
-    <div className='min-h-screen flex flex-col'>
+    <div className='min-h-screen flex flex-col w-full'>
       <Header/>
-        <div className='flex-1 m-6 text-slate-600 font-medium'>
+        <div className='flex-1 m-12 text-slate-600 font-medium'>
           <h1 className='text-3xl mb-8'>Welcome to Gavin Kondrath</h1>
           <p className='mb-3 text-justify'>This is my personal website, where I host projects I'm actively developing. Currently, I'm working on the Record Player Search Tool which gathers data from various marketplaces across the Continental United States and displays them in one place for convenience. You can enter the project simply by signing in with your Google account.</p>
           <p className='mb-3 text-justify'>If you find a problem with the app or would like to reach out to me, please email me at <a href='mailto:gavin@gav.ink'>gavin@gav.ink</a></p>
