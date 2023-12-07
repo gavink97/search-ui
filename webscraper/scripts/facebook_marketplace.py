@@ -25,7 +25,7 @@ import pickle
 launcher_path = sys.argv[2]
 search_query = sys.argv[3]
 
-# launcher_path = "/Users/gavinkondrath/Desktop/DevOps/web_app/webscraper"
+# launcher_path = "/Users/gavinkondrath/projects/web_app/webscraper"
 # search_query = "record player"
 
 timezone = pytz.timezone('US/Central')
@@ -44,6 +44,7 @@ logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
+# driver_path = f'{launcher_path}/drivers/firefox/macos/geckodriver'
 driver_path = f'{launcher_path}/drivers/firefox/geckodriver'
 driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/facebook_marketplace.log')
 driver_option = Options()
@@ -183,7 +184,8 @@ except ElementClickInterceptedException:
     market = wait.until(EC.element_to_be_clickable((By.XPATH, '//a[contains(@href, "https://www.facebook.com/marketplace/?ref=bookmark")]')))
     market.click()
 
-wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')))
+search_field_xpath = '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input'
+wait.until(EC.presence_of_element_located((By.XPATH, search_field_xpath)))
 time.sleep(random_delay)
 
 try:
@@ -193,17 +195,18 @@ except NoSuchElementException:
     print("No FBP popup")
 
 print(f"Searching for {search_query}s...")
-search_field = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[2]/div/div/div/span/div/div/div/div/label/input')
+search_field = driver.find_element(By.XPATH, search_field_xpath)
 for char in search_query:
     search_field.send_keys(char)
     delay = random.uniform(0.1, 0.4)
     time.sleep(delay)
 time.sleep(random_delay)
 search_field.send_keys(Keys.ENTER)
-wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div[3]/div[2]/div[2]/div[1]')))
+sort_by_xpath = '/html/body/div[1]/div[2]/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div[3]/div[2]/div[2]/div[1]/div[1]/div[1]'
+wait.until(EC.presence_of_element_located((By.XPATH, sort_by_xpath)))
 
 print("Adjusting sort parameters...")
-sort_by = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div[3]/div[2]/div[2]/div[1]')
+sort_by = driver.find_element(By.XPATH, sort_by_xpath)
 sort_by.click()
 time.sleep(1.5)
 newest_first = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Date listed: Newest first')]")))
@@ -336,7 +339,8 @@ while not to_stop:
         if new_height == prev_height:
             break
     # look to see if we can save data by clearing soup or using strainer
-    search_results = driver.find_element(By.XPATH, '/html/body/div[1]/div/div[1]/div/div[3]/div/div/div/div[1]/div[1]/div[2]/div/div/div[3]/div[1]/div[2]')
+    search_results_xpath = '/html/body/div[1]/div[2]/div[1]/div/div[3]/div/div/div[1]/div[1]/div[2]/div/div/div[3]'
+    search_results = driver.find_element(By.XPATH, search_results_xpath)
     soup = BeautifulSoup(search_results.get_attribute('innerHTML'), 'html.parser')
     valid_styles = [
         "max-width: 381px; min-width: 242px;",
