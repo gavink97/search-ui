@@ -78,9 +78,10 @@ regulation:
 storage:
   local:
     path: /config/db.sqlite3
+      # if error about version delete this
 
 notifier:
-  disable_startup_check: false
+  disable_startup_check: true
   smtp:
     #address: smtp-relay.brevo.com:587
     host: smtp-relay.brevo.com
