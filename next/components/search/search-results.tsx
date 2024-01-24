@@ -48,6 +48,7 @@ export function SearchResult({ resultList }: SearchResultProps) {
     setSearchText(text);
   };
 
+// remove auth when testing in dev
   return (
     <>
       <Auth>

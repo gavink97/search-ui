@@ -6,3 +6,9 @@ services:
     build:
       context: ${PWD}/next
       dockerfile: Dockerfile
+
+  pyapp:
+    image: gavink97/pyapp:latest
+    build:
+      context: ${PWD}/webscraper
+      dockerfile: Dockerfile

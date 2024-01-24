@@ -21,7 +21,7 @@ delay_job = False
 # 10 to 15 minutes
 delay_in_minutes = 120
 delay_in_minutes_2 = 150
-run_it_once = False  # If False job will repeat based on delay_in_minutes.
+run_it_once = True  # If False job will repeat based on delay_in_minutes.
 job_counter_max = 1   # You can customize the amount of times job will run before
 #                       breaking while run_it_once is true
 

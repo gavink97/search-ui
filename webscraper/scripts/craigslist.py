@@ -44,8 +44,7 @@ logger.addHandler(handler)
 handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s Selenium -> %(message)s", "%Y-%m-%d %H:%M:%S"))
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/117.0'
-driver_path = f'{launcher_path}/drivers/firefox/geckodriver'
-driver_service = Service(driver_path, log_output=f'{launcher_path}/temp/{source_name}.log')
+driver_service = Service(log_output=f'{launcher_path}/temp/{source_name}.log')
 driver_option = Options()
 driver_option.add_argument("-headless")
 driver_option.set_preference('general.useragent.override', user_agent)

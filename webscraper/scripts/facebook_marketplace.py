@@ -95,7 +95,7 @@ proton_access_me.click()
 driver.switch_to.window(child_tab)
 proton_sign_in = driver.find_element(By.XPATH, '/html/body/div/div/div[2]/button')
 proton_sign_in.click()
-time.sleep(.5)
+time.sleep(2)  # increase if fails
 proton_login_tab = driver.window_handles[2]
 driver.switch_to.window(proton_login_tab)
 proton_email = wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="username"]')))

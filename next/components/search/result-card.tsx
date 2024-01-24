@@ -64,7 +64,7 @@ export function ResultCard({ id, time_added, title, price, post_timestamp, locat
       : price;
 
     return (
-        <Link
+        <a
           href={post_url}
           className="group rounded-lg border border-transparent px-5 py-4 m-3 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
           target="_blank"
@@ -100,6 +100,6 @@ export function ResultCard({ id, time_added, title, price, post_timestamp, locat
         <h2 className={`text-base font-semibold text-center`}>
         {truncatedPrice}
         </h2>
-      </Link>
+      </a>
     )
 }

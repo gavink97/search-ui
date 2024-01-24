@@ -21,7 +21,7 @@ WORKDIR $HOME
 RUN : \
 && apk update \
 && apk --no-cache --virtual build-dependencies add g++\
-&& apk --no-cache add firefox bash openblas openblas-dev \
+&& apk --no-cache add firefox bash openblas openblas-dev busybox-openrc \
 && :
 
 COPY --link requirements.txt .
@@ -39,19 +39,29 @@ RUN : \
 
 WORKDIR $STARTUPDIR
 
-RUN : \ 
-&& echo "#!/bin/bash" > $STARTUPDIR/startup.sh \
-&& echo "/usr/local/bin/python3 -u /pyapp/launcher.py" >> $STARTUPDIR/startup.sh \
-&& chmod +x $STARTUPDIR/startup.sh \
-&& chown 1000:0 $HOME \
+COPY crontab /etc/cron.d/rpst-cron
+
+RUN : \
+# && adduser \
+# --disabled-password \
+# -u 1001 user \
+&& chmod 0755 /etc/cron.d/ \
+&& crontab /etc/cron.d/rpst-cron \
+&& crontab -u root /etc/cron.d/rpst-cron \
+&& chmod u+s /usr/sbin/crond \
+&& touch /var/log/cron.log \
+&& chmod u+rwx /var/log/cron.log \
+&& chown root:0 $HOME \
 && :
 
 ENV HOME /home/user
 
 WORKDIR $HOME
 
-RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+RUN mkdir -p $HOME && chown -R root:0 $HOME
 
-USER 1000
+# USER user
 
-ENTRYPOINT [ "/app/startup.sh" ]
+# CMD crond && tail -f /var/log/cron.log
+
+ENTRYPOINT ["/usr/sbin/crond", "-f", "6"]

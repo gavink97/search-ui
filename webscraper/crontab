@@ -1,0 +1,4 @@
+# must be ended with a new line "LF" (Unix) and not "CRLF" (Windows)
+# * * * * * echo "Hi Gavin"
+0 */2 * * * /usr/local/bin/python3 -u /pyapp/launcher.py
+# MUST REBUILD DOCKER IMAGE IF CHANGES ARE MADE TO THE SCHEDULE
