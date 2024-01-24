@@ -161,7 +161,7 @@ def job():  # 25.1MiB
                 'filter_csv.py',
                 'remove_extra_images.py',
                 'to_mysql.py',
-#                'to_cloudinary.py'
+                'to_cloudinary.py'
                 ]
 
 ###############################################################################
