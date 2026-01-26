@@ -1,6 +1,0 @@
-.git
-.gitignore
-.DS_Store*
-Dockerfile
-Dockerfile.production
-Readme.md

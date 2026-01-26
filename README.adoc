@@ -1,0 +1,31 @@
+= search-ui
+ifdef::env-github[]
+Gavin Kondrath <78187175+gavink97@users.noreply.github.com>
+v0.1, 2026-01-26
+:homepage: https://gav.ink
+endif::[]
+:toc:
+:icons: font
+
+== What is this?
+
+This repo is the public source version of https://search.gav.ink[https://search.gav.ink].
+
+== Precommit
+
+Install precommit hooks
+
+```
+pre-commit install
+pre-commit install --hook-type commit-msg
+```
+
+== Starting Prod
+
+Add info to .env
+Copy over data/users.yml
+
+
+=== Cloudflare DNS
+
+Use DNS only for services not proxy

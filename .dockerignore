@@ -1,0 +1,15 @@
+.git
+.gitignore
+.DS_Store*
+Dockerfile
+node_modules
+.next
+README.md
+.commitlintrc.yml
+.pre-commit-config.yaml
+biome.json
+components.json
+docker-compose.build.yml
+docker-compose.yml
+Makefile
+output.db
