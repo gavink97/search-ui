@@ -14,10 +14,6 @@ start:
 deps:
 	npx depcheck
 
-.PHONY: update-shadcn
-update-shadcn:
-	npx shadcn@latest add --all --overwrite
-
 .PHONY: docker
 docker:
 	docker buildx bake -f docker-compose.build.yml --push

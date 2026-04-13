@@ -1,12 +1,6 @@
 'use client';
 
-import dayjs from 'dayjs';
-import timezone from 'dayjs/plugin/timezone';
-import utc from 'dayjs/plugin/utc';
 import Image from 'next/image';
-
-dayjs.extend(timezone);
-dayjs.extend(utc);
 
 export interface ResultCardProps {
 	key: number;
@@ -18,34 +12,9 @@ export interface ResultCardProps {
 	price: string;
 	timestamp: string; // timestamp
 	url: string;
+	post_date: string; //timestamp
 	images: string[];
 	sources: string[];
-}
-
-function _formatTimestamp(
-	timestamp: string,
-	targetTimezone: string = 'US/Central', // use TZ
-): string {
-	const now = dayjs();
-
-	const parsedTimestamp = dayjs.tz(timestamp, targetTimezone);
-
-	const minutesDifference = now.diff(parsedTimestamp, 'minute');
-	const hoursDifference = now.diff(parsedTimestamp, 'hour');
-
-	if (minutesDifference < 60) {
-		if (minutesDifference <= 1) {
-			return '1 min ago';
-		}
-		return `${minutesDifference} mins ago`;
-	} else if (hoursDifference < 24) {
-		if (hoursDifference <= 1) {
-			return '1 hour ago';
-		}
-		return `${hoursDifference} hours ago`;
-	} else {
-		return parsedTimestamp.format('MM/DD');
-	}
 }
 
 export function ResultCard({
@@ -60,8 +29,7 @@ export function ResultCard({
 	images,
 	//sources,
 }: ResultCardProps) {
-	const defaultImage = '/no_image.png';
-	//const formattedTime = formatTimestamp(timestamp);
+	const defaultImage = 'no_image.png';
 	const titleCharacterLimit = 35;
 	const priceCharacterLimit = 15;
 	const locationCharLimit = 20;
@@ -83,7 +51,7 @@ export function ResultCard({
 	return (
 		<a
 			href={url}
-			className='group rounded-lg border border-transparent px-5 py-4 m-3 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'
+			className='result-card group border transition-colors hover:border-gray-500 hover:bg-gray-200 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30'
 			target='_blank'
 			rel='noopener noreferrer'
 		>
@@ -115,7 +83,8 @@ export function ResultCard({
 			) : (
 				<Image
 					className='standalone'
-					src={defaultImage}
+					overrideSrc={defaultImage}
+					src=''
 					alt='default'
 					width='300'
 					height='300'

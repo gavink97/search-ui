@@ -6,8 +6,8 @@ import Header from '@/components/header';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-	title: 'Record player Search Tool',
-	description: 'created by Gavin K',
+	title: 'Search UI',
+	description: 'Created by Gavin K',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -16,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 			<link rel='icon' href='/favicon.png' sizes='any' />
 			<body className={inter.className}>
 				<Header />
-				<main className='flex min-h-screen flex-col items-center justify-between'>{children}</main>
+				<main className='flex min-h-screen flex-col items-center justify-between bg-zinc-50'>{children}</main>
 			</body>
 		</html>
 	);
