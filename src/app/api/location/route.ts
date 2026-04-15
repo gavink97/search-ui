@@ -1,8 +1,14 @@
 import sqlite from 'node:sqlite';
 import { NextResponse } from 'next/server';
+import type { DataCountryProps, DataLocalProps, DataTerritoryProps } from '@/components/search/props';
 import { DB_NAME } from '@/globals/global';
+import type { ResponseError } from '../utils';
 
-export async function GET() {
+export interface LocationResponse {
+	locations: DataCountryProps[];
+}
+
+export async function GET(): Promise<NextResponse<LocationResponse> | NextResponse<ResponseError>> {
 	try {
 		const db = new sqlite.DatabaseSync(DB_NAME, {
 			readOnly: true,
@@ -28,7 +34,7 @@ export async function GET() {
 		const stmt = db.prepare(query);
 		const results = stmt.all();
 
-		const locs = {
+		const locs: LocationResponse = {
 			locations: [], // countries > territories > locals
 		};
 
@@ -37,9 +43,9 @@ export async function GET() {
 
 		for (const res of results) {
 			if (!countryMap.has(res.country_id)) {
-				const country = {
-					id: res.country_id,
-					country: res.country,
+				const country: DataCountryProps = {
+					id: Number(res.country_id),
+					name: String(res.country),
 					territories: [],
 				};
 
@@ -49,9 +55,9 @@ export async function GET() {
 
 			const country = countryMap.get(res.country_id);
 			if (!territoryMap.has(res.territory_id)) {
-				const territory = {
-					id: res.territory_id,
-					territory: res.territory,
+				const territory: DataTerritoryProps = {
+					id: Number(res.territory_id),
+					name: String(res.territory),
 					locals: [],
 				};
 
@@ -62,14 +68,14 @@ export async function GET() {
 			const territory = territoryMap.get(res.territory_id);
 			if (res.id) {
 				territory.locals.push({
-					id: res.id,
-					local: res.local,
-				});
+					id: Number(res.id),
+					name: String(res.local),
+				} as DataLocalProps);
 			}
 		}
 
 		db.close();
-		return NextResponse.json({ results: locs.locations }, { status: 200 });
+		return NextResponse.json<LocationResponse>({ locations: locs.locations }, { status: 200 });
 	} catch (error) {
 		console.error(error);
 		return NextResponse.json({ error: 'An error occurred' }, { status: 500 });

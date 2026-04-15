@@ -60,19 +60,19 @@ export interface DataSourceProps {
 export interface DataCountryProps {
 	id: number;
 	name: string;
-	count: number;
+	count?: number;
 	territories: DataTerritoryProps[];
 }
 
 export interface DataTerritoryProps {
 	id: number;
 	name: string;
-	count: number;
+	count?: number;
 	locals: DataLocalProps[];
 }
 
 export interface DataLocalProps {
 	id: number;
 	name: string;
-	count: number;
+	count?: number;
 }
