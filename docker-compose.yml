@@ -1,0 +1,80 @@
+services:
+  search-ui:
+    image: gavink97/search-ui:latest
+    container_name: search-ui
+    restart: always
+    expose:
+      - 8080
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - ./.env:/.env
+      - ./public:/public
+      - ./output.db:/app/output.db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.search-ui.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.search-ui.entrypoints=websecure"
+    depends_on:
+      - traefik
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: always
+    environment:
+      TZ: ${TZ}
+    expose:
+      - 8080
+    command:
+      - '--global.sendAnonymousUsage=false'
+      - "--api=true"
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.service=api@internal"
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "${PWD}/data/localhost.crt:/certs/localhost.crt:ro"
+      - "${PWD}/data/localhost.key:/certs/localhost.key:ro"
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: always
+    expose:
+      - 8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      TZ: ${TZ}
+      DOZZLE_NO_ANALYTICS: "true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dozzle.rule=Host(`dozzle.${DOMAIN}`)"
+      - "traefik.http.routers.dozzle.entrypoints=websecure"
+    depends_on:
+      - traefik
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: watchtower
+    restart: always
+    environment:
+      TZ: ${TZ}
+      #REPO_USER: ${DOCKER_USERNAME}
+      #REPO_PASS: ${DOCKER_ACCESS_TOKEN}
+    volumes:
+      - $HOME/.docker/config.json:/config.json:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: --interval 30
