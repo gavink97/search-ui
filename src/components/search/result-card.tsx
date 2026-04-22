@@ -59,7 +59,7 @@ export function ResultCard({
 				<div className='slideshow-wrapper'>
 					<div className='slideshow'>
 						{images.map((img) => (
-							<Image
+							<img
 								className='slide'
 								src={img}
 								alt='source'
@@ -72,7 +72,7 @@ export function ResultCard({
 					</div>
 				</div>
 			) : images.length === 1 ? (
-				<Image
+				<img
 					className='standalone'
 					src={images[0] ?? ''}
 					alt='source'
@@ -81,10 +81,10 @@ export function ResultCard({
 					loading='lazy'
 				/>
 			) : (
-				<Image
+				<img
 					className='standalone'
-					overrideSrc={defaultImage}
-					src=''
+					//overrideSrc={defaultImage}
+					src={defaultImage}
 					alt='default'
 					width='300'
 					height='300'

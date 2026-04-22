@@ -117,8 +117,8 @@ LIMIT ?;
 				images = imagesRaw
 					.split(',')
 					.map((img) => img.trim())
-					.filter((img) => img !== '')
-					.map((img) => img.replace('https://images.craigslist.org/d/', ''));
+					.filter((img) => img !== '');
+				//.map((img) => img.replace('https://images.craigslist.org/d/', ''));
 			}
 
 			const sourcesRaw = row.sources;
