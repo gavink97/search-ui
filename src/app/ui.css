@@ -84,8 +84,9 @@
 }
 
 .observer {
-	height: 1.25rem;
+	height: auto;
 	width: 100%;
+	grid-column: 1 / -1;
 }
 
 #search-bar {

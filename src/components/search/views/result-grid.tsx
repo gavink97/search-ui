@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { type JSX, useCallback, useEffect, useRef } from 'react';
 import { DefaultPageProps, type MetadataProps, type PageProps } from '@/components/search/props';
 import { ResultCard, type ResultCardProps } from '@/components/search/result-card';
-import { ConvertREMToPixels } from '@/components/utils';
 import { queryMetadata } from '@/lib/metadata';
 import { queryDB } from '@/lib/query';
 
@@ -38,7 +37,6 @@ export function ResultGrid({
 
 	const topObserver = useRef<IntersectionObserver | null>(null);
 	const botObserver = useRef<IntersectionObserver | null>(null);
-	const [isObserved, setObserved] = useState(false);
 
 	const init = useCallback(async () => {
 		setInitialized(true);
@@ -85,12 +83,13 @@ export function ResultGrid({
 	/*
 	useEffect(() => {
 		console.log(pageHistory);
+		console.log(results);
 	}, [pageHistory]);
 	*/
 
 	const loadPage = useCallback(
 		async (index: number) => {
-			const prevIndex = pageHistory.length - 4;
+			const prevIndex = pageHistory.length - 5;
 
 			if (
 				(index === prevIndex && (isLoading || pageHistory.length <= 1)) ||
@@ -114,23 +113,21 @@ export function ResultGrid({
 
 				if (index === prevIndex) {
 					setResults((prev) => {
-						return [...resp.results, ...prev.slice(0, limit)];
+						return [...resp.results, ...prev.slice(0, limit * 2)];
 					});
 
 					setPageHistory((prev) => prev.slice(0, -1));
 					setFinalPage(false);
-					setObserved(true);
 				} else {
 					setResults((prev) => {
-						if (prev.length >= 2 * limit) {
-							return [...prev.slice(-1 * limit), ...resp.results];
+						if (prev.length >= 3 * limit) {
+							return [...prev.slice(-1 * (limit * 2)), ...resp.results];
 						}
 						return [...prev, ...resp.results];
 					});
 
 					setPageHistory((prev) => [...prev, resp.page]);
 					setFinalPage(resp.results.length < resp.page.limit);
-					setObserved(true);
 				}
 			} catch (error) {
 				console.error('Error loading more results:', error);
@@ -148,7 +145,7 @@ export function ResultGrid({
 
 			topObserver.current = new IntersectionObserver((entries) => {
 				if (entries[0]?.isIntersecting) {
-					loadPage(pageHistory.length - 4);
+					loadPage(pageHistory.length - 5);
 				}
 			});
 
@@ -173,54 +170,86 @@ export function ResultGrid({
 		[isLoading, isFinalPage, pageHistory, loadPage],
 	);
 
-	useLayoutEffect(() => {
-		if (!isObserved) return;
+	return (
+		<ResultContainer
+			pageHistory={pageHistory}
+			results={results}
+			isFinalPage={isFinalPage}
+			isLoading={isLoading}
+			topRef={topRef}
+			botRef={botRef}
+		/>
+	);
+}
 
-		const width = window.innerWidth;
-		const rem = ConvertREMToPixels(1);
+interface ResultContainerProps {
+	pageHistory: PageProps[];
+	results: ResultCardProps[];
+	isFinalPage: boolean;
+	isLoading: boolean;
+	topRef: (node: HTMLDivElement | null) => void;
+	botRef: (node: HTMLDivElement | null) => void;
+}
 
-		let columns: number;
+function ResultContainer({ pageHistory, results, isFinalPage, isLoading, topRef, botRef }: ResultContainerProps) {
+	const columns = 6; // use 12 later when using 4 columns
 
-		if (width < rem * 48) {
-			columns = 1;
-		} else if (width >= rem * 48 && width < rem * 80) {
-			columns = 2;
-		} else {
-			columns = 3;
+	const container = (children: JSX.Element) => {
+		return <div className='result-container'>{children}</div>;
+	};
+
+	if (results.length === 0 && !isLoading) {
+		return container(NoResults());
+	}
+
+	const builtResults = () => {
+		const elements = [];
+
+		for (const [index, result] of results.entries()) {
+			const card = (
+				<ResultCard
+					key={result.id}
+					id={result.id}
+					title={result.title}
+					date={result.date}
+					location={result.location}
+					price={result.price}
+					timestamp={result.timestamp}
+					url={result.url}
+					post_date={result.post_date}
+					images={result.images}
+					sources={result.sources}
+				/>
+			);
+
+			switch (index) {
+				case columns:
+					if (pageHistory.length > 4) {
+						elements.push(<div ref={topRef} className='observer' key='observer-top' />);
+					}
+
+					elements.push(card);
+					break;
+				case results.length - columns:
+					if (!isFinalPage) {
+						elements.push(<div ref={botRef} className='observer' key='observer-bottom' />);
+					}
+
+					elements.push(card);
+					break;
+				default:
+					elements.push(card);
+			}
 		}
 
-		const offset = (83 / columns) * 414;
-		window.scroll({ top: offset, behavior: 'instant' });
-		setObserved(false);
-	}, [isObserved]);
+		return elements;
+	};
 
-	return (
-		<div className='result-container'>
-			{pageHistory.length > 3 && <div ref={topRef} className='observer' />}
-
-			<div id='result-box' className='justify-items-center'>
-				{results.length > 0
-					? results.map((result: ResultCardProps) => (
-							<ResultCard
-								key={result.id}
-								id={result.id}
-								title={result.title}
-								date={result.date}
-								location={result.location}
-								price={result.price}
-								timestamp={result.timestamp}
-								url={result.url}
-								post_date={result.post_date}
-								images={result.images}
-								sources={result.sources}
-							/>
-						))
-					: !isLoading && <NoResults />}
-
-				{isLoading && <Loading />}
-			</div>
-			{!isFinalPage && <div ref={botRef} className='observer' />}
-		</div>
+	return container(
+		<div id='result-box' className='justify-items-center'>
+			{builtResults()}
+			{isLoading && <Loading />}
+		</div>,
 	);
 }
 

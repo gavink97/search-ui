@@ -1,7 +1,5 @@
 'use client';
 
-import Image from 'next/image';
-
 export interface ResultCardProps {
 	key: number;
 	id: number;
@@ -48,6 +46,7 @@ export function ResultCard({
 		truncatedLocation = `${location.slice(0, locationCharLimit)}...`;
 	}
 
+	// biome-ignore-start lint/performance/noImgElement: not opting to use Next/Image due to dynamic cdns
 	return (
 		<a
 			href={url}
@@ -99,4 +98,5 @@ export function ResultCard({
 			<h2 className={`text-base font-semibold text-center`}>{truncatedPrice}</h2>
 		</a>
 	);
+	// biome-ignore-end lint/performance/noImgElement: not opting to use Next/Image due to dynamic cdns
 }

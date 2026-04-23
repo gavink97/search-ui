@@ -13,6 +13,7 @@ export interface PageProps {
 
 export function DefaultPageProps(order: 'DESC' | 'ASC' = 'DESC'): PageProps {
 	const defaultExpire = dayjs().subtract(3, 'days').format();
+	const defaultLimit = 36;
 
 	switch (order) {
 		case 'ASC':
@@ -21,7 +22,7 @@ export function DefaultPageProps(order: 'DESC' | 'ASC' = 'DESC'): PageProps {
 				last_id: 0,
 				last_date: '',
 				order: order,
-				limit: 80,
+				limit: defaultLimit,
 				query: '',
 				locations: [],
 			};
@@ -31,7 +32,7 @@ export function DefaultPageProps(order: 'DESC' | 'ASC' = 'DESC'): PageProps {
 				last_id: Infinity,
 				last_date: '9999-12-31 23:59:59',
 				order: order,
-				limit: 80,
+				limit: defaultLimit,
 				query: '',
 				locations: [],
 			};
