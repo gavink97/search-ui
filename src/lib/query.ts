@@ -1,7 +1,11 @@
+'use server';
+
 import type { QueryResponse } from '@/app/api/query-v2/route';
 import { DefaultPageProps, type PageProps } from '@/components/search/props';
+import { HOSTNAME } from '@/globals/global';
+import { connection } from 'next/server';
 
-const uri = `/api/query-v2`;
+const uri = `${HOSTNAME}/api/query-v2`;
 
 export async function queryDB(options: Partial<PageProps> = {}): Promise<QueryResponse | []> {
 	const defaultProps = DefaultPageProps();
@@ -14,7 +18,9 @@ export async function queryDB(options: Partial<PageProps> = {}): Promise<QueryRe
 	const query = options.query ?? defaultProps.query;
 	const locations = options.locations ?? defaultProps.locations;
 
-	if (process.env.NODE_ENV !== 'production') {
+	await connection();
+
+	if (process.env.ENV !== 'production') {
 		expire_by = '2026';
 	}
 
@@ -29,7 +35,7 @@ export async function queryDB(options: Partial<PageProps> = {}): Promise<QueryRe
 	};
 
 	try {
-		console.log(uri);
+		//console.log(uri);
 		const req = await fetch(uri, {
 			method: 'POST',
 			cache: 'no-store',

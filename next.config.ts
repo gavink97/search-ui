@@ -1,14 +1,11 @@
-import { configDotenv } from "dotenv";
 import type { NextConfig } from "next";
-
-configDotenv()
+import path from "node:path";
 
 const nextConfig: NextConfig = {
 	typedRoutes: true,
-	output: "standalone",
 	turbopack: {
-		root: `${process.env.PWD}`,
-	},
+    root: path.join(__dirname),
+  },
 };
 
 export default nextConfig;
