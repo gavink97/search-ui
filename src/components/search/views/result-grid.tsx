@@ -1,10 +1,15 @@
 'use client';
 
-import { type JSX, useCallback, useEffect, useRef } from 'react';
+import { type JSX, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { type CellComponentProps, Grid } from 'react-window';
 import { DefaultPageProps, type MetadataProps, type PageProps } from '@/components/search/props';
 import { ResultCard, type ResultCardProps } from '@/components/search/result-card';
+import { ConvertREMToPixels } from '@/components/utils';
+import { BREAKPOINTS } from '@/globals/global';
 import { queryMetadata } from '@/lib/metadata';
 import { queryDB } from '@/lib/query';
+
+const BR = BREAKPOINTS;
 
 interface ResultGridProps {
 	pageHistory: PageProps[];
@@ -35,8 +40,9 @@ export function ResultGrid({
 }: ResultGridProps) {
 	const defaultPage = DefaultPageProps();
 
-	const topObserver = useRef<IntersectionObserver | null>(null);
-	const botObserver = useRef<IntersectionObserver | null>(null);
+	const [width, setWidth] = useState(0);
+	const [columns, setColumns] = useState(1);
+	const observer = useRef<IntersectionObserver | null>(null);
 
 	const init = useCallback(async () => {
 		setInitialized(true);
@@ -67,34 +73,22 @@ export function ResultGrid({
 	}, [setInitialized, setLoading, setResults, setPageHistory, setFinalPage, setMetadata, pageHistory]);
 
 	useEffect(() => {
-		if (isInitialized) return;
+		if (isInitialized) {
+			return;
+		}
+
 		init();
 
 		return () => {
-			if (topObserver.current) {
-				topObserver.current.disconnect();
-			}
-			if (botObserver.current) {
-				botObserver.current.disconnect();
+			if (observer.current) {
+				observer.current.disconnect();
 			}
 		};
 	}, [init, isInitialized]);
 
-	/*
-	useEffect(() => {
-		console.log(pageHistory);
-		console.log(results);
-	}, [pageHistory]);
-	*/
-
 	const loadPage = useCallback(
 		async (index: number) => {
-			const prevIndex = pageHistory.length - 5;
-
-			if (
-				(index === prevIndex && (isLoading || pageHistory.length <= 1)) ||
-				(index !== prevIndex && (isLoading || isFinalPage))
-			) {
+			if (isLoading || isFinalPage) {
 				return;
 			}
 
@@ -111,25 +105,11 @@ export function ResultGrid({
 					limit = defaultPage.limit;
 				}
 
-				if (index === prevIndex) {
-					setResults((prev) => {
-						return [...resp.results, ...prev.slice(0, limit * 2)];
-					});
-
-					setPageHistory((prev) => prev.slice(0, -1));
-					setFinalPage(false);
-				} else {
-					setResults((prev) => {
-						if (prev.length >= 3 * limit) {
-							return [...prev.slice(-1 * (limit * 2)), ...resp.results];
-						}
-						return [...prev, ...resp.results];
-					});
-
-					setPageHistory((prev) => [...prev, resp.page]);
-					setFinalPage(resp.results.length < resp.page.limit);
-				}
+				setResults((prev) => [...prev, ...resp.results]);
+				setPageHistory((prev) => [...prev, resp.page]);
+				setFinalPage(resp.results.length < resp.page.limit);
 			} catch (error) {
+				// gracefully handle this?
 				console.error('Error loading more results:', error);
 			} finally {
 				setLoading(false);
@@ -138,61 +118,81 @@ export function ResultGrid({
 		[isLoading, isFinalPage, pageHistory, setFinalPage, setPageHistory, setResults, setLoading, defaultPage],
 	);
 
-	const topRef = useCallback(
+	const lazyLoader = useCallback(
 		(node: HTMLDivElement | null) => {
-			if (isLoading) return;
-			if (topObserver.current) topObserver.current.disconnect();
+			if (isLoading) {
+				return;
+			}
 
-			topObserver.current = new IntersectionObserver((entries) => {
-				if (entries[0]?.isIntersecting) {
-					loadPage(pageHistory.length - 5);
-				}
-			});
+			if (observer.current) {
+				observer.current.disconnect();
+			}
 
-			if (node) topObserver.current.observe(node);
-		},
-		[isLoading, pageHistory, loadPage],
-	);
-
-	const botRef = useCallback(
-		(node: HTMLDivElement | null) => {
-			if (isLoading) return;
-			if (botObserver.current) botObserver.current.disconnect();
-
-			botObserver.current = new IntersectionObserver((entries) => {
+			observer.current = new IntersectionObserver((entries) => {
 				if (entries[0]?.isIntersecting && !isFinalPage) {
 					loadPage(pageHistory.length - 1);
 				}
 			});
 
-			if (node) botObserver.current.observe(node);
+			if (node) {
+				observer.current.observe(node);
+			}
 		},
 		[isLoading, isFinalPage, pageHistory, loadPage],
 	);
 
+	const handleWidthChange = useCallback(() => {
+		const w = window.innerWidth;
+		setWidth(w);
+	}, []);
+
+	useEffect(() => {
+		handleWidthChange();
+		window.addEventListener('resize', handleWidthChange);
+
+		return () => window.removeEventListener('resize', handleWidthChange);
+	}, [handleWidthChange]);
+
+	useEffect(() => {
+		const rem = ConvertREMToPixels(1);
+		let newColumns = 1;
+
+		if (width < BR.MD * rem) {
+			newColumns = 1;
+		} else if (width >= BR.MD * rem && width < BR.XL * rem) {
+			newColumns = 2;
+		} else if (width >= BR.XL * rem) {
+			newColumns = 3;
+		}
+
+		if (newColumns !== columns) {
+			setColumns(newColumns);
+		}
+	}, [width, columns]);
+
 	return (
 		<ResultContainer
-			pageHistory={pageHistory}
 			results={results}
 			isFinalPage={isFinalPage}
 			isLoading={isLoading}
-			topRef={topRef}
-			botRef={botRef}
+			columns={columns}
+			width={width}
+			lazyLoader={lazyLoader}
 		/>
 	);
 }
 
 interface ResultContainerProps {
-	pageHistory: PageProps[];
 	results: ResultCardProps[];
 	isFinalPage: boolean;
 	isLoading: boolean;
-	topRef: (node: HTMLDivElement | null) => void;
-	botRef: (node: HTMLDivElement | null) => void;
+	columns: number;
+	width: number;
+	lazyLoader: (node: HTMLDivElement | null) => void;
 }
 
-function ResultContainer({ pageHistory, results, isFinalPage, isLoading, topRef, botRef }: ResultContainerProps) {
-	const columns = 6; // use 12 later when using 4 columns
+function ResultContainer({ results, isFinalPage, isLoading, columns, width, lazyLoader }: ResultContainerProps) {
+	const itemHeight = 414;
 
 	const container = (children: JSX.Element) => {
 		return <div className='result-container'>{children}</div>;
@@ -202,53 +202,78 @@ function ResultContainer({ pageHistory, results, isFinalPage, isLoading, topRef,
 		return container(NoResults());
 	}
 
-	const builtResults = () => {
-		const elements = [];
+	const ResultMemo = memo(
+		({
+			id,
+			title,
+			date,
+			location,
+			price,
+			timestamp,
+			url,
+			post_date,
+			images,
+			sources,
+			style,
+			className,
+		}: ResultCardProps) => (
+			<ResultCard
+				id={id}
+				title={title}
+				date={date}
+				location={location}
+				price={price}
+				timestamp={timestamp}
+				url={url}
+				post_date={post_date}
+				images={images}
+				sources={sources}
+				style={style}
+				className={className ?? ''}
+			/>
+		),
+	);
 
-		for (const [index, result] of results.entries()) {
-			const card = (
-				<ResultCard
-					key={result.id}
-					id={result.id}
-					title={result.title}
-					date={result.date}
-					location={result.location}
-					price={result.price}
-					timestamp={result.timestamp}
-					url={result.url}
-					post_date={result.post_date}
-					images={result.images}
-					sources={result.sources}
-				/>
+	const card = useCallback(
+		({ columnIndex, rowIndex, style }: CellComponentProps<{ results: ResultCardProps[] }>) => {
+			const result = results[rowIndex * columns + columnIndex];
+			if (!result) return null;
+
+			return (
+				<div style={{ overflowY: 'hidden', ...style }}>
+					<ResultMemo
+						key={result.id}
+						id={result.id}
+						title={result.title}
+						date={result.date}
+						location={result.location}
+						price={result.price}
+						timestamp={result.timestamp}
+						url={result.url}
+						post_date={result.post_date}
+						images={result.images}
+						sources={result.sources}
+						style={result.style}
+					/>
+				</div>
 			);
-
-			switch (index) {
-				case columns:
-					if (pageHistory.length > 4) {
-						elements.push(<div ref={topRef} className='observer' key='observer-top' />);
-					}
-
-					elements.push(card);
-					break;
-				case results.length - columns:
-					if (!isFinalPage) {
-						elements.push(<div ref={botRef} className='observer' key='observer-bottom' />);
-					}
-
-					elements.push(card);
-					break;
-				default:
-					elements.push(card);
-			}
-		}
-
-		return elements;
-	};
+		},
+		[results, columns],
+	);
 
 	return container(
 		<div id='result-box' className='justify-items-center'>
-			{builtResults()}
+			<Grid
+				className='result-container'
+				cellComponent={card}
+				cellProps={{ results: results }}
+				columnCount={columns}
+				columnWidth={width / columns}
+				rowCount={results.length / columns}
+				rowHeight={itemHeight}
+			/>
 			{isLoading && <Loading />}
+			{!isFinalPage && <div ref={lazyLoader} className='observer' key='observer-bottom' />}
 		</div>,
 	);
 }

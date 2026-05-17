@@ -1,9 +1,9 @@
 'use server';
 
+import { connection } from 'next/server';
 import type { QueryResponse } from '@/app/api/query-v2/route';
 import { DefaultPageProps, type PageProps } from '@/components/search/props';
 import { HOSTNAME } from '@/globals/global';
-import { connection } from 'next/server';
 
 const uri = `${HOSTNAME}/api/query-v2`;
 

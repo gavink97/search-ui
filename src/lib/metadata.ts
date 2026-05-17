@@ -1,9 +1,9 @@
 'use server';
 
+import { connection } from 'next/server';
 import type { MetadataResponse } from '@/app/api/metadata/route';
 import { DefaultPageProps, type PageProps } from '@/components/search/props';
 import { HOSTNAME } from '@/globals/global';
-import { connection } from 'next/server';
 
 const uri = `${HOSTNAME}/api/metadata`;
 

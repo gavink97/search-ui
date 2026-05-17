@@ -21,3 +21,7 @@ docker:
 .PHONY: prod
 prod:
 	COMPOSE_BAKE=true docker compose --file docker-compose.yml up -d --build
+
+.PHONY: biome
+biome:
+	biome check --write ./assets/css ./src
